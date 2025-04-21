@@ -39,6 +39,7 @@ import { useEffect, useState } from "react"
 import { getInitials } from "@/utils/userUtils"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { useNavigate } from "react-router-dom"
 
 interface User {
   id: number
@@ -53,6 +54,7 @@ export function NavUser() {
   const [user, setUser] = useState<User | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
   const { isMobile } = useSidebar()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const userStr = localStorage.getItem("user")
@@ -69,10 +71,13 @@ export function NavUser() {
   if (!user) return null
 
   const handleLogout = () => {
-    localStorage.removeItem("auth_token")
-    localStorage.removeItem("user")
-    window.location.href = "/auth/mentor/login"
-  }
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user");
+
+    setTimeout(() => {
+      navigate("/auth/mentor/login", { replace: true })
+    }, 100);
+  };
 
   return (
     <>

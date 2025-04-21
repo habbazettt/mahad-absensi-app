@@ -29,7 +29,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export default function LoginMentor() {
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false)
-    const [isLoading, setIsLoading] = useState(false) // Track loading state
+    const [isLoading, setIsLoading] = useState(false)
     const togglePasswordVisibility = () => { setShowPassword(!showPassword) }
 
     const form = useForm<LoginFormValues>({
@@ -46,7 +46,7 @@ export default function LoginMentor() {
             password: values.password,
         }
 
-        setIsLoading(true) // Start loading when the form is submitted
+        setIsLoading(true)
 
         try {
             const response = await fetch(
@@ -81,7 +81,7 @@ export default function LoginMentor() {
                 console.error("Unknown error:", error)
             }
         } finally {
-            setIsLoading(false) // Stop loading once the request is completed
+            setIsLoading(false)
         }
     }
 
@@ -181,7 +181,7 @@ export default function LoginMentor() {
                             <Button
                                 type="submit"
                                 className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white"
-                                disabled={isLoading} // Disable button during loading
+                                disabled={isLoading}
                             >
                                 {isLoading ? "Loading..." : "Login"} {/* Show loading text */}
                             </Button>
