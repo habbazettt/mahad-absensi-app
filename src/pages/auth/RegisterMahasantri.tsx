@@ -1,14 +1,14 @@
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Eye, EyeOff } from "lucide-react"
-import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
-import axios from "axios"
-import { Toaster } from "react-hot-toast"
-import toast from "react-hot-toast"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -17,8 +17,8 @@ import {
     FormItem,
     FormLabel,
     FormControl,
-    FormMessage
-} from "@/components/ui/form"
+    FormMessage,
+} from "@/components/ui/form";
 
 import {
     Select,
@@ -26,8 +26,7 @@ import {
     SelectContent,
     SelectItem,
     SelectValue,
-} from "@/components/ui/select"
-
+} from "@/components/ui/select";
 
 const registerSchema = z.object({
     nama: z.string(),
@@ -36,21 +35,20 @@ const registerSchema = z.object({
     jurusan: z.string(),
     mentor: z.string(),
     mentor_id: z.number(),
-})
+});
 
-type RegisterFormValues = z.infer<typeof registerSchema>
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 type Mentor = {
-    id: number
-    nama: string
-    gender: string
-}
-
+    id: number;
+    nama: string;
+    gender: string;
+};
 
 export default function RegisterMahasantri() {
     const navigate = useNavigate();
-    const [showPassword, setShowPassword] = useState(false)
-    const togglePasswordVisibility = () => { setShowPassword(!showPassword) }
+    const [showPassword, setShowPassword] = useState(false);
+    const togglePasswordVisibility = () => { setShowPassword(!showPassword); };
 
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
@@ -59,33 +57,44 @@ export default function RegisterMahasantri() {
             password: "",
             jurusan: "",
             mentor: "",
-            mentor_id: 0
+            mentor_id: 0,
         },
-    })
+    });
 
-    const [mentors, setMentors] = useState<Mentor[]>([])
+    const [mentors, setMentors] = useState<Mentor[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
+    // Fetch mentors with loading state
     useEffect(() => {
         const fetchMentors = async () => {
+            setIsLoading(true);
+            toast.loading("Mengambil data mentor...");
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/mentors?page=1&limit=20`)
-                setMentors(res.data.data.mentors)
+                const res = await axios.get(
+                    `${import.meta.env.VITE_API_URL}/mentors`
+                );
+                setMentors(res.data.data.mentors);
+                toast.dismiss(); // Dismiss loading toast after successful data fetch
             } catch (err) {
-                console.error("Gagal mengambil data mentor:", err)
+                console.error("Gagal mengambil data mentor:", err);
+                toast.error("Gagal mengambil data mentor");
+                toast.dismiss(); // Dismiss loading toast in case of error
+            } finally {
+                setIsLoading(false);
             }
-        }
+        };
 
-        fetchMentors()
-    }, [])
+        fetchMentors();
+    }, []);
 
     const onSubmit = async (values: RegisterFormValues) => {
         const selectedMentor = mentors.find(
             (mentor) => mentor.id === Number(values.mentor_id)
-        )
+        );
 
         if (!selectedMentor) {
-            toast.error("Mentor tidak ditemukan!")
-            return
+            toast.error("Mentor tidak ditemukan!");
+            return;
         }
 
         const requestBody = {
@@ -95,7 +104,7 @@ export default function RegisterMahasantri() {
             gender: selectedMentor.gender,
             password: values.password,
             mentor_id: selectedMentor.id,
-        }
+        };
 
         try {
             const response = await fetch(
@@ -107,26 +116,25 @@ export default function RegisterMahasantri() {
                     },
                     body: JSON.stringify(requestBody),
                 }
-            )
+            );
 
             if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.message || "Register gagal")
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Register gagal");
             }
 
-            toast.success("Register berhasil! 🎉")
-            navigate("/auth/mahasantri/login")
+            toast.success("Register berhasil! 🎉");
+            navigate("/auth/mahasantri/login");
         } catch (error: unknown) {
             if (error instanceof Error) {
-                toast.error(error.message)
-                console.error("Register error:", error.message)
+                toast.error(error.message);
+                console.error("Register error:", error.message);
             } else {
-                toast.error("Terjadi kesalahan yang tidak diketahui.")
-                console.error("Unknown error:", error)
+                toast.error("Terjadi kesalahan yang tidak diketahui.");
+                console.error("Unknown error:", error);
             }
         }
-    }
-
+    };
 
     return (
         <div className="min-h-screen grid lg:grid-cols-5">
@@ -141,7 +149,9 @@ export default function RegisterMahasantri() {
                         height={300}
                         className="mx-auto"
                     />
-                    <h2 className="text-3xl font-medium font-jakarta">MTA Learning Management System</h2>
+                    <h2 className="text-3xl font-medium font-jakarta">
+                        MTA Learning Management System
+                    </h2>
                     <p className=" text-white/80 font-poppins">
                         Website Manajemen Absensi dan Hafalan Mahasantri Mahad Tahfidz Al-Qur'an UIN Bandung
                     </p>
@@ -159,8 +169,12 @@ export default function RegisterMahasantri() {
                         className="mx-auto"
                     />
                     <div className="text-center">
-                        <h1 className="text-2xl font-script mb-5 font-jakarta font-bold">Selamat Datang di MTALearn.</h1>
-                        <h2 className="text-lg text-gray-600 font-poppins">Silahkan Buat Akun menggunakan Data Diri Anda</h2>
+                        <h1 className="text-2xl font-script mb-5 font-jakarta font-bold">
+                            Selamat Datang di MTALearn.
+                        </h1>
+                        <h2 className="text-lg text-gray-600 font-poppins">
+                            Silahkan Buat Akun menggunakan Data Diri Anda
+                        </h2>
                     </div>
 
                     {/* Input Form */}
@@ -172,9 +186,16 @@ export default function RegisterMahasantri() {
                                 name="nama"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm font-bold text-gray-700">Nama Lengkap</FormLabel>
+                                        <FormLabel className="text-sm font-bold text-gray-700">
+                                            Nama Lengkap
+                                        </FormLabel>
                                         <FormControl>
-                                            <Input type="text" className="w-full border rounded" placeholder="Masukkan Nama Lengkap Anda" {...field} />
+                                            <Input
+                                                type="text"
+                                                className="w-full border rounded"
+                                                placeholder="Masukkan Nama Lengkap Anda"
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -187,9 +208,16 @@ export default function RegisterMahasantri() {
                                 name="nim"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm font-bold text-gray-700">Nomor Induk Mahasiswa (NIM)</FormLabel>
+                                        <FormLabel className="text-sm font-bold text-gray-700">
+                                            Nomor Induk Mahasiswa (NIM)
+                                        </FormLabel>
                                         <FormControl>
-                                            <Input type="number" className="w-full border rounded no-spinner" placeholder="Masukkan NIM Anda" {...field} />
+                                            <Input
+                                                type="number"
+                                                className="w-full border rounded no-spinner"
+                                                placeholder="Masukkan NIM Anda"
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -231,9 +259,16 @@ export default function RegisterMahasantri() {
                                 name="jurusan"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm font-bold text-gray-700">Jurusan Mahasiswa</FormLabel>
+                                        <FormLabel className="text-sm font-bold text-gray-700">
+                                            Jurusan Mahasiswa
+                                        </FormLabel>
                                         <FormControl>
-                                            <Input type="text" className="w-full border rounded no-spinner" placeholder="Masukkan Jurusan Anda" {...field} />
+                                            <Input
+                                                type="text"
+                                                className="w-full border rounded no-spinner"
+                                                placeholder="Masukkan Jurusan Anda"
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -249,8 +284,9 @@ export default function RegisterMahasantri() {
                                         <FormLabel>Pilih Mentor</FormLabel>
                                         <FormControl>
                                             <Select
-                                                value={String(field.value)} // pastikan value ini sesuai dengan nilai yang dipilih
-                                                onValueChange={(value) => field.onChange(Number(value))} // pastikan nilai yang dipilih dikirim dalam bentuk number
+                                                value={String(field.value)}
+                                                onValueChange={(value) => field.onChange(Number(value))}
+                                                disabled={isLoading} // Disable select while loading
                                             >
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Pilih Mentor" />
@@ -269,9 +305,12 @@ export default function RegisterMahasantri() {
                                 )}
                             />
 
-
-                            <Button type="submit" className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white">
-                                Buat Akun
+                            <Button
+                                type="submit"
+                                className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white"
+                                disabled={isLoading} // Disable submit while loading
+                            >
+                                {isLoading ? "Loading..." : "Buat Akun"}
                             </Button>
 
                             <div className="relative">
@@ -297,5 +336,5 @@ export default function RegisterMahasantri() {
                 </div>
             </div>
         </div>
-    )
+    );
 }

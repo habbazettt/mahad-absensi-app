@@ -1,18 +1,17 @@
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home.tsx'
-import About from './pages/About.tsx'
 import RegisterMentor from './pages/auth/RegisterMentor.tsx'
 import RegisterMahasantri from './pages/auth/RegisterMahasantri.tsx'
 import LoginMentor from './pages/auth/LoginMentor.tsx'
 import LoginMahasantri from './pages/auth/LoginMahasantri.tsx'
 import AuthMentorLayout from './layout/AuthMentorLayout.tsx'
 import AuthMahasantriLayout from './layout/AuthMahasantriLayout.tsx'
+import ForgotPassword from './pages/auth/ForgotPassword.tsx'
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/about" element={<About />} />
 
       {/* Grup rute untuk otentikasi Mentor */}
       <Route path="/auth/mentor" element={<AuthMentorLayout />}>
@@ -25,6 +24,10 @@ function App() {
         <Route path="register" element={<RegisterMahasantri />} />
         <Route path="login" element={<LoginMahasantri />} />
       </Route>
+
+      <Route path='/auth/forgot-password' element={<ForgotPassword />} />
+
+      <Route path='*' element={<h1>404 Not Found</h1>} />
     </Routes>
   )
 }

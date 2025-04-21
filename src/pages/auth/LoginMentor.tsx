@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/form"
 
 const loginSchema = z.object({
-    email: z.string(),
+    email: z.string().email("Email tidak valid"),
     password: z.string().min(6, "Kata sandi minimal 6 karakter"),
 })
 
@@ -29,6 +29,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export default function LoginMentor() {
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false)
+    const [isLoading, setIsLoading] = useState(false) // Track loading state
     const togglePasswordVisibility = () => { setShowPassword(!showPassword) }
 
     const form = useForm<LoginFormValues>({
@@ -44,6 +45,8 @@ export default function LoginMentor() {
             email: values.email,
             password: values.password,
         }
+
+        setIsLoading(true) // Start loading when the form is submitted
 
         try {
             const response = await fetch(
@@ -77,9 +80,10 @@ export default function LoginMentor() {
                 toast.error("Terjadi kesalahan yang tidak diketahui.")
                 console.error("Unknown error:", error)
             }
+        } finally {
+            setIsLoading(false) // Stop loading once the request is completed
         }
     }
-
 
     return (
         <div className="min-h-screen grid lg:grid-cols-5">
@@ -113,7 +117,7 @@ export default function LoginMentor() {
                     />
                     <div className="text-center">
                         <h1 className="text-2xl font-script mb-5 font-jakarta font-bold">Selamat Datang di MTALearn.</h1>
-                        <h2 className="text-lg text-gray-600 font-poppins">Silahkan Login untuk Melanjutkan</h2>
+                        <h2 className="text-lg text-gray-600 font-poppins">Login Sebagai Mentor untuk Melanjutkan</h2>
                     </div>
 
                     {/* Input Form */}
@@ -168,8 +172,18 @@ export default function LoginMentor() {
                                 )}
                             />
 
-                            <Button type="submit" className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white">
-                                Login
+                            <div className="text-right">
+                                <Link to="/auth/forgot-password" className="text-sm font-semibold font-poppins text-[var(--primary-1)] hover:text-gray-700">
+                                    Lupa password?
+                                </Link>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white"
+                                disabled={isLoading} // Disable button during loading
+                            >
+                                {isLoading ? "Loading..." : "Login"} {/* Show loading text */}
                             </Button>
 
                             <div className="relative">

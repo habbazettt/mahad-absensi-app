@@ -29,6 +29,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export default function LoginMahasantri() {
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false)
+    const [isLoading, setIsLoading] = useState(false) // Menambahkan state loading
     const togglePasswordVisibility = () => { setShowPassword(!showPassword) }
 
     const form = useForm<LoginFormValues>({
@@ -46,6 +47,9 @@ export default function LoginMahasantri() {
         }
 
         try {
+            setIsLoading(true) // Mulai loading
+            toast.loading("Memproses login...", { id: "login" }) // Menampilkan toast loading
+
             const response = await fetch(
                 `${import.meta.env.VITE_API_URL}/auth/login/mahasantri`,
                 {
@@ -67,19 +71,20 @@ export default function LoginMahasantri() {
             localStorage.setItem("auth_token", data.data.token)
             localStorage.setItem("user", JSON.stringify(data.data.user))
 
-            toast.success("Login berhasil! 🎉")
+            toast.success("Login berhasil! 🎉", { id: "login" })
             navigate("/")
         } catch (error: unknown) {
             if (error instanceof Error) {
-                toast.error(error.message)
+                toast.error(error.message, { id: "login" })
                 console.error("Login error:", error.message)
             } else {
-                toast.error("Terjadi kesalahan yang tidak diketahui.")
+                toast.error("Terjadi kesalahan yang tidak diketahui.", { id: "login" })
                 console.error("Unknown error:", error)
             }
+        } finally {
+            setIsLoading(false) // Selesai loading
         }
     }
-
 
     return (
         <div className="min-h-screen grid lg:grid-cols-5">
@@ -113,7 +118,7 @@ export default function LoginMahasantri() {
                     />
                     <div className="text-center">
                         <h1 className="text-2xl font-script mb-5 font-jakarta font-bold">Selamat Datang di MTALearn.</h1>
-                        <h2 className="text-lg text-gray-600 font-poppins">Silahkan Login untuk Melanjutkan</h2>
+                        <h2 className="text-lg text-gray-600 font-poppins">Login Sebagai Mahasantri untuk Melanjutkan</h2>
                     </div>
 
                     {/* Input Form */}
@@ -168,8 +173,18 @@ export default function LoginMahasantri() {
                                 )}
                             />
 
-                            <Button type="submit" className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white">
-                                Login
+                            <div className="text-right">
+                                <Link to="/auth/forgot-password" className="text-sm font-semibold font-poppins text-[var(--primary-1)] hover:text-gray-700">
+                                    Lupa password?
+                                </Link>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white"
+                                disabled={isLoading} // Menonaktifkan tombol saat loading
+                            >
+                                {isLoading ? "Memproses..." : "Login"} {/* Menampilkan teks loading */}
                             </Button>
 
                             <div className="relative">
