@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -17,7 +18,11 @@ export default function TodaySetoranList({ className }: TodaySetoranListProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const user = JSON.parse(localStorage.getItem("user") ?? '{}');
+
     useEffect(() => {
+        const userId = user.id;
+
         const fetchData = async () => {
             try {
                 // Fetch today's hafalan
@@ -65,7 +70,9 @@ export default function TodaySetoranList({ className }: TodaySetoranListProps) {
                     };
                 });
 
-                setStudents(combinedData);
+                const filteredCombinedData = combinedData.filter(student => student.mahasantri.mentor_id === userId)
+
+                setStudents(filteredCombinedData);
 
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Terjadi kesalahan");
