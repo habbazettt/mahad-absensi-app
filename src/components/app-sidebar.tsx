@@ -50,7 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <img
-                src="/MTALearnLogoBluWhite.svg"
+                src="/MTADigitalLogoBluWhite.svg"
                 alt="MTA Learning Management System"
                 className="lg:h-20 h-16 rounded-lg"
               />

@@ -34,21 +34,17 @@ import {
     getSortedRowModel,
 } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
-import { Mahasantri, Mentor } from "@/types"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown } from "lucide-react"
-
-interface Pagination {
-    current_page: number
-    total_mahasantri: number
-    total_pages: number
-}
+import { Mahasantri, MahasantriPagination, Mentor } from "@/types"
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown, Edit, MoreHorizontal, Trash } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function MahasantriInfoPage() {
     const navigate = useNavigate()
     const [mahasantriData, setMahasantriData] = useState<Mahasantri[]>([])
+    const [filteredMahasantriData, setFilteredMahasantriData] = useState<Mahasantri[]>([])
     const [mentors, setMentors] = useState<Mentor[]>([])
-    const [pagination, setPagination] = useState<Pagination>({
+    const [pagination, setPagination] = useState<MahasantriPagination>({
         current_page: 1,
         total_mahasantri: 0,
         total_pages: 1,
@@ -63,7 +59,7 @@ export default function MahasantriInfoPage() {
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedSearchTerm(searchTerm)
-        }, 100)
+        }, 600)
 
         return () => {
             clearTimeout(handler)
@@ -139,6 +135,15 @@ export default function MahasantriInfoPage() {
         fetchMahasantriData(newPage, debouncedSearchTerm)
     }
 
+    const handleMentorFilter = (mentorId: string) => {
+        if (mentorId === "all") {
+            setFilteredMahasantriData(mahasantriData);
+        } else {
+            const filteredData = mahasantriData.filter(mahasantri => mahasantri.mentor_id.toString() === mentorId);
+            setFilteredMahasantriData(filteredData);
+        }
+    };
+
     const fetchMahasantriData = async (page: number, search: string) => {
         try {
             setLoading(true)
@@ -153,6 +158,7 @@ export default function MahasantriInfoPage() {
             const data = await response.json()
             if (data.status) {
                 setMahasantriData(data.data.mahasantri)
+                setFilteredMahasantriData(data.data.mahasantri);
                 setPagination({
                     current_page: data.data.pagination.current_page,
                     total_mahasantri: data.data.pagination.total_mahasantri,
@@ -230,17 +236,45 @@ export default function MahasantriInfoPage() {
                 </span>
             ),
         },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: () => {
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>
+                                <Edit className="text-blue-400" />
+                                Edit Mahasantri
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Trash className="text-red-400" />
+                                Hapus Mahasantri
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )
+            },
+        },
     ], [mentors]);
 
     const table = useReactTable({
-        data: mahasantriData,
+        data: filteredMahasantriData,
         columns,
         state: {
-            sorting, // Sertakan state sorting
+            sorting,
         },
-        onSortingChange: setSorting, // Tambahkan handler untuk perubahan sorting
+        onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(), // Penting untuk sorting
+        getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
     })
 
@@ -248,7 +282,7 @@ export default function MahasantriInfoPage() {
         <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2">
+                <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -285,50 +319,81 @@ export default function MahasantriInfoPage() {
                                 </div>
                             ) : (
                                 <>
-                                    <div className="flex items-center py-4">
-                                        <Input
-                                            placeholder="Cari nama mahasantri..."
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="max-w-sm"
-                                        />
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="outline" className="ml-auto">
-                                                    Columns <ChevronDown />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                {table
-                                                    .getAllColumns()
-                                                    .filter((column) => column.getCanHide())
-                                                    .map((column) => {
-                                                        const columnLabels: { [key: string]: string } = {
-                                                            mentor_id: "Mentor",
-                                                            nama: "Nama",
-                                                            nim: "NIM",
-                                                            jurusan: "Jurusan",
-                                                            gender: "Gender"
-                                                        };
+                                    <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:gap-4">
+                                        {/* Filter by Mentor */}
+                                        <div className="w-full sm:w-[280px]">
+                                            <Select onValueChange={(e) => handleMentorFilter(e)}>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Filter Mentor" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">Semua Mentor</SelectItem>
+                                                    {mentors.map((mentor) => (
+                                                        <SelectItem
+                                                            key={mentor.id}
+                                                            value={String(mentor.id)}
+                                                        >
+                                                            {mentor.nama}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
-                                                        return (
-                                                            <DropdownMenuCheckboxItem
-                                                                key={column.id}
-                                                                className="capitalize"
-                                                                checked={column.getIsVisible()}
-                                                                onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                                                            >
-                                                                {columnLabels[column.id] ||
-                                                                    column.id
-                                                                        .replace(/_/g, ' ')
-                                                                        .replace(/\bid\b/gi, '')
-                                                                        .replace(/^\w/, (c) => c.toUpperCase())
-                                                                }
-                                                            </DropdownMenuCheckboxItem>
-                                                        );
-                                                    })}
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        {/* Search Input */}
+                                        <div className="flex items-center flex-1 relative">
+                                            <Input
+                                                placeholder="Cari nama mahasantri..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="w-full pr-10"
+                                            />
+                                        </div>
+
+                                        {/* Columns Dropdown */}
+                                        <div className="w-full sm:w-auto">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full sm:w-[140px] justify-between"
+                                                    >
+                                                        Columns
+                                                        <ChevronDown className="ml-2 h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    {table
+                                                        .getAllColumns()
+                                                        .filter((column) => column.getCanHide())
+                                                        .map((column) => {
+                                                            const columnLabels: { [key: string]: string } = {
+                                                                mentor_id: "Mentor",
+                                                                nama: "Nama",
+                                                                nim: "NIM",
+                                                                jurusan: "Jurusan",
+                                                                gender: "Gender"
+                                                            };
+
+                                                            return (
+                                                                <DropdownMenuCheckboxItem
+                                                                    key={column.id}
+                                                                    className="capitalize"
+                                                                    checked={column.getIsVisible()}
+                                                                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                                                                >
+                                                                    {columnLabels[column.id] ||
+                                                                        column.id
+                                                                            .replace(/_/g, ' ')
+                                                                            .replace(/\bid\b/gi, '')
+                                                                            .replace(/^\w/, (c) => c.toUpperCase())
+                                                                    }
+                                                                </DropdownMenuCheckboxItem>
+                                                            );
+                                                        })}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
                                     </div>
 
                                     <Table>
@@ -377,7 +442,7 @@ export default function MahasantriInfoPage() {
                                         </TableBody>
                                     </Table>
 
-                                    <div className="flex items-center justify-between px-6 py-4">
+                                    <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4">
                                         <div className="text-sm text-muted-foreground">
                                             Halaman {pagination.current_page} dari {pagination.total_pages}
                                         </div>

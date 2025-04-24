@@ -115,7 +115,7 @@ export default function ForgotPassword() {
             {/* Left section */}
             <div className="relative hidden lg:flex lg:col-span-3 flex-col items-center justify-center p-8 bg-[var(--primary-1)] text-white">
                 <div className="max-w-lg mx-auto text-center space-y-5">
-                    <img src="/MTALearnLogo.svg" alt="MTA Learning Management System" width={300} height={300} className="mx-auto" />
+                    <img src="/MTADigitalLogo.svg" alt="MTA Learning Management System" width={300} height={300} className="mx-auto" />
                     <h2 className="text-3xl font-medium font-jakarta">MTA Learning Management System</h2>
                     <p className="text-white/80 font-poppins">
                         Website Manajemen Absensi dan Hafalan Mahasantri Mahad Tahfidz Al-Qur'an UIN Bandung
@@ -126,7 +126,7 @@ export default function ForgotPassword() {
             {/* Right section */}
             <div className="flex flex-col lg:col-span-2 items-center justify-center p-8">
                 <div className="w-full max-w-lg space-y-6">
-                    <img src="/MTALearnLogoBluWhite.svg" alt="MTA Learning Management System" width={240} height={240} className="mx-auto" />
+                    <img src="/MTADigitalLogoBluWhite.svg" alt="MTA Learning Management System" width={240} height={240} className="mx-auto" />
                     <div className="text-center">
                         <h1 className="text-2xl font-script mb-5 font-jakarta font-bold">Selamat Datang di MTALearn.</h1>
                         <h2 className="text-lg text-gray-600 font-poppins">Perbarui Password Anda di sini</h2>

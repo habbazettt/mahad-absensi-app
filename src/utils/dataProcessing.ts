@@ -9,6 +9,8 @@ export const processSetoranData = (mahasantriList: MahasantriWithHafalan[]) => {
         }))
     );
 
+    allHafalan.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
     const groupByDate = allHafalan.reduce<{ [key: string]: { [key: string]: number } }>((acc, { created_at, total_setoran, kategori }) => {
         const date = new Date(created_at);
 

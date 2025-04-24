@@ -143,7 +143,7 @@ export default function RegisterMahasantri() {
             <div className="relative hidden lg:flex lg:col-span-3 flex-col items-center justify-center p-8 bg-[var(--primary-1)] text-white">
                 <div className="max-w-lg mx-auto text-center space-y-5">
                     <img
-                        src="/MTALearnLogo.svg"
+                        src="/MTADigitalLogo.svg"
                         alt="MTA Learning Management System"
                         width={300}
                         height={300}
@@ -162,7 +162,7 @@ export default function RegisterMahasantri() {
             <div className="flex flex-col lg:col-span-2 items-center justify-center p-8">
                 <div className="w-full max-w-lg space-y-6">
                     <img
-                        src="/MTALearnLogoBluWhite.svg"
+                        src="/MTADigitalLogoBluWhite.svg"
                         alt="MTA Learning Management System"
                         width={240}
                         height={240}

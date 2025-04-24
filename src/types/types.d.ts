@@ -35,3 +35,9 @@ export interface MahasantriWithHafalan {
         };
     };
 }
+
+interface MahasantriPagination {
+    current_page: number
+    total_mahasantri: number
+    total_pages: number
+}
