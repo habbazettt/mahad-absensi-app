@@ -38,7 +38,7 @@ import {
 import { useEffect, useState } from "react"
 import { getInitials } from "@/utils/userUtils"
 import { motion, AnimatePresence } from "framer-motion"
-import { cn } from "@/lib/utils"
+import { cn, handleLogout } from "@/lib/utils"
 import { useNavigate } from "react-router-dom"
 
 interface User {
@@ -70,13 +70,8 @@ export function NavUser() {
 
   if (!user) return null
 
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user");
-
-    setTimeout(() => {
-      navigate("/auth/mentor/login", { replace: true })
-    }, 100);
+  const handleLogoutSidebar = () => {
+    handleLogout(navigate);
   };
 
   return (
@@ -167,7 +162,7 @@ export function NavUser() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel onClick={() => setOpenDialog(false)}>Batal</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleLogout} className="hover:cursor-pointer">Logout</AlertDialogAction>
+                    <AlertDialogAction onClick={handleLogoutSidebar} className="hover:cursor-pointer">Logout</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </motion.div>

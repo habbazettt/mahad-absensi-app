@@ -10,6 +10,23 @@
   --font-poppins: "Poppins", sans-serif;
 }
 
+@layer components {
+  .progress-indicator {
+    @apply bg-[var(--progress-primary)] transition-all duration-300;
+  }
+
+  /* Tambahkan variabel progress primary untuk light dan dark mode */
+  :root {
+    --progress-primary: var(--primary-3);
+    /* Warna default: #578FCA */
+  }
+
+  .dark {
+    --progress-primary: var(--chart-3);
+    /* Warna dark mode: oklch(0.769 0.188 70.08) */
+  }
+}
+
 @layer utilities {
   .font-jakarta {
     font-family: var(--font-jakarta);
@@ -19,7 +36,6 @@
     font-family: var(--font-poppins);
   }
 
-  /* Hide number input arrows/spinners */
   .no-spinner {
     -moz-appearance: textfield;
     appearance: textfield;
@@ -29,6 +45,18 @@
   .no-spinner::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+  }
+
+  .progress-blue {
+    --progress-primary: var(--primary-3) !important;
+  }
+
+  .progress-purple {
+    --progress-primary: var(--chart-1) !important;
+  }
+
+  .progress-amber {
+    --progress-primary: var(--chart-5) !important;
   }
 }
 
@@ -156,5 +184,15 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th,
+  td {
+    white-space: nowrap;
   }
 }

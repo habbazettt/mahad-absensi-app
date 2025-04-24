@@ -71,7 +71,7 @@ export default function LoginMentor() {
             localStorage.setItem("user", JSON.stringify(data.data.user))
 
             toast.success("Login berhasil! 🎉")
-            navigate("/")
+            navigate("/dashboard")
         } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error.message)

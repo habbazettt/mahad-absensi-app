@@ -9,7 +9,6 @@ export interface Hafalan {
     waktu: string
     catatan: string
     created_at: string
-    updated_at: string
 }
 
 export interface Mahasantri {
@@ -18,10 +17,21 @@ export interface Mahasantri {
     nim: string
     jurusan: string
     gender: string
-    mentorId: number
+    mentor_id: number
+}
+
+export interface Mentor {
+    id: number
+    nama: string
 }
 
 export interface MahasantriWithHafalan {
-    mahasantri: Mahasantri
-    list_hafalan: Hafalan[]
+    mahasantri: Mahasantri;
+    list_hafalan: Hafalan[];
+    summary: {
+        total_perKategori: {
+            ziyadah: number;
+            murojaah: number;
+        };
+    };
 }

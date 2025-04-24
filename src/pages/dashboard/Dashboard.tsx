@@ -1,128 +1,197 @@
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { AppSidebar } from "@/components/app-sidebar"
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AppSidebar } from "@/components/app-sidebar";
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbList,
     BreadcrumbPage,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 import {
     SidebarInset,
     SidebarProvider,
     SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
-import StatCard from "@/components/StatCard"
-import { BookOpen, CalendarCheck, Users } from "lucide-react"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { MahasantriWithHafalan } from "@/types/types"
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import StatCard from "@/components/widget/StatCard";
+import { BookOpen, Users } from "lucide-react";
+import { MahasantriWithHafalan } from "@/types";
+import MahasantriDialog from "@/components/dialogs/MahasantriDialog";
+import SetoranDialog from "@/components/dialogs/SetoranDialog";
+import { fetchHafalanByMentor } from "@/utils/fetchHalaman";
+import { processSetoranData, processSetoranDataPerMahasantri } from "@/utils/dataProcessing";
+import { Bar, Line } from "react-chartjs-2";
+import { Chart as ChartJS, ChartData, Title, Tooltip, Legend, LineElement, BarElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
+import { jwtDecode } from "jwt-decode";
+import { handleLogout } from "@/lib/utils";
+import TimeWidget from "@/components/widget/TimeWidget";
+import { Card } from "@/components/ui/card";
+import TodaySetoranList from "@/components/widget/TodaySetoranList";
+
+ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, BarElement, PointElement);
+
+const options = {
+    responsive: true,
+    scales: {
+        x: {
+            beginAtZero: true
+        }
+    },
+};
 
 export default function DashboardPage() {
-    const navigate = useNavigate()
-    const [userName, setUserName] = useState("")
-    const [totalMahasantri, setTotalMahasantri] = useState(0)
-    const [totalHafalan, setTotalHafalan] = useState(0)
-    const [mahasantriList, setMahasantriList] = useState<MahasantriWithHafalan[]>([])
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
-    const [isHafalanDialogOpen, setIsHafalanDialogOpen] = useState(false)
+    const navigate = useNavigate();
+    const [userName, setUserName] = useState("");
+    const [totalMahasantri, setTotalMahasantri] = useState(0);
+    const [totalHafalan, setTotalHafalan] = useState(0);
+    const [mahasantriList, setMahasantriList] = useState<MahasantriWithHafalan[]>([]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isHafalanDialogOpen, setIsHafalanDialogOpen] = useState(false);
+    const [chartData, setChartData] = useState<ChartData<'line', number[], string> | null>(null);
+    const [barChartData, setBarChartData] = useState<ChartData<'bar', number[], string> | null>(null);
 
-    // Pagination states
-    const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 10
-    const totalPages = Math.ceil(mahasantriList.length / itemsPerPage)
+    // Pagination states for Mahasantri and Setoran
+    const [currentPage, setCurrentPage] = useState(1);
+    const [setoranCurrentPage, setSetoranCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const setoranPerPage = 10;
+    const totalPages = Math.ceil(mahasantriList.length / itemsPerPage);
 
     const paginatedMahasantri = mahasantriList.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
-    )
+    );
+
+    const allSetoran = mahasantriList.flatMap((m) =>
+        m.list_hafalan.map((h) => ({
+            ...h,
+            nama: m.mahasantri.nama,
+        }))
+    );
+
+    // Pagination logic for Setoran
+    const totalSetoranPages = Math.ceil(allSetoran.length / setoranPerPage);
+    const paginatedSetoran = allSetoran.slice(
+        (setoranCurrentPage - 1) * setoranPerPage,
+        setoranCurrentPage * setoranPerPage
+    );
+
+    const user = JSON.parse(localStorage.getItem("user") ?? '{}');
+    const token = localStorage.getItem("auth_token") ?? '';
 
     useEffect(() => {
-        const user = localStorage.getItem("user")
-        const token = localStorage.getItem("auth_token")
+        if (!user || user.user_type !== "mentor") {
+            navigate("/auth/mentor/login");
+            return;
+        }
 
-        if (!user || !token) {
-            navigate("/")
+        const userId = user.id;
+        setUserName(user.nama);
+        setTotalMahasantri(user.mahasantri_count);
+
+        try {
+            const decoded = jwtDecode(token);
+            const currentTime = Math.floor(Date.now() / 1000);
+
+            if ((decoded.exp ?? 0) < currentTime) {
+                handleLogout(navigate)
+                return
+            }
+        } catch (error) {
+            handleLogout(navigate)
+            console.error("Error decoding token:", error);
             return
         }
 
-        try {
-            const userData = JSON.parse(user)
+        const fetchData = async () => {
+            try {
+                const mahasantriList = await fetchHafalanByMentor(userId, token);
+                setMahasantriList(mahasantriList);
 
-            if (userData.user_type !== "mentor") {
-                navigate("/")
-                return
-            }
+                const total = mahasantriList.reduce(
+                    (acc: number, item: MahasantriWithHafalan) => acc + item.list_hafalan.length,
+                    0
+                );
+                setTotalHafalan(total);
 
-            setUserName(userData.nama)
-            setTotalMahasantri(userData.mahasantri_count)
+                // Proses data untuk Line Chart (Ziyadah & Murojaah per tanggal)
+                const processedData = processSetoranData(mahasantriList);
+                const chartLabels = processedData.map((item) => item.date);
+                const ziyadahLineData = processedData.map((item) => item.kategori.ziyadah || 0);
+                const murojaahLineData = processedData.map((item) => item.kategori.murojaah || 0);
 
-            const fetchHafalan = async () => {
-                try {
-                    const response = await fetch(
-                        `${import.meta.env.VITE_API_URL}/hafalan/mentor/${userData.id}`,
+                setChartData({
+                    labels: chartLabels,
+                    datasets: [
                         {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                        }
-                    )
+                            label: "Ziyadah",
+                            data: ziyadahLineData,
+                            borderColor: "rgb(75, 192, 192)",
+                            tension: 0.5,
+                            fill: true,
+                        },
+                        {
+                            label: "Murojaah",
+                            data: murojaahLineData,
+                            borderColor: "#578FCA",
+                            tension: 0.5,
+                            fill: true,
+                        },
+                    ],
+                });
 
-                    const result = await response.json()
+                // Proses data untuk Bar Chart (Ziyadah & Murojaah per Mahasantri)
+                const processedSetoranPerMahasantri = processSetoranDataPerMahasantri(mahasantriList);
+                const barLabels = processedSetoranPerMahasantri.map((item) => item.nama);
+                const ziyadahBarData = processedSetoranPerMahasantri.map((item) => item.ziyadah);
+                const murojaahBarData = processedSetoranPerMahasantri.map((item) => item.murojaah);
 
-                    if (result.status) {
-                        const mahasantriList: MahasantriWithHafalan[] = result.data.mahasantriList
-                        setMahasantriList(mahasantriList)
-
-                        const total = mahasantriList.reduce((acc: number, item: MahasantriWithHafalan) => {
-                            return acc + item.list_hafalan.length
-                        }, 0)
-
-                        setTotalHafalan(total)
-                    }
-                } catch (error) {
-                    console.error("Gagal fetch total hafalan:", error)
-                }
+                setBarChartData({
+                    labels: barLabels,
+                    datasets: [
+                        {
+                            label: "Ziyadah",
+                            data: ziyadahBarData,
+                            backgroundColor: "#2E649C",
+                        },
+                        {
+                            label: "Murojaah",
+                            data: murojaahBarData,
+                            backgroundColor: "#578FCA",
+                        },
+                    ],
+                });
+            } catch (error) {
+                console.error("Gagal fetch data:", error);
             }
+        };
 
-            fetchHafalan()
-        } catch (error) {
-            console.error("Failed to parse user data:", error)
-            navigate("/")
-        }
-    }, [navigate])
-
-    const handleOpenHafalanDialog = () => {
-        setIsHafalanDialogOpen(true)
-    }
-
-    useEffect(() => {
-        if (isDialogOpen) {
-            setCurrentPage(1)
-        }
-    }, [isDialogOpen])
+        fetchData();
+    }, []);
 
     const handlePrevPage = () => {
-        setCurrentPage((prev) => Math.max(prev - 1, 1))
-    }
+        setCurrentPage((prev) => Math.max(prev - 1, 1));
+    };
 
     const handleNextPage = () => {
-        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-    }
+        setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    };
+
+    const handleSetoranPrevPage = () => {
+        setSetoranCurrentPage((prev) => Math.max(prev - 1, 1));
+    };
+
+    const handleSetoranNextPage = () => {
+        setSetoranCurrentPage((prev) => Math.min(prev + 1, totalSetoranPages));
+    };
+
 
     return (
         <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2">
+                <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -135,166 +204,148 @@ export default function DashboardPage() {
                         </Breadcrumb>
                     </div>
                 </header>
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gray-100">
-                    <div className="text-lg lg:text-2xl font-bold mt-3">
-                        Welcome, Ust. {userName}
-                    </div>
-                    <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                        <div onClick={() => setIsDialogOpen(true)}>
-                            <StatCard
-                                title="Total Mahasantri"
-                                value={totalMahasantri}
-                                icon={<Users />}
-                            />
-                        </div>
-                        <div onClick={handleOpenHafalanDialog}>
-                            <StatCard
-                                title="Total Setoran"
-                                value={`${totalHafalan} Setoran`}
-                                icon={<BookOpen />}
-                            />
-                        </div>
+                <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gray-100 font-poppins">
+
+                    <h1 className="text-2xl lg:text-4xl font-semibold bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 text-black">
+                        <span className="inline-flex items-center space-x-3">
+                            <span>Welcome, Ust. {userName}🙏</span>
+                        </span>
+                    </h1>
+
+
+
+                    {/* Stat Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <StatCard
-                            title="Total Absensi"
-                            value="28 Kehadiran"
-                            icon={<CalendarCheck />}
+                            title="Total Mahasantri"
+                            value={totalMahasantri}
+                            icon={<Users className="h-6 w-6" />}
+                            onClick={() => setIsDialogOpen(true)}
+                            gradient="blue"
+                            className="hover:border-purple-100 md:col-span-1"
+                        />
+
+                        <StatCard
+                            title="Total Setoran"
+                            value={`${totalHafalan} Setoran`}
+                            icon={<BookOpen className="h-6 w-6" />}
+                            onClick={() => setIsHafalanDialogOpen(true)}
+                            gradient="green"
+                            className="hover:border-green-100 md:col-span-1"
                         />
                     </div>
 
-                    {/* Mahasantri Alert Dialog */}
-                    <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Mahasantri List</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Below is the list of Mahasantri assigned to you.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <div className="overflow-x-auto max-h-[50vh]">
-                                <table className="min-w-full table-auto">
-                                    <thead>
-                                        <tr>
-                                            <th className="px-4 py-2 border">Nama</th>
-                                            <th className="px-4 py-2 border">NIM</th>
-                                            <th className="px-4 py-2 border">Jurusan</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {paginatedMahasantri.map((mahasantriWithHafalan) => (
-                                            <tr key={mahasantriWithHafalan.mahasantri.id}>
-                                                <td className="px-4 py-2 border">
-                                                    {mahasantriWithHafalan.mahasantri.nama}
-                                                </td>
-                                                <td className="px-4 py-2 border">
-                                                    {mahasantriWithHafalan.mahasantri.nim}
-                                                </td>
-                                                <td className="px-4 py-2 border">
-                                                    {mahasantriWithHafalan.mahasantri.jurusan}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                {/* Pagination Controls */}
-                                <div className="flex justify-between mt-4">
-                                    <button
-                                        onClick={handlePrevPage}
-                                        disabled={currentPage === 1}
-                                        className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-                                    >
-                                        Previous
-                                    </button>
-                                    <div className="text-sm text-gray-600">
-                                        Page {currentPage} of {totalPages}
+                    {/* Time Widget & Today Setoran List    */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <TimeWidget className="lg:col-span-1 md:col-span-2" />
+                        <TodaySetoranList />
+                    </div>
+
+                    {/* Charts Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        {/* Line Chart Container */}
+                        <Card className="p-4 md:p-6">
+                            <div className="flex flex-col h-full">
+                                {/* Chart Header */}
+                                <div className="pb-4 border-b">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                                            <span className="bg-blue-100 text-blue-800 p-2 rounded-lg">
+                                                📈
+                                            </span>
+                                            Tren Harian Setoran
+                                        </h3>
                                     </div>
-                                    <button
-                                        onClick={handleNextPage}
-                                        disabled={currentPage === totalPages}
-                                        className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-                                    >
-                                        Next
-                                    </button>
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                        Perkembangan ziyadah & murojaah per hari
+                                    </p>
+                                </div>
+
+                                {/* Chart Container */}
+                                <div className="relative h-[300px] md:h-[400px] mt-4">
+                                    {chartData && (
+                                        <Line
+                                            data={chartData}
+                                            options={{
+                                                ...options,
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top' as const,
+                                                    },
+                                                },
+                                            }}
+                                        />
+                                    )}
                                 </div>
                             </div>
-                            <AlertDialogFooter>
-                                <AlertDialogAction onClick={() => setIsDialogOpen(false)}>
-                                    Close
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                        </Card>
+
+                        {/* Bar Chart Container */}
+                        <Card className="p-4 md:p-6">
+                            <div className="flex flex-col h-full">
+                                {/* Chart Header */}
+                                <div className="pb-4 border-b">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                                            <span className="bg-purple-100 text-purple-800 p-2 rounded-lg">
+                                                📊
+                                            </span>
+                                            Setoran per Mahasantri
+                                        </h3>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                        Perbandingan ziyadah & murojaah per santri
+                                    </p>
+                                </div>
+
+                                {/* Chart Container */}
+                                <div className="relative h-[300px] md:h-[400px] mt-4">
+                                    {barChartData && (
+                                        <Bar
+                                            data={barChartData}
+                                            options={{
+                                                ...options,
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                indexAxis: 'y' as const,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top' as const,
+                                                    },
+                                                },
+                                            }}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+
+                    {/* Mahasantri Alert Dialog */}
+                    <MahasantriDialog
+                        open={isDialogOpen}
+                        onClose={() => setIsDialogOpen(false)}
+                        data={paginatedMahasantri}
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPrev={handlePrevPage}
+                        onNext={handleNextPage}
+                    />
 
                     {/* Hafalan Alert Dialog */}
-                    <AlertDialog open={isHafalanDialogOpen} onOpenChange={setIsHafalanDialogOpen}>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Daftar Hafalan</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Berikut adalah daftar hafalan yang telah disetorkan oleh mahasantri.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <div className="overflow-x-auto max-h-[50vh]">
-                                <table className="min-w-full table-auto">
-                                    <thead>
-                                        <tr>
-                                            <th className="px-4 py-2 border">Nama</th>
-                                            <th className="px-4 py-2 border">Juz</th>
-                                            <th className="px-4 py-2 border">Halaman</th>
-                                            <th className="px-4 py-2 border">Total Setoran</th>
-                                            <th className="px-4 py-2 border">Kategori</th>
-                                            <th className="px-4 py-2 border">Waktu</th>
-                                            <th className="px-4 py-2 border">Catatan</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {paginatedMahasantri.map((mahasantriWithHafalan) =>
-                                            mahasantriWithHafalan.list_hafalan.map((hafalan) => (
-                                                <tr key={hafalan.id}>
-                                                    <td className="px-4 py-2 border">
-                                                        {mahasantriWithHafalan.mahasantri.nama}
-                                                    </td>
-                                                    <td className="px-4 py-2 border">{hafalan.juz}</td>
-                                                    <td className="px-4 py-2 border">{hafalan.halaman}</td>
-                                                    <td className="px-4 py-2 border">{hafalan.total_setoran}</td>
-                                                    <td className="px-4 py-2 border">{hafalan.kategori}</td>
-                                                    <td className="px-4 py-2 border">{hafalan.waktu}</td>
-                                                    <td className="px-4 py-2 border">{hafalan.catatan}</td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
-                                {/* Pagination Controls */}
-                                <div className="flex justify-between mt-4">
-                                    <button
-                                        onClick={handlePrevPage}
-                                        disabled={currentPage === 1}
-                                        className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-                                    >
-                                        Previous
-                                    </button>
-                                    <div className="text-sm text-gray-600">
-                                        Page {currentPage} of {totalPages}
-                                    </div>
-                                    <button
-                                        onClick={handleNextPage}
-                                        disabled={currentPage === totalPages}
-                                        className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
-                            <AlertDialogFooter>
-                                <AlertDialogAction onClick={() => setIsHafalanDialogOpen(false)}>
-                                    Close
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                    <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+                    <SetoranDialog
+                        open={isHafalanDialogOpen}
+                        onClose={() => setIsHafalanDialogOpen(false)}
+                        data={paginatedSetoran}
+                        currentPage={setoranCurrentPage}
+                        totalPages={totalSetoranPages}
+                        onPrev={handleSetoranPrevPage}
+                        onNext={handleSetoranNextPage}
+                    />
                 </div>
             </SidebarInset>
         </SidebarProvider>
-    )
+    );
 }
