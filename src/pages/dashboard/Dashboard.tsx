@@ -204,7 +204,7 @@ export default function DashboardPage() {
                         </Breadcrumb>
                     </div>
                 </header>
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gray-100 font-poppins">
+                <div className="flex flex-1 flex-col gap-4 p-4 pt-0  font-poppins">
                     <h1 className="text-2xl lg:text-4xl font-semibold bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 text-black mt-4">
                         <span className="inline-flex items-center space-x-3">
                             <span>Welcome, Ust. {userName}🙏</span>

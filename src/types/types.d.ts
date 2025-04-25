@@ -39,14 +39,54 @@ export interface MahasantriWithHafalan {
     };
 }
 
-export interface MahasantriPagination {
+export interface Pagination {
     current_page: number
-    total_mahasantri: number
+    total_data: number
     total_pages: number
 }
 
-export interface HafalanPagination {
-    current_page: number,
-    total_hafalan: number,
-    total_pages: number
+export interface MahasantriDialogProps {
+    open: boolean
+    onClose: () => void
+    data: MahasantriWithHafalan[]
+    currentPage: number
+    totalPages: number
+    onPrev: () => void
+    onNext: () => void
+}
+
+export interface SetoranDialogProps {
+    open: boolean
+    onClose: () => void
+    data: Hafalan[]
+    currentPage: number
+    totalPages: number
+    onPrev: () => void
+    onNext: () => void
+}
+
+export interface DataTableProps<TData, TValue> {
+    columns: ColumnDef<TData, TValue>[];
+    data: TData[];
+    sorting: SortingState;
+    onSortingChange: (sorting: SortingState | Updater<SortingState>) => void;
+}
+
+export interface DeleteDialogProps {
+    keyword: string;
+    openDialog: boolean;
+    setOpenDialog: (open: boolean) => void;
+    handleDelete: () => void;
+}
+
+type RowData = Hafalan | Mahasantri
+
+export interface ActionDropdownProps {
+    row: {
+        original: RowData;
+    };
+    setOpenDialog: (open: boolean) => void;
+    setSelectedId: (id: number) => void;
+    keyword: string;
+    editPath: string;
 }

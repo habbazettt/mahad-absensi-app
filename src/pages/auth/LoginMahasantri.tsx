@@ -180,11 +180,11 @@ export default function LoginMahasantri() {
                             </div>
 
                             <Button
+                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                                 type="submit"
-                                className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white"
-                                disabled={isLoading} // Menonaktifkan tombol saat loading
+                                disabled={isLoading}
                             >
-                                {isLoading ? "Memproses..." : "Login"} {/* Menampilkan teks loading */}
+                                {isLoading ? "Memproses..." : "Login"}
                             </Button>
 
                             <div className="relative">

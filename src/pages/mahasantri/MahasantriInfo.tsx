@@ -17,40 +17,32 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import {
     ColumnDef,
     useReactTable,
     getCoreRowModel,
     getPaginationRowModel,
-    flexRender,
     SortingState,
     getSortedRowModel,
 } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
-import { Mahasantri, MahasantriPagination, Mentor } from "@/types"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown, Edit, MoreHorizontal, Trash } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogPortal, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { AnimatePresence, motion } from "framer-motion"
-import { cn } from "@/lib/utils"
+import { Mahasantri, Mentor, Pagination } from "@/types"
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown } from "lucide-react"
 import toast, { Toaster } from "react-hot-toast"
+import PaginationComponent from "@/components/Pagination"
+import MentorFilter from "@/components/filter/MentorFilter"
+import DataTable from "@/components/DataTable"
+import DeleteDialogComponent from "@/components/dialogs/DeleteDialog"
+import ActionDropdown from "@/components/ActionDropdown"
 
 export default function MahasantriInfoPage() {
     const navigate = useNavigate()
     const [mahasantriData, setMahasantriData] = useState<Mahasantri[]>([])
     const [filteredMahasantriData, setFilteredMahasantriData] = useState<Mahasantri[]>([])
     const [mentors, setMentors] = useState<Mentor[]>([])
-    const [pagination, setPagination] = useState<MahasantriPagination>({
+    const [pagination, setPagination] = useState<Pagination>({
         current_page: 1,
-        total_mahasantri: 0,
+        total_data: 0,
         total_pages: 1,
     })
     const [loading, setLoading] = useState(true)
@@ -167,7 +159,7 @@ export default function MahasantriInfoPage() {
                 setFilteredMahasantriData(data.data.mahasantri);
                 setPagination({
                     current_page: data.data.pagination.current_page,
-                    total_mahasantri: data.data.pagination.total_mahasantri,
+                    total_data: data.data.pagination.total_data,
                     total_pages: data.data.pagination.total_pages
                 })
             }
@@ -247,36 +239,14 @@ export default function MahasantriInfoPage() {
             enableHiding: false,
             cell: ({ row }) => {
                 return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                onClick={() => {
-                                    navigate(`/dashboard/info-mahasantri/edit/${row.original.id}`)
-                                }}
-                            >
-                                <Edit className="text-blue-400" />
-                                Edit Mahasantri
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => {
-                                    setOpenDialog(true)
-                                    setSelectedId(row.original.id)
-                                }}
-                            >
-                                <Trash className="text-red-400" />
-                                Hapus Mahasantri
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )
+                    <ActionDropdown
+                        row={row}
+                        setOpenDialog={setOpenDialog}
+                        setSelectedId={setSelectedId}
+                        keyword="Mahasantri"
+                        editPath="/dashboard/info-mahasantri/edit"
+                    />
+                );
             },
         },
     ], [mentors]);
@@ -354,7 +324,7 @@ export default function MahasantriInfoPage() {
                             <div className="p-6 pb-0">
                                 <h2 className="text-2xl font-bold">Daftar Mahasantri</h2>
                                 <p className="text-muted-foreground mt-2">
-                                    Total {pagination.total_mahasantri} mahasantri terdaftar
+                                    Total {pagination.total_data} mahasantri terdaftar
                                 </p>
                             </div>
                             <div className="relative overflow-x-auto p-6">
@@ -370,24 +340,7 @@ export default function MahasantriInfoPage() {
                                     <>
                                         <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:gap-4">
                                             {/* Filter by Mentor */}
-                                            <div className="w-full sm:w-[280px]">
-                                                <Select onValueChange={(e) => handleMentorFilter(e)}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Filter Mentor" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="all">Semua Mentor</SelectItem>
-                                                        {mentors.map((mentor) => (
-                                                            <SelectItem
-                                                                key={mentor.id}
-                                                                value={String(mentor.id)}
-                                                            >
-                                                                {mentor.nama}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
+                                            <MentorFilter mentors={mentors} handleMentorFilter={handleMentorFilter} />
 
                                             {/* Search Input */}
                                             <div className="flex items-center flex-1 relative">
@@ -445,75 +398,17 @@ export default function MahasantriInfoPage() {
                                             </div>
                                         </div>
 
-                                        <Table>
-                                            <TableHeader>
-                                                {table.getHeaderGroups().map((headerGroup) => (
-                                                    <TableRow key={headerGroup.id}>
-                                                        {headerGroup.headers.map((header) => (
-                                                            <TableHead key={header.id}>
-                                                                {flexRender(
-                                                                    header.column.columnDef.header,
-                                                                    header.getContext()
-                                                                )}
-                                                            </TableHead>
-                                                        ))}
-                                                    </TableRow>
-                                                ))}
-                                            </TableHeader>
-                                            <TableBody>
-                                                {table.getRowModel().rows?.length ? (
-                                                    table.getRowModel().rows.map((row) => (
-                                                        <TableRow
-                                                            key={row.id}
-                                                            data-state={row.getIsSelected() && "selected"}
-                                                            className="hover:bg-accent/50"
-                                                        >
-                                                            {row.getVisibleCells().map((cell) => (
-                                                                <TableCell key={cell.id}>
-                                                                    {flexRender(
-                                                                        cell.column.columnDef.cell,
-                                                                        cell.getContext()
-                                                                    )}
-                                                                </TableCell>
-                                                            ))}
-                                                        </TableRow>
-                                                    ))
-                                                ) : (
-                                                    <TableRow>
-                                                        <TableCell
-                                                            colSpan={columns.length}
-                                                            className="h-24 text-center"
-                                                        >
-                                                            Tidak ada data
-                                                        </TableCell>
-                                                    </TableRow>
-                                                )}
-                                            </TableBody>
-                                        </Table>
+                                        <DataTable
+                                            columns={columns}
+                                            data={filteredMahasantriData}
+                                            sorting={sorting}
+                                            onSortingChange={setSorting}
+                                        />
 
-                                        <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4">
-                                            <div className="text-sm text-muted-foreground">
-                                                Halaman {pagination.current_page} dari {pagination.total_pages}
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handlePageChange(pagination.current_page - 1)}
-                                                    disabled={pagination.current_page === 1}
-                                                >
-                                                    Sebelumnya
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handlePageChange(pagination.current_page + 1)}
-                                                    disabled={pagination.current_page === pagination.total_pages}
-                                                >
-                                                    Selanjutnya
-                                                </Button>
-                                            </div>
-                                        </div>
+                                        <PaginationComponent
+                                            pagination={pagination}
+                                            handlePageChange={handlePageChange}
+                                        />
                                     </>
                                 )}
                             </div>
@@ -523,35 +418,12 @@ export default function MahasantriInfoPage() {
             </SidebarProvider>
 
             {/* Alert Dialog with Framer Motion */}
-            <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
-                <AlertDialogPortal>
-                    <AnimatePresence>
-                        {openDialog && (
-                            <motion.div
-                                key="alert-dialog"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ duration: 0.2 }}
-                                className="fixed inset-0 z-50 flex items-center justify-center"
-                            >
-                                <AlertDialogContent className={cn("transition-none")}>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Yakin ingin menghapus mahasantri?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Tindakan ini akan menghapus mahasantri secara permanen.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel onClick={() => setOpenDialog(false)}>Batal</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleDeleteMahasantri} className="hover:cursor-pointer">Iya, Hapus Mahasantri</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </AlertDialogPortal>
-            </AlertDialog>
+            <DeleteDialogComponent
+                openDialog={openDialog}
+                setOpenDialog={setOpenDialog}
+                handleDelete={handleDeleteMahasantri}
+                keyword="Mahasantri"
+            />
         </>
     )
 }

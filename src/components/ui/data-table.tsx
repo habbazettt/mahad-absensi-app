@@ -6,15 +6,15 @@ import {
 } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table'
 
-interface DataTableProps<TData, TValue> {
+interface DialogDataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
 }
 
-export function DataTable<TData, TValue>({
+export function DialogDataTable<TData, TValue>({
     columns,
     data,
-}: DataTableProps<TData, TValue>) {
+}: DialogDataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
         columns,

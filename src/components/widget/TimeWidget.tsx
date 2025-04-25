@@ -262,14 +262,14 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
                         <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
                             <Sun className="h-5 w-5 text-amber-500" />
                             <div>
-                                <p className="font-medium">Dhuhr</p>
+                                <p className="font-medium">Dhuhur</p>
                                 <p className="text-muted-foreground">{prayerTimes.Dhuhr}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
                             <Sun className="h-5 w-5 text-yellow-500" />
                             <div>
-                                <p className="font-medium">Asr</p>
+                                <p className="font-medium">Ashar</p>
                                 <p className="text-muted-foreground">{prayerTimes.Asar}</p>
                             </div>
                         </div>

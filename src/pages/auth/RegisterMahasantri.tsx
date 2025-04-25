@@ -293,6 +293,7 @@ export default function RegisterMahasantri() {
                                                 <SelectContent>
                                                     {mentors.map((mentor) => (
                                                         <SelectItem key={mentor.id} value={String(mentor.id)}>
+                                                            {mentor.gender === "L" ? "Ust. " : "Ust. "}
                                                             {mentor.nama}
                                                         </SelectItem>
                                                     ))}
@@ -305,9 +306,9 @@ export default function RegisterMahasantri() {
                             />
 
                             <Button
+                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                                 type="submit"
-                                className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white"
-                                disabled={isLoading} // Disable submit while loading
+                                disabled={isLoading}
                             >
                                 {isLoading ? "Loading..." : "Buat Akun"}
                             </Button>

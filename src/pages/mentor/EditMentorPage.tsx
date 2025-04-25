@@ -24,115 +24,103 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import toast, { Toaster } from "react-hot-toast";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-const editMahasantriSchema = z.object({
+const editMentorSchema = z.object({
     nama: z.string().optional(),
-    nim: z.string().min(10).optional(),
-    jurusan: z.string().optional(),
-    mentor_id: z.number().optional(),
+    email: z.string().email().optional(),
+    gender: z.string().optional(),
 });
 
-type EditFormValues = z.infer<typeof editMahasantriSchema>;
+type EditFormValues = z.infer<typeof editMentorSchema>;
 
-type Mentor = {
-    id: number;
-    nama: string;
-    gender: string;
-};
 
-export default function EditMahasantriPage() {
+export default function EditMentorPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [mentors, setMentors] = useState<Mentor[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<EditFormValues>({
-        resolver: zodResolver(editMahasantriSchema),
+        resolver: zodResolver(editMentorSchema),
         defaultValues: {
             nama: "",
-            nim: "",
-            jurusan: "",
-            mentor_id: undefined,
+            email: "",
+            gender: "",
         },
     });
 
     useEffect(() => {
-        const fetchMentors = async () => {
+        const fetchMentorData = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/mentors?page=1&limit=16`);
-                if (!response.ok) throw new Error("Failed to fetch mentors");
+                const response = await fetch(
+                    `${import.meta.env.VITE_API_URL}/mentors/${id}`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("auth_token")}`,
+                    },
+                }
+                );
+                if (!response.ok) throw new Error("Failed to fetch mentor data");
                 const data = await response.json();
-                setMentors(data.data.mentors);
+                form.reset(data.data);
             } catch (error) {
-                console.error("Error fetching mentors:", error);
+                console.error("Error fetching mentor data:", error);
                 toast.error("Gagal mengambil data mentor");
             } finally {
                 setIsLoading(false);
             }
         };
 
-        const fetchMahasantriData = async () => {
-            setIsLoading(true);
-            try {
-                const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/mahasantri/${id}`, {
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("auth_token")}`,
-                    },
-                }
-                );
-                if (!response.ok) throw new Error("Failed to fetch mahasantri data");
-                const data = await response.json();
-                form.reset(data.data);
-            } catch (error) {
-                console.error("Error fetching mahasantri data:", error);
-                toast.error("Gagal mengambil data mahasantri");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchMentors();
-        fetchMahasantriData();
+        fetchMentorData()
     }, []);
 
     const onSubmit = async (values: EditFormValues) => {
-        const requestBody = {
-            ...values,
-            mentor_id: Number(values.mentor_id),
-        };
-
         const loadingToast = toast.loading("Sedang memproses...");
-
         setIsLoading(true);
 
+        // Ambil data pengguna saat ini dari localStorage
+        const currentUserData = JSON.parse(localStorage.getItem("user") || '{}');
+
+        // Periksa apakah ada perubahan data
+        const isDataChanged = JSON.stringify(currentUserData) !== JSON.stringify(values);
+
+        if (!isDataChanged) {
+            // Jika tidak ada perubahan, tampilkan pesan sukses dan navigasi
+            toast.dismiss(loadingToast);
+            toast.success("Data Mentor tidak berubah, tetap sukses!");
+            navigate("/dashboard");
+            setIsLoading(false);
+            return;
+        }
+
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/mahasantri/${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/mentors/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${localStorage.getItem("auth_token")}`,
                 },
-                body: JSON.stringify(requestBody),
+                body: JSON.stringify(values),
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || "Update failed");
+                throw new Error(errorData.message || "Failed");
             }
+
+            const data = await response.json();
 
             toast.dismiss(loadingToast);
 
-            toast.success("Data mahasantri berhasil diperbarui!");
-            setTimeout(() => {
-                navigate("/dashboard/info-mahasantri");
-            }, 200);
+            toast.success("Data Mentor berhasil diperbarui!, Silahkan Login Kembali");
 
+            localStorage.removeItem("user");
+
+            localStorage.setItem("user", JSON.stringify(data.data));
         } catch (error) {
-            console.error("Update error:", error);
-            toast.error("Data mahasantri gagal diperbarui!");
+            console.error("error", error);
+            toast.dismiss(loadingToast);
+            toast.error("Data Mentor gagal diperbarui!");
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     };
 
@@ -152,18 +140,15 @@ export default function EditMahasantriPage() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-muted-foreground">Data Mahasantri</BreadcrumbPage>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-primary">Edit Mahasantri</BreadcrumbPage>
+                                    <BreadcrumbPage className="text-primary">Edit Mentor</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
                     </div>
                 </header>
 
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+                <div className="flex flex-1 flex-col gap-6 p-8 bg-gray-50 rounded-lg shadow-md">
+                    <h2 className="text-2xl font-bold text-gray-800 text-center">Edit Data Mentor</h2>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                             {/* NAMA */}
@@ -176,7 +161,7 @@ export default function EditMahasantriPage() {
                                         <FormControl>
                                             <Input
                                                 type="text"
-                                                className="w-full border rounded"
+                                                className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
                                                 placeholder="Masukkan Nama Lengkap Anda"
                                                 {...field}
                                             />
@@ -186,18 +171,18 @@ export default function EditMahasantriPage() {
                                 )}
                             />
 
-                            {/* NIM */}
+                            {/* Email */}
                             <FormField
                                 control={form.control}
-                                name="nim"
+                                name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm font-bold text-gray-700">Nomor Induk Mahasiswa (NIM)</FormLabel>
+                                        <FormLabel className="text-sm font-bold text-gray-700">Email</FormLabel>
                                         <FormControl>
                                             <Input
-                                                type="text"
-                                                className="w-full border rounded"
-                                                placeholder="Masukkan NIM Anda"
+                                                type="email"
+                                                className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
+                                                placeholder="Masukkan Email Anda"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -206,48 +191,24 @@ export default function EditMahasantriPage() {
                                 )}
                             />
 
-                            {/* Jurusan */}
+                            {/* Dropdown Gender */}
                             <FormField
                                 control={form.control}
-                                name="jurusan"
+                                name="gender"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm font-bold text-gray-700">Jurusan Mahasiswa</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="text"
-                                                className="w-full border rounded"
-                                                placeholder="Masukkan Jurusan Anda"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Dropdown Mentor */}
-                            <FormField
-                                control={form.control}
-                                name="mentor_id"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Pilih Mentor</FormLabel>
+                                        <FormLabel>Pilih Gender</FormLabel>
                                         <FormControl>
                                             <Select
                                                 value={String(field.value)}
-                                                onValueChange={(value) => field.onChange(Number(value))}
-                                                disabled={isLoading}
+                                                onValueChange={(value) => field.onChange(value)}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Pilih Mentor" />
+                                                    <SelectValue placeholder="Pilih Gender" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {mentors.map((mentor) => (
-                                                        <SelectItem key={mentor.id} value={String(mentor.id)}>
-                                                            {mentor.nama}
-                                                        </SelectItem>
-                                                    ))}
+                                                    <SelectItem value="L">Laki-laki</SelectItem>
+                                                    <SelectItem value="P">Perempuan</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </FormControl>
@@ -257,8 +218,8 @@ export default function EditMahasantriPage() {
                             />
 
                             <Button
+                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded-md transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                                 type="submit"
-                                className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white"
                                 disabled={isLoading}
                             >
                                 {isLoading ? "Loading..." : "Perbarui Data"}
