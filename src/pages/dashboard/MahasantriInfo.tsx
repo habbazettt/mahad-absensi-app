@@ -38,6 +38,10 @@ import { Mahasantri, MahasantriPagination, Mentor } from "@/types"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown, Edit, MoreHorizontal, Trash } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogPortal, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { AnimatePresence, motion } from "framer-motion"
+import { cn } from "@/lib/utils"
+import toast, { Toaster } from "react-hot-toast"
 
 export default function MahasantriInfoPage() {
     const navigate = useNavigate()
@@ -54,6 +58,8 @@ export default function MahasantriInfoPage() {
     const [searchTerm, setSearchTerm] = useState("")
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
     const [sorting, setSorting] = useState<SortingState>([])
+    const [openDialog, setOpenDialog] = useState(false)
+    const [selectedId, setSelectedId] = useState(0)
 
     // Debounce search input
     useEffect(() => {
@@ -259,7 +265,12 @@ export default function MahasantriInfoPage() {
                                 <Edit className="text-blue-400" />
                                 Edit Mahasantri
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    setOpenDialog(true)
+                                    setSelectedId(row.original.id)
+                                }}
+                            >
                                 <Trash className="text-red-400" />
                                 Hapus Mahasantri
                             </DropdownMenuItem>
@@ -282,199 +293,265 @@ export default function MahasantriInfoPage() {
         getPaginationRowModel: getPaginationRowModel(),
     })
 
+    const handleDeleteMahasantri = async () => {
+        const loadingToast = toast.loading("Sedang memproses...");
+        setLoading(true);
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/mahasantri/${selectedId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                }
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed");
+            }
+
+            toast.dismiss(loadingToast);
+
+            toast.success("Data Mahasantri berhasil dihapus!")
+
+            setTimeout(() => {
+                window.location.reload()
+            }, 500)
+        } catch (error) {
+            console.error("error", error);
+            toast.dismiss(loadingToast);
+            toast.error("Mahasantri gagal dihapus!");
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
-        <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
-                    <div className="flex items-center gap-2 px-4">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator orientation="vertical" className="mr-2 h-4" />
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-muted-foreground">Dashboard</BreadcrumbPage>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-primary">Data Mahasantri</BreadcrumbPage>
-                                </BreadcrumbItem>
-                            </BreadcrumbList>
-                        </Breadcrumb>
-                    </div>
-                </header>
-
-                <div className="flex flex-1 flex-col mt-4 gap-4 p-4 pt-0">
-                    <div className="rounded-lg border bg-card shadow-sm">
-                        <div className="p-6 pb-0">
-                            <h2 className="text-2xl font-bold">Daftar Mahasantri</h2>
-                            <p className="text-muted-foreground mt-2">
-                                Total {pagination.total_mahasantri} mahasantri terdaftar
-                            </p>
+        <>
+            <Toaster position="top-right" />
+            <SidebarProvider>
+                <AppSidebar />
+                <SidebarInset>
+                    <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
+                        <div className="flex items-center gap-2 px-4">
+                            <SidebarTrigger className="-ml-1" />
+                            <Separator orientation="vertical" className="mr-2 h-4" />
+                            <Breadcrumb>
+                                <BreadcrumbList>
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-muted-foreground">Dashboard</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator />
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-primary">Data Mahasantri</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                </BreadcrumbList>
+                            </Breadcrumb>
                         </div>
-                        <div className="relative overflow-x-auto p-6">
-                            {error ? (
-                                <div className="text-red-500 text-center py-8">{error}</div>
-                            ) : loading ? (
-                                <div className="space-y-4">
-                                    {[...Array(5)].map((_, i) => (
-                                        <div key={i} className="h-12 w-full bg-muted/50 rounded-lg animate-pulse" />
-                                    ))}
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:gap-4">
-                                        {/* Filter by Mentor */}
-                                        <div className="w-full sm:w-[280px]">
-                                            <Select onValueChange={(e) => handleMentorFilter(e)}>
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Filter Mentor" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="all">Semua Mentor</SelectItem>
-                                                    {mentors.map((mentor) => (
-                                                        <SelectItem
-                                                            key={mentor.id}
-                                                            value={String(mentor.id)}
-                                                        >
-                                                            {mentor.nama}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+                    </header>
 
-                                        {/* Search Input */}
-                                        <div className="flex items-center flex-1 relative">
-                                            <Input
-                                                placeholder="Cari nama mahasantri..."
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                                className="w-full pr-10"
-                                            />
-                                        </div>
-
-                                        {/* Columns Dropdown */}
-                                        <div className="w-full sm:w-auto">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        className="w-full sm:w-[140px] justify-between"
-                                                    >
-                                                        Columns
-                                                        <ChevronDown className="ml-2 h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    {table
-                                                        .getAllColumns()
-                                                        .filter((column) => column.getCanHide())
-                                                        .map((column) => {
-                                                            const columnLabels: { [key: string]: string } = {
-                                                                mentor_id: "Mentor",
-                                                                nama: "Nama",
-                                                                nim: "NIM",
-                                                                jurusan: "Jurusan",
-                                                                gender: "Gender"
-                                                            };
-
-                                                            return (
-                                                                <DropdownMenuCheckboxItem
-                                                                    key={column.id}
-                                                                    className="capitalize"
-                                                                    checked={column.getIsVisible()}
-                                                                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                                                                >
-                                                                    {columnLabels[column.id] ||
-                                                                        column.id
-                                                                            .replace(/_/g, ' ')
-                                                                            .replace(/\bid\b/gi, '')
-                                                                            .replace(/^\w/, (c) => c.toUpperCase())
-                                                                    }
-                                                                </DropdownMenuCheckboxItem>
-                                                            );
-                                                        })}
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
+                    <div className="flex flex-1 flex-col mt-4 gap-4 p-4 pt-0">
+                        <div className="rounded-lg border bg-card shadow-sm">
+                            <div className="p-6 pb-0">
+                                <h2 className="text-2xl font-bold">Daftar Mahasantri</h2>
+                                <p className="text-muted-foreground mt-2">
+                                    Total {pagination.total_mahasantri} mahasantri terdaftar
+                                </p>
+                            </div>
+                            <div className="relative overflow-x-auto p-6">
+                                {error ? (
+                                    <div className="text-red-500 text-center py-8">{error}</div>
+                                ) : loading ? (
+                                    <div className="space-y-4">
+                                        {[...Array(5)].map((_, i) => (
+                                            <div key={i} className="h-12 w-full bg-muted/50 rounded-lg animate-pulse" />
+                                        ))}
                                     </div>
+                                ) : (
+                                    <>
+                                        <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:gap-4">
+                                            {/* Filter by Mentor */}
+                                            <div className="w-full sm:w-[280px]">
+                                                <Select onValueChange={(e) => handleMentorFilter(e)}>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Filter Mentor" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="all">Semua Mentor</SelectItem>
+                                                        {mentors.map((mentor) => (
+                                                            <SelectItem
+                                                                key={mentor.id}
+                                                                value={String(mentor.id)}
+                                                            >
+                                                                {mentor.nama}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
 
-                                    <Table>
-                                        <TableHeader>
-                                            {table.getHeaderGroups().map((headerGroup) => (
-                                                <TableRow key={headerGroup.id}>
-                                                    {headerGroup.headers.map((header) => (
-                                                        <TableHead key={header.id}>
-                                                            {flexRender(
-                                                                header.column.columnDef.header,
-                                                                header.getContext()
-                                                            )}
-                                                        </TableHead>
-                                                    ))}
-                                                </TableRow>
-                                            ))}
-                                        </TableHeader>
-                                        <TableBody>
-                                            {table.getRowModel().rows?.length ? (
-                                                table.getRowModel().rows.map((row) => (
-                                                    <TableRow
-                                                        key={row.id}
-                                                        data-state={row.getIsSelected() && "selected"}
-                                                        className="hover:bg-accent/50"
-                                                    >
-                                                        {row.getVisibleCells().map((cell) => (
-                                                            <TableCell key={cell.id}>
+                                            {/* Search Input */}
+                                            <div className="flex items-center flex-1 relative">
+                                                <Input
+                                                    placeholder="Cari nama mahasantri..."
+                                                    value={searchTerm}
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                                    className="w-full pr-10"
+                                                />
+                                            </div>
+
+                                            {/* Columns Dropdown */}
+                                            <div className="w-full sm:w-auto">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button
+                                                            variant="outline"
+                                                            className="w-full sm:w-[140px] justify-between"
+                                                        >
+                                                            Columns
+                                                            <ChevronDown className="ml-2 h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        {table
+                                                            .getAllColumns()
+                                                            .filter((column) => column.getCanHide())
+                                                            .map((column) => {
+                                                                const columnLabels: { [key: string]: string } = {
+                                                                    mentor_id: "Mentor",
+                                                                    nama: "Nama",
+                                                                    nim: "NIM",
+                                                                    jurusan: "Jurusan",
+                                                                    gender: "Gender"
+                                                                };
+
+                                                                return (
+                                                                    <DropdownMenuCheckboxItem
+                                                                        key={column.id}
+                                                                        className="capitalize"
+                                                                        checked={column.getIsVisible()}
+                                                                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                                                                    >
+                                                                        {columnLabels[column.id] ||
+                                                                            column.id
+                                                                                .replace(/_/g, ' ')
+                                                                                .replace(/\bid\b/gi, '')
+                                                                                .replace(/^\w/, (c) => c.toUpperCase())
+                                                                        }
+                                                                    </DropdownMenuCheckboxItem>
+                                                                );
+                                                            })}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                        </div>
+
+                                        <Table>
+                                            <TableHeader>
+                                                {table.getHeaderGroups().map((headerGroup) => (
+                                                    <TableRow key={headerGroup.id}>
+                                                        {headerGroup.headers.map((header) => (
+                                                            <TableHead key={header.id}>
                                                                 {flexRender(
-                                                                    cell.column.columnDef.cell,
-                                                                    cell.getContext()
+                                                                    header.column.columnDef.header,
+                                                                    header.getContext()
                                                                 )}
-                                                            </TableCell>
+                                                            </TableHead>
                                                         ))}
                                                     </TableRow>
-                                                ))
-                                            ) : (
-                                                <TableRow>
-                                                    <TableCell
-                                                        colSpan={columns.length}
-                                                        className="h-24 text-center"
-                                                    >
-                                                        Tidak ada data
-                                                    </TableCell>
-                                                </TableRow>
-                                            )}
-                                        </TableBody>
-                                    </Table>
+                                                ))}
+                                            </TableHeader>
+                                            <TableBody>
+                                                {table.getRowModel().rows?.length ? (
+                                                    table.getRowModel().rows.map((row) => (
+                                                        <TableRow
+                                                            key={row.id}
+                                                            data-state={row.getIsSelected() && "selected"}
+                                                            className="hover:bg-accent/50"
+                                                        >
+                                                            {row.getVisibleCells().map((cell) => (
+                                                                <TableCell key={cell.id}>
+                                                                    {flexRender(
+                                                                        cell.column.columnDef.cell,
+                                                                        cell.getContext()
+                                                                    )}
+                                                                </TableCell>
+                                                            ))}
+                                                        </TableRow>
+                                                    ))
+                                                ) : (
+                                                    <TableRow>
+                                                        <TableCell
+                                                            colSpan={columns.length}
+                                                            className="h-24 text-center"
+                                                        >
+                                                            Tidak ada data
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )}
+                                            </TableBody>
+                                        </Table>
 
-                                    <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4">
-                                        <div className="text-sm text-muted-foreground">
-                                            Halaman {pagination.current_page} dari {pagination.total_pages}
+                                        <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4">
+                                            <div className="text-sm text-muted-foreground">
+                                                Halaman {pagination.current_page} dari {pagination.total_pages}
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handlePageChange(pagination.current_page - 1)}
+                                                    disabled={pagination.current_page === 1}
+                                                >
+                                                    Sebelumnya
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handlePageChange(pagination.current_page + 1)}
+                                                    disabled={pagination.current_page === pagination.total_pages}
+                                                >
+                                                    Selanjutnya
+                                                </Button>
+                                            </div>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => handlePageChange(pagination.current_page - 1)}
-                                                disabled={pagination.current_page === 1}
-                                            >
-                                                Sebelumnya
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => handlePageChange(pagination.current_page + 1)}
-                                                disabled={pagination.current_page === pagination.total_pages}
-                                            >
-                                                Selanjutnya
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
+                </SidebarInset>
+            </SidebarProvider>
+
+            {/* Alert Dialog with Framer Motion */}
+            <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
+                <AlertDialogPortal>
+                    <AnimatePresence>
+                        {openDialog && (
+                            <motion.div
+                                key="alert-dialog"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.2 }}
+                                className="fixed inset-0 z-50 flex items-center justify-center"
+                            >
+                                <AlertDialogContent className={cn("transition-none")}>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Yakin ingin menghapus mahasantri?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Tindakan ini akan menghapus mahasantri secara permanen.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel onClick={() => setOpenDialog(false)}>Batal</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleDeleteMahasantri} className="hover:cursor-pointer">Iya, Hapus Mahasantri</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </AlertDialogPortal>
+            </AlertDialog>
+        </>
     )
 }

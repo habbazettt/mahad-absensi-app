@@ -7,7 +7,7 @@ import {
     AlarmClock,
     Sun,
     Moon,
-    Loader2
+    Loader2,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
@@ -18,7 +18,7 @@ interface PrayerTimes {
     Fajr: string;
     Sunrise: string;
     Dhuhr: string;
-    Asr: string;
+    Asar: string;
     Maghrib: string;
     Isha: string;
 }
@@ -58,7 +58,7 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
                     Fajr: timings.Fajr,
                     Sunrise: timings.Sunrise,
                     Dhuhr: timings.Dhuhr,
-                    Asr: timings.Asr,
+                    Asar: timings.Asr,
                     Maghrib: timings.Maghrib,
                     Isha: timings.Isha
                 });
@@ -132,7 +132,7 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
         }
         return {
             title: "Aktifitas Reguler",
-            time: "Waktu Kegiatan Kuliah",
+            time: currentTime.getHours() >= 19 ? "Waktu Istirahat" : "Waktu Kegiatan Kuliah",
             icon: currentTime.getHours() >= 18 ?
                 <Moon className="h-6 w-6 text-amber-600" /> :
                 <Sun className="h-6 w-6 text-amber-600" />,
@@ -182,12 +182,14 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-2xl font-bold flex items-center gap-2">
-                                <Clock className="h-7 w-7 text-blue-600" />
-                                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                <div className="p-3 bg-blue-100 rounded-lg text-blue-600">
+                                    <Clock className="h-6 w-6" />
+                                </div>
+                                <span className="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
                                     Detail Waktu
                                 </span>
                             </h2>
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <p className="text-sm text-muted-foreground mt-1.5">
                                 Kab. Bandung • {currentTime.toLocaleDateString('id-ID', {
                                     weekday: 'long',
                                     day: 'numeric',
@@ -199,7 +201,7 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
                         <span className="text-4xl font-bold tabular-nums">
                             {currentTime.toLocaleTimeString("id-ID", {
                                 hour: "2-digit",
-                                minute: "2-digit",
+                                minute: "2-digit"
                             })}
                         </span>
                     </div>
@@ -265,10 +267,10 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
                             </div>
                         </div>
                         <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                            <Sun className="h-5 w-5 text-yellow-500" /> {/* Ganti ikon jika perlu */}
+                            <Sun className="h-5 w-5 text-yellow-500" />
                             <div>
                                 <p className="font-medium">Asr</p>
-                                <p className="text-muted-foreground">{prayerTimes.Asr}</p>
+                                <p className="text-muted-foreground">{prayerTimes.Asar}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
