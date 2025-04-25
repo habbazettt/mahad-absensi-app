@@ -239,7 +239,7 @@ export default function MahasantriInfoPage() {
         {
             id: "actions",
             enableHiding: false,
-            cell: () => {
+            cell: ({ row }) => {
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -251,7 +251,11 @@ export default function MahasantriInfoPage() {
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    navigate(`/dashboard/info-mahasantri/edit/${row.original.id}`)
+                                }}
+                            >
                                 <Edit className="text-blue-400" />
                                 Edit Mahasantri
                             </DropdownMenuItem>
