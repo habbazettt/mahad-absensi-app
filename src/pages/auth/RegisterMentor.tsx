@@ -57,11 +57,11 @@ export default function RegisterMentor() {
             nama: values.nama,
             email: values.email,
             password: values.password,
-            gender: values.gender == "Laki-laki" ? "L" : "P",
+            gender: values.gender,
         }
 
         // Show loading toast
-        toast.loading("Sedang memproses...")
+        const loadingToast = toast.loading("Sedang memproses...")
 
         setLoading(true)
 
@@ -82,8 +82,14 @@ export default function RegisterMentor() {
                 throw new Error(errorData.message || "Register gagal")
             }
 
+            toast.dismiss(loadingToast)
+
             toast.success("Register berhasil! 🎉")
-            navigate("/auth/mentor/login")
+
+            setTimeout(() => {
+                navigate("/auth/mentor/login")
+            }, 400)
+            setLoading(false)
         } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error.message)
@@ -203,7 +209,7 @@ export default function RegisterMentor() {
                                         <FormLabel>Pilih Gender</FormLabel>
                                         <FormControl>
                                             <Select
-                                                value={String(field.value)}
+                                                value={field.value}
                                                 onValueChange={(value) => field.onChange(value)}
                                             >
                                                 <SelectTrigger>
@@ -240,7 +246,7 @@ export default function RegisterMentor() {
                             <p className="text-center text-sm text-gray-500">
                                 Sudah Punya Akun?{" "}
                                 <Link
-                                    to="/auth/mahasantri/login"
+                                    to="/auth/mentor/login"
                                     className="text-md font-semibold text-[var(--primary-2)] hover:text-[var(--primary-1)]"
                                 >
                                     Masuk

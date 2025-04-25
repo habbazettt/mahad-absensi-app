@@ -198,7 +198,7 @@ export default function LoginMentor() {
                             <p className="text-center text-sm text-gray-500">
                                 Belum Punya Akun?{" "}
                                 <Link
-                                    to="/auth/mahasantri/register"
+                                    to="/auth/mentor/register"
                                     className="text-md font-semibold text-[var(--primary-2)] hover:text-[var(--primary-1)]"
                                 >
                                     Daftar

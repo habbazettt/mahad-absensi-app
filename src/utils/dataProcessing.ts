@@ -1,4 +1,19 @@
-import { MahasantriWithHafalan } from "@/types";
+import { Hafalan, MahasantriWithHafalan } from "@/types";
+
+export const processAllSetoranData = (hafalanList: Hafalan[]) => {
+    hafalanList.forEach((hafalan) => {
+        hafalan.original_created_at = new Date(hafalan.created_at);
+
+        hafalan.created_at = hafalan.original_created_at.toLocaleDateString('id-ID', {
+            weekday: 'long',
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        }).replace(/\./g, '');
+    });
+
+    return hafalanList;
+}
 
 export const processSetoranData = (mahasantriList: MahasantriWithHafalan[]) => {
     const allHafalan = mahasantriList.flatMap(mahasantri =>

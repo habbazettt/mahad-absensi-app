@@ -1,14 +1,16 @@
 export interface Hafalan {
-    id: number
-    mahasantri_id: number
-    mentor_id: number
-    juz: number
-    halaman: string
-    total_setoran: number
-    kategori: string
-    waktu: string
-    catatan: string
-    created_at: string
+    id: number;
+    mahasantri_id: number;
+    mentor_id: number;
+    juz: number;
+    halaman: string;
+    total_setoran: number;
+    kategori: string;
+    waktu: string;
+    catatan: string;
+    created_at: string;
+    updated_at: string;
+    original_created_at?: Date | null;
 }
 
 export interface Mahasantri {
@@ -23,6 +25,7 @@ export interface Mahasantri {
 export interface Mentor {
     id: number
     nama: string
+    gender: string
 }
 
 export interface MahasantriWithHafalan {
@@ -36,8 +39,14 @@ export interface MahasantriWithHafalan {
     };
 }
 
-interface MahasantriPagination {
+export interface MahasantriPagination {
     current_page: number
     total_mahasantri: number
+    total_pages: number
+}
+
+export interface HafalanPagination {
+    current_page: number,
+    total_hafalan: number,
     total_pages: number
 }
