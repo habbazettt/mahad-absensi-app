@@ -1,6 +1,7 @@
 import {
   BadgeCheck,
   ChevronsUpDown,
+  Edit,
   LogOut,
   User,
   VenusAndMars,
@@ -131,8 +132,12 @@ export function NavUser() {
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate(`/dashboard/mentor/edit/${user.id}`)}>
+                <Edit className="text-blue-400" />
+                Edit Profil
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setOpenDialog(true)}>
-                <LogOut />
+                <LogOut className="text-red-500" />
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>

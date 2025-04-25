@@ -244,7 +244,7 @@ export default function RegisterMahasantri() {
                                                     onClick={togglePasswordVisibility}
                                                     tabIndex={-1}
                                                 >
-                                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                                    {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                                                 </button>
                                             </div>
                                         </FormControl>
@@ -284,9 +284,8 @@ export default function RegisterMahasantri() {
                                         <FormLabel>Pilih Mentor</FormLabel>
                                         <FormControl>
                                             <Select
-                                                value={String(field.value)}
+                                                value={field.value ? String(field.value) : ""}
                                                 onValueChange={(value) => field.onChange(Number(value))}
-                                                disabled={isLoading} // Disable select while loading
                                             >
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Pilih Mentor" />

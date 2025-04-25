@@ -12,6 +12,7 @@ import MahasantriInfoPage from './pages/dashboard/MahasantriInfo.tsx'
 import AbsensiPage from './pages/dashboard/AbsensiPage.tsx'
 import SetoranPage from './pages/dashboard/SetoranPage.tsx'
 import EditMahasantriPage from './pages/dashboard/EditMahasantriPage.tsx'
+import EditMentorPage from './pages/dashboard/EditMentorPage.tsx'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Route path='/dashboard' element={<DashboardPage />} />
       <Route path='/dashboard/info-mahasantri' element={<MahasantriInfoPage />} />
       <Route path='/dashboard/info-mahasantri/edit/:id' element={<EditMahasantriPage />} />
+      <Route path='/dashboard/mentor/edit/:id' element={<EditMentorPage />} />
       <Route path='/dashboard/absensi' element={<AbsensiPage />} />
       <Route path='/dashboard/setoran' element={<SetoranPage />} />
 

@@ -205,14 +205,11 @@ export default function DashboardPage() {
                     </div>
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gray-100 font-poppins">
-
-                    <h1 className="text-2xl lg:text-4xl font-semibold bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 text-black">
+                    <h1 className="text-2xl lg:text-4xl font-semibold bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 text-black mt-4">
                         <span className="inline-flex items-center space-x-3">
                             <span>Welcome, Ust. {userName}🙏</span>
                         </span>
                     </h1>
-
-
 
                     {/* Stat Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -238,7 +235,7 @@ export default function DashboardPage() {
                     {/* Time Widget & Today Setoran List    */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <TimeWidget className="lg:col-span-1 md:col-span-2" />
-                        <TodaySetoranList />
+                        <TodaySetoranList className="lg:col-span-1 md:col-span-2" />
                     </div>
 
                     {/* Charts Section */}
