@@ -186,10 +186,10 @@ export default function AddSetoranPage() {
                                                 onValueChange={(value) => field.onChange(Number(value))}
                                                 disabled={isLoading}
                                             >
-                                                <SelectTrigger className="w-full">
+                                                <SelectTrigger className="w-full font-poppins">
                                                     <SelectValue placeholder="Pilih Mentor" />
                                                 </SelectTrigger>
-                                                <SelectContent>
+                                                <SelectContent className="font-poppins">
                                                     {mentors.map((mentor) => (
                                                         <SelectItem key={mentor.id} value={String(mentor.id)}>
                                                             {mentor.gender === "L" ? "Ust. " : "Usth. "}
@@ -217,10 +217,10 @@ export default function AddSetoranPage() {
                                                 onValueChange={(value) => field.onChange(Number(value))}
                                                 disabled={isLoading || filteredMahasantris.length === 0}
                                             >
-                                                <SelectTrigger className="w-full">
+                                                <SelectTrigger className="w-full font-poppins">
                                                     <SelectValue placeholder="Pilih Mahasantri" />
                                                 </SelectTrigger>
-                                                <SelectContent>
+                                                <SelectContent className="font-poppins">
                                                     {filteredMahasantris.map((mahasantri) => (
                                                         <SelectItem key={mahasantri.id} value={String(mahasantri.id)}>
                                                             {mahasantri.nama}
@@ -314,10 +314,10 @@ export default function AddSetoranPage() {
                                                 value={field.value}
                                                 onValueChange={(value) => field.onChange(value)}
                                             >
-                                                <SelectTrigger className="w-full">
+                                                <SelectTrigger className="w-full font-poppins">
                                                     <SelectValue placeholder="Pilih Kategori" />
                                                 </SelectTrigger>
-                                                <SelectContent>
+                                                <SelectContent className="font-poppins">
                                                     <SelectItem value="ziyadah">Ziyadah</SelectItem>
                                                     <SelectItem value="murojaah">Murojaah</SelectItem>
                                                 </SelectContent>
@@ -340,10 +340,10 @@ export default function AddSetoranPage() {
                                                 value={field.value}
                                                 onValueChange={(value) => field.onChange(value)}
                                             >
-                                                <SelectTrigger className="w-full">
+                                                <SelectTrigger className="w-full font-poppins">
                                                     <SelectValue placeholder="Pilih Waktu" />
                                                 </SelectTrigger>
-                                                <SelectContent>
+                                                <SelectContent className="font-poppins">
                                                     <SelectItem value="shubuh">Shubuh</SelectItem>
                                                     <SelectItem value="isya">Isya</SelectItem>
                                                 </SelectContent>
