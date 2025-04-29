@@ -13,6 +13,7 @@ import NotFound from './pages/NotFound.tsx'
 import DetailMahasantriPage from './pages/mahasantri/DetailMahasantri.tsx'
 import RegisterPage from './pages/auth/RegisterPage.tsx'
 import LoginPage from './pages/auth/LoginPage.tsx'
+import AddTargetPage from './pages/target-semester/AddTargetPage.tsx'
 
 function App() {
   return (
@@ -37,6 +38,9 @@ function App() {
       <Route path='/dashboard/setoran' element={<SetoranPage />} />
       <Route path='/dashboard/setoran/add' element={<AddSetoranPage />} />
       <Route path='/dashboard/setoran/edit/:id' element={<EditSetoranPage />} />
+
+      {/* Target Semester Pages */}
+      <Route path='/dashboard/target-semester/add' element={<AddTargetPage />} />
 
       {/* Auth Pages */}
       <Route path='auth/register' element={<RegisterPage />} />

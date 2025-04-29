@@ -15,11 +15,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useMemo, useState } from "react";
 import { authCheck } from "@/lib/utils";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Mahasantri, Mentor, Hafalan, Pagination, TargetSemester, Column } from "@/types";
 import { ColumnDef, getCoreRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown, Download, Moon, Sun } from "lucide-react";
+import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown, Download, Moon, Plus, Sun } from "lucide-react";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { processAllSetoranData } from "@/utils/dataProcessing";
 import PaginationComponent from "@/components/Pagination";
@@ -35,6 +35,7 @@ import SemesterFilter from "@/components/filter/SemesterFilter";
 
 export default function DetailMahasantriPage() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [mentors, setMentors] = useState<Mentor[]>([]);
     const [mahasantriData, setMahasantriData] = useState<Mahasantri>({
         id: 0,
@@ -609,49 +610,70 @@ export default function DetailMahasantriPage() {
                                                     selectedSemester={selectedSemester}
                                                     handleSemesterFilter={handleSemesterFilter}
                                                 />
-                                            </div>
-                                            {/* Columns Dropdown */}
-                                            <div className="w-full sm:w-auto">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button
-                                                            variant="outline"
-                                                            className="w-full sm:w-[140px] justify-between"
-                                                        >
-                                                            Columns
-                                                            <ChevronDown className="ml-2 h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        {targetSemesterTable
-                                                            .getAllColumns()
-                                                            .filter((column) => column.getCanHide())
-                                                            .map((column) => {
-                                                                const columnLabels: { [key: string]: string } = {
-                                                                    semester: "Semester",
-                                                                    tahun_ajaran: "Tahun Ajaran",
-                                                                    target: "Target",
-                                                                    keterangan: "Keterangan",
-                                                                };
+                                                {/* Columns Dropdown */}
+                                                <div className="w-full sm:w-auto">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button
+                                                                variant="outline"
+                                                                className="w-full sm:w-[140px] justify-between"
+                                                            >
+                                                                Columns
+                                                                <ChevronDown className="ml-2 h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            {targetSemesterTable
+                                                                .getAllColumns()
+                                                                .filter((column) => column.getCanHide())
+                                                                .map((column) => {
+                                                                    const columnLabels: { [key: string]: string } = {
+                                                                        semester: "Semester",
+                                                                        tahun_ajaran: "Tahun Ajaran",
+                                                                        target: "Target",
+                                                                        keterangan: "Keterangan",
+                                                                    };
 
-                                                                return (
-                                                                    <DropdownMenuCheckboxItem
-                                                                        key={column.id}
-                                                                        className="capitalize"
-                                                                        checked={column.getIsVisible()}
-                                                                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                                                                    >
-                                                                        {columnLabels[column.id] ||
-                                                                            column.id
-                                                                                .replace(/_/g, ' ')
-                                                                                .replace(/\bid\b/gi, '')
-                                                                                .replace(/^\w/, (c) => c.toUpperCase())
-                                                                        }
-                                                                    </DropdownMenuCheckboxItem>
-                                                                );
-                                                            })}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                                                    return (
+                                                                        <DropdownMenuCheckboxItem
+                                                                            key={column.id}
+                                                                            className="capitalize"
+                                                                            checked={column.getIsVisible()}
+                                                                            onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                                                                        >
+                                                                            {columnLabels[column.id] ||
+                                                                                column.id
+                                                                                    .replace(/_/g, ' ')
+                                                                                    .replace(/\bid\b/gi, '')
+                                                                                    .replace(/^\w/, (c) => c.toUpperCase())
+                                                                            }
+                                                                        </DropdownMenuCheckboxItem>
+                                                                    );
+                                                                })}
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
+                                            </div>
+
+                                            {/* Export to CSV Button */}
+                                            <div className="w-full gap-2 flex justify-end flex-wrap">
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full sm:w-[140px] bg-green-500 hover:bg-green-400 text-white hover:text-white cursor-pointer font-semibold"
+                                                    onClick={() => { }}
+                                                >
+                                                    <Download />
+                                                    Export to CSV
+                                                </Button>
+
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => navigate('/dashboard/target-semester/add')}
+                                                    className="w-full sm:w-[140px] cursor-pointer font-semibold"
+                                                >
+                                                    <Plus />
+                                                    Input Setoran
+                                                </Button>
                                             </div>
                                         </div>
 
