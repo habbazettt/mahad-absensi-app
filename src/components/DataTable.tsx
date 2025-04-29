@@ -1,18 +1,20 @@
 import { flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { DataTableProps } from "@/types";
 
 export default function DataTable<TData, TValue>({
     columns,
     data,
     sorting,
-    onSortingChange
+    onSortingChange,
+    columnVisibility,
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
         columns,
         state: {
             sorting,
+            columnVisibility,
         },
         onSortingChange,
         getCoreRowModel: getCoreRowModel(),

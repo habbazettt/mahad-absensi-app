@@ -70,6 +70,7 @@ export interface DataTableProps<TData, TValue> {
     data: TData[];
     sorting: SortingState;
     onSortingChange: (sorting: SortingState | Updater<SortingState>) => void;
+    columnVisibility: ColumnVisibilityState;
 }
 
 export interface DeleteDialogProps {
@@ -79,7 +80,7 @@ export interface DeleteDialogProps {
     handleDelete: () => void;
 }
 
-type RowData = Hafalan | Mahasantri
+type RowData = Hafalan | Mahasantri | TargetSemester
 
 export interface ActionDropdownProps {
     row: {
@@ -89,4 +90,23 @@ export interface ActionDropdownProps {
     setSelectedId: (id: number) => void;
     keyword: string;
     editPath: string;
+}
+
+export interface TargetSemester {
+    id: number
+    mahasantri_id: number
+    target: number
+    semester: string
+    tahun_ajaran: string
+    keterangan: string
+    created_at: string
+    updated_at: string
+}
+
+export interface TargetSemesterDataProps {
+    targetSemesterData: TargetSemester[]
+}
+
+export interface Column {
+    id: keyof Hafalan;
 }

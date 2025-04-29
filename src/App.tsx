@@ -1,11 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home.tsx'
-import RegisterMentor from './pages/auth/RegisterMentor.tsx'
-import RegisterMahasantri from './pages/auth/RegisterMahasantri.tsx'
-import LoginMentor from './pages/auth/LoginMentor.tsx'
-import LoginMahasantri from './pages/auth/LoginMahasantri.tsx'
-import AuthMentorLayout from './layout/AuthMentorLayout.tsx'
-import AuthMahasantriLayout from './layout/AuthMahasantriLayout.tsx'
 import ForgotPassword from './pages/auth/ForgotPassword.tsx'
 import DashboardPage from './pages/dashboard/Dashboard.tsx'
 import MahasantriInfoPage from './pages/mahasantri/MahasantriInfo.tsx'
@@ -16,39 +10,40 @@ import EditMentorPage from './pages/mentor/EditMentorPage.tsx'
 import AddSetoranPage from './pages/setoran/AddSetoranPage.tsx'
 import EditSetoranPage from './pages/setoran/EditSetoranPage.tsx'
 import NotFound from './pages/NotFound.tsx'
+import DetailMahasantriPage from './pages/mahasantri/DetailMahasantri.tsx'
+import RegisterPage from './pages/auth/RegisterPage.tsx'
+import LoginPage from './pages/auth/LoginPage.tsx'
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
 
+      {/* Main Dashboard */}
       <Route path='/dashboard' element={<DashboardPage />} />
 
+      {/* Info Mahasantri Pages */}
       <Route path='/dashboard/info-mahasantri' element={<MahasantriInfoPage />} />
+      <Route path='/dashboard/info-mahasantri/detail/:id' element={<DetailMahasantriPage />} />
       <Route path='/dashboard/info-mahasantri/edit/:id' element={<EditMahasantriPage />} />
 
+      {/* Mentor Pages */}
       <Route path='/dashboard/mentor/edit/:id' element={<EditMentorPage />} />
 
+      {/* Absensi Pages */}
       <Route path='/dashboard/absensi' element={<AbsensiPage />} />
 
+      {/* Setoran Pages */}
       <Route path='/dashboard/setoran' element={<SetoranPage />} />
       <Route path='/dashboard/setoran/add' element={<AddSetoranPage />} />
       <Route path='/dashboard/setoran/edit/:id' element={<EditSetoranPage />} />
 
-      {/* Grup rute untuk otentikasi Mentor */}
-      <Route path="/auth/mentor" element={<AuthMentorLayout />}>
-        <Route path="register" element={<RegisterMentor />} />
-        <Route path="login" element={<LoginMentor />} />
-      </Route>
-
-      {/* Grup rute untuk otentikasi Mahasantri */}
-      <Route path="/auth/mahasantri" element={<AuthMahasantriLayout />}>
-        <Route path="register" element={<RegisterMahasantri />} />
-        <Route path="login" element={<LoginMahasantri />} />
-      </Route>
-
+      {/* Auth Pages */}
+      <Route path='auth/register' element={<RegisterPage />} />
+      <Route path='auth/login' element={<LoginPage />} />
       <Route path='/auth/forgot-password' element={<ForgotPassword />} />
 
+      {/* Not Found */}
       <Route path='*' element={<NotFound />} />
     </Routes>
   )

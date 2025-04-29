@@ -26,9 +26,14 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { processAllSetoranData } from "@/utils/dataProcessing"
 import PaginationComponent from "@/components/Pagination"
 import DataTable from "@/components/DataTable"
-import toast from "react-hot-toast"
+import toast, { Toaster } from "react-hot-toast"
 import DeleteDialogComponent from "@/components/dialogs/DeleteDialog"
 import ActionDropdown from "@/components/ActionDropdown"
+import MentorFilter from "@/components/filter/MentorFilter"
+import { authCheck } from "@/lib/utils"
+import MahasantriFilter from "@/components/filter/MahasantriFilter"
+import CategoryFilter from "@/components/filter/CategoryFilter"
+import TimeFilter from "@/components/filter/TimeFilter"
 
 export default function SetoranPage() {
     const navigate = useNavigate()
@@ -44,29 +49,16 @@ export default function SetoranPage() {
         total_pages: 1,
     })
     const [openDialog, setOpenDialog] = useState(false)
-    const [selectedId, setSelectedId] = useState(0)
+    const [columnVisibility, setColumnVisibility] = useState({});
 
+    const [selectedId, setSelectedId] = useState(0)
+    const [selectedMentorId, setSelectedMentorId] = useState<string | undefined>(undefined);
+    const [selectedMahasantriId, setSelectedMahasantriId] = useState<string | undefined>(undefined);
+
+    const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+    const [selectedTime, setSelectedTime] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        const authCheck = () => {
-            const user = localStorage.getItem("user")
-            if (!user) {
-                navigate("/")
-                return false
-            }
-
-            try {
-                const userData = JSON.parse(user)
-                if (userData.user_type !== "mentor") navigate("/")
-                return true
-            } catch (error) {
-                console.error("Failed to parse user data:", error)
-                navigate("/")
-                return false
-            }
-        }
-
-
         const fetchInitialData = async () => {
             if (authCheck()) {
                 try {
@@ -109,12 +101,29 @@ export default function SetoranPage() {
         fetchHafalanData(newPage)
     }
 
-    const fetchHafalanData = async (page: number) => {
+    const fetchHafalanData = async (page: number, mentor_id?: number, mahasantri_id?: number, kategori?: string, waktu?: string) => {
         try {
             setLoading(true);
             const url = new URL(`${import.meta.env.VITE_API_URL}/hafalan`);
             url.searchParams.append('page', page.toString());
             url.searchParams.append('limit', '10');
+            url.searchParams.append('sort', sorting[0]?.desc ? 'desc' : 'asc');
+
+            if (mentor_id) {
+                url.searchParams.append('mentor_id', mentor_id.toString());
+            }
+
+            if (mahasantri_id) {
+                url.searchParams.append('mahasantri_id', mahasantri_id.toString());
+            }
+
+            if (kategori) {
+                url.searchParams.append('kategori', kategori);
+            }
+
+            if (waktu) {
+                url.searchParams.append('waktu', waktu);
+            }
 
             const response = await fetch(url.toString(), {
                 headers: {
@@ -127,61 +136,61 @@ export default function SetoranPage() {
             const data = await response.json();
 
             if (data.status) {
-                // Proses data hafalan sebelum menyetelnya ke state
                 const processedHafalanData = processAllSetoranData(data.data.hafalan);
-
                 setHafalanData(processedHafalanData);
                 setPagination({
                     current_page: data.data.pagination.current_page,
                     total_data: data.data.pagination.total_data,
                     total_pages: data.data.pagination.total_pages,
                 });
+            } else {
+                console.error("Error fetching data:", data.message);
             }
         } catch (error) {
             setError("Gagal memuat data hafalan");
-            console.error("Initial fetch error:", error);
+            console.error("Fetch error:", error);
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const fetchMahasantriData = async (page: number, search: string) => {
         try {
-            setLoading(true)
-            const url = new URL(`${import.meta.env.VITE_API_URL}/mahasantri`)
-            url.searchParams.append('page', page.toString())
-            url.searchParams.append('limit', '10')
+            setLoading(true);
+            const url = new URL(`${import.meta.env.VITE_API_URL}/mahasantri`);
+            url.searchParams.append('page', page.toString());
+            url.searchParams.append('limit', '10');
             if (search) {
-                url.searchParams.append('nama', search)
+                url.searchParams.append('nama', search);
             }
-            const response = await fetch(url.toString())
-            if (!response.ok) throw new Error("Gagal mengambil data mahasantri")
-            const data = await response.json()
+            const response = await fetch(url.toString());
+            if (!response.ok) throw new Error("Gagal mengambil data mahasantri");
+            const data = await response.json();
             if (data.status) {
                 setMahasantriData(data.data.mahasantri);
             }
         } catch (err) {
-            setError("Gagal memuat data mahasantri")
-            console.error("Fetch error:", err)
+            setError("Gagal memuat data mahasantri");
+            console.error("Fetch error:", err);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     const getMentorName = (mentorId: number) => {
-        const mentor = mentors.find(m => m.id === mentorId)
-        return mentor ? mentor.nama : 'Belum ada mentor'
-    }
+        const mentor = mentors.find(m => m.id === mentorId);
+        return mentor ? mentor.nama : 'Belum ada mentor';
+    };
 
     const getMentorGender = (mentorId: number) => {
-        const mentor = mentors.find(m => m.id === mentorId)
-        return mentor?.gender === "L" ? "Ust. " : "Ust. "
-    }
+        const mentor = mentors.find(m => m.id === mentorId);
+        return mentor?.gender === "L" ? "Ust. " : "Ust. ";
+    };
 
     const getMahasantriName = (mahasantriId: number) => {
-        const mahasantri = mahasantriData.find(m => m.id === mahasantriId)
-        return mahasantri ? mahasantri.nama : 'Belum ada mahasantri'
-    }
+        const mahasantri = mahasantriData.find(m => m.id === mahasantriId);
+        return mahasantri ? mahasantri.nama : 'Belum ada mahasantri';
+    };
 
     // Definisi Kolom Tabel
     const columns = useMemo<ColumnDef<Hafalan>[]>(() => [
@@ -189,6 +198,7 @@ export default function SetoranPage() {
             id: "created_at",
             accessorKey: "created_at",
             enableSorting: true,
+            enableHiding: true,
             header: ({ column }) => {
                 const isSorted = column.getIsSorted();
                 return (
@@ -222,6 +232,7 @@ export default function SetoranPage() {
             id: "mahasantri_id",
             accessorKey: "mahasantri_id",
             header: "Mahasantri",
+            enableHiding: true,
             cell: ({ row }) => {
                 const mahasantri_id = row.getValue("mahasantri_id") as number;
                 return (
@@ -235,6 +246,7 @@ export default function SetoranPage() {
             id: "mentor_id",
             accessorKey: "mentor_id",
             header: "Mentor",
+            enableHiding: true,
             cell: ({ row }) => {
                 const mentorId = row.getValue("mentor_id") as number;
                 return (
@@ -249,16 +261,19 @@ export default function SetoranPage() {
             id: "juz",
             accessorKey: "juz",
             header: "Juz",
+            enableHiding: true,
         },
         {
             id: "halaman",
             accessorKey: "halaman",
             header: "Halaman",
+            enableHiding: true,
         },
         {
             id: "total_setoran",
             accessorKey: "total_setoran",
             header: "Total Setoran",
+            enableHiding: true,
             cell: ({ row }) => (
                 <h1>
                     {row.getValue("total_setoran")} halaman
@@ -279,6 +294,7 @@ export default function SetoranPage() {
             id: "waktu",
             accessorKey: "waktu",
             header: "Waktu",
+            enableHiding: true,
             cell: ({ row }) => {
                 const waktu = row.getValue("waktu");
                 const isShubuh = waktu === "shubuh";
@@ -295,6 +311,7 @@ export default function SetoranPage() {
             id: "catatan",
             accessorKey: "catatan",
             header: "Catatan",
+            enableHiding: true,
         },
         {
             id: "actions",
@@ -318,18 +335,20 @@ export default function SetoranPage() {
         columns,
         state: {
             sorting,
+            columnVisibility,
         },
         onSortingChange: setSorting,
+        onColumnVisibilityChange: setColumnVisibility,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-    })
+    });
 
     const handleDeleteSetoran = async () => {
         const loadingToast = toast.loading("Sedang memproses...");
         setLoading(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/mahasantri/${selectedId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/hafalan/${selectedId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -357,8 +376,50 @@ export default function SetoranPage() {
         }
     }
 
+    // Filter by Mentor
+    const handleMentorFilter = async (mentorId: string) => {
+        setSelectedMentorId(mentorId === "all" ? undefined : mentorId);
+        if (mentorId === "all") {
+            await fetchHafalanData(1);
+        } else {
+            await fetchHafalanData(1, parseInt(mentorId));
+        }
+    };
+
+    // Filter by Mahasantri
+    const handleMahasantriFilter = async (mahasantriId: string) => {
+        if (mahasantriId === "all") {
+            setSelectedMahasantriId(undefined);
+            setSelectedMentorId(undefined);
+            await fetchHafalanData(1);
+        } else {
+            setSelectedMahasantriId(mahasantriId);
+            await fetchHafalanData(1, undefined, parseInt(mahasantriId));
+        }
+    };
+
+    // Filter by Category
+    const handleCategoryFilter = async (category: string) => {
+        const selectedCat = category === "all" ? undefined : category;
+        setSelectedCategory(selectedCat);
+        await fetchHafalanData(1, undefined, Number(selectedMahasantriId), selectedCat, selectedTime);
+    };
+
+    // Filter by Time
+    const handleTimeFilter = async (time: string) => {
+        const selectedTm = time === "all" ? undefined : time;
+        setSelectedTime(selectedTm);
+        await fetchHafalanData(1, undefined, Number(selectedMahasantriId), selectedCategory, selectedTm);
+    };
+
+    const filteredMahasantriData = useMemo(() => {
+        if (!selectedMentorId) return mahasantriData;
+        return mahasantriData.filter(mahasantri => mahasantri.mentor_id === parseInt(selectedMentorId));
+    }, [mahasantriData, selectedMentorId]);
+
     return (
         <>
+            <Toaster position="top-right" />
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
@@ -411,7 +472,26 @@ export default function SetoranPage() {
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:gap-4">
+                                        <div className="flex flex-col gap-4 py-4 lg:flex-row justify-between items-start lg:items-center sm:gap-4">
+                                            <div className="flex flex-col lg:flex-row gap-4">
+                                                <MentorFilter selectedMentorId={selectedMentorId} mentors={mentors} handleMentorFilter={handleMentorFilter} />
+
+                                                <MahasantriFilter
+                                                    mahasantriData={filteredMahasantriData}
+                                                    handleMahasantriFilter={handleMahasantriFilter}
+                                                    selectedMahasantriId={selectedMahasantriId}
+                                                />
+
+                                                <CategoryFilter
+                                                    selectedCategory={selectedCategory}
+                                                    handleCategoryFilter={handleCategoryFilter}
+                                                />
+                                                <TimeFilter
+                                                    selectedTime={selectedTime}
+                                                    handleTimeFilter={handleTimeFilter}
+                                                />
+                                            </div>
+
                                             {/* Columns Dropdown */}
                                             <div className="w-full sm:w-auto">
                                                 <DropdownMenu>
@@ -461,6 +541,7 @@ export default function SetoranPage() {
                                             data={hafalanData}
                                             sorting={sorting}
                                             onSortingChange={setSorting}
+                                            columnVisibility={columnVisibility}
                                         />
 
                                         <PaginationComponent

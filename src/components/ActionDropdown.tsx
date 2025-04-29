@@ -1,4 +1,4 @@
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, Info, MoreHorizontal, Trash } from "lucide-react";
 import { Button } from "./ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,16 @@ export default function ActionDropdown({ row, setOpenDialog, setSelectedId, keyw
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {
+                    keyword === "Mahasantri" && (
+                        <DropdownMenuItem
+                            onClick={() => navigate(`/dashboard/info-mahasantri/detail/${row.original.id}`)}
+                        >
+                            <Info className="text-green-400" />
+                            Detail {keyword}
+                        </DropdownMenuItem>
+                    )
+                }
                 <DropdownMenuItem
                     onClick={() => navigate(`${editPath}/${row.original.id}`)}
                 >

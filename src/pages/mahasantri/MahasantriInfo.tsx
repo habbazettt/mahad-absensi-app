@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { AppSidebar } from "@/components/app-sidebar"
 import {
     Breadcrumb,
@@ -34,9 +33,9 @@ import MentorFilter from "@/components/filter/MentorFilter"
 import DataTable from "@/components/DataTable"
 import DeleteDialogComponent from "@/components/dialogs/DeleteDialog"
 import ActionDropdown from "@/components/ActionDropdown"
+import { authCheck } from "@/lib/utils"
 
 export default function MahasantriInfoPage() {
-    const navigate = useNavigate()
     const [mahasantriData, setMahasantriData] = useState<Mahasantri[]>([])
     const [filteredMahasantriData, setFilteredMahasantriData] = useState<Mahasantri[]>([])
     const [mentors, setMentors] = useState<Mentor[]>([])
@@ -52,6 +51,7 @@ export default function MahasantriInfoPage() {
     const [sorting, setSorting] = useState<SortingState>([])
     const [openDialog, setOpenDialog] = useState(false)
     const [selectedId, setSelectedId] = useState(0)
+    const [columnVisibility, setColumnVisibility] = useState({});
 
     // Debounce search input
     useEffect(() => {
@@ -65,25 +65,6 @@ export default function MahasantriInfoPage() {
     }, [searchTerm])
 
     useEffect(() => {
-        const authCheck = () => {
-            const user = localStorage.getItem("user")
-            if (!user) {
-                navigate("/")
-                return false
-            }
-
-            try {
-                const userData = JSON.parse(user)
-                if (userData.user_type !== "mentor") navigate("/")
-                return true
-            } catch (error) {
-                console.error("Failed to parse user data:", error)
-                navigate("/")
-                return false
-            }
-        }
-
-
         const fetchInitialData = async () => {
             if (authCheck()) {
                 try {
@@ -256,8 +237,10 @@ export default function MahasantriInfoPage() {
         columns,
         state: {
             sorting,
+            columnVisibility,
         },
         onSortingChange: setSorting,
+        onColumnVisibilityChange: setColumnVisibility,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
@@ -403,6 +386,7 @@ export default function MahasantriInfoPage() {
                                             data={filteredMahasantriData}
                                             sorting={sorting}
                                             onSortingChange={setSorting}
+                                            columnVisibility={columnVisibility}
                                         />
 
                                         <PaginationComponent

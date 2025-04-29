@@ -5,14 +5,17 @@ import { Mentor } from "@/types";
 type MentorFilterProps = {
     mentors: Mentor[];
     handleMentorFilter: (e: string) => void;
+    selectedMentorId?: string | null;
 }
 
-export default function MentorFilter({ mentors, handleMentorFilter }: MentorFilterProps) {
+export default function MentorFilter({ mentors, handleMentorFilter, selectedMentorId }: MentorFilterProps) {
+    const selectedMentor = mentors.find(mentor => mentor.id === parseInt(selectedMentorId || '')) || null;
+
     return (
-        <div className="w-full sm:w-[280px]">
+        <div className="w-full sm:w-[300px]">
             <Select onValueChange={(e) => handleMentorFilter(e)}>
                 <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Filter Mentor" />
+                    <SelectValue placeholder={selectedMentor ? `${selectedMentor.gender === "L" ? "Ust. " : "Usth. "}${selectedMentor.nama}` : "Filter Mentor"} />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">Semua Mentor</SelectItem>
