@@ -14,6 +14,7 @@ import DetailMahasantriPage from './pages/mahasantri/DetailMahasantri.tsx'
 import RegisterPage from './pages/auth/RegisterPage.tsx'
 import LoginPage from './pages/auth/LoginPage.tsx'
 import AddTargetPage from './pages/target-semester/AddTargetPage.tsx'
+import EditTargetPage from './pages/target-semester/EditTarget.tsx'
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
 
       {/* Target Semester Pages */}
       <Route path='/dashboard/target-semester/add' element={<AddTargetPage />} />
+      <Route path='/dashboard/target-semester/edit/:id' element={<EditTargetPage />} />
 
       {/* Auth Pages */}
       <Route path='auth/register' element={<RegisterPage />} />

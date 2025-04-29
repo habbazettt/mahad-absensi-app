@@ -24,31 +24,29 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import toast, { Toaster } from "react-hot-toast";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-const editSetoranSchema = z.object({
-    juz: z.number().optional(),
-    halaman: z.string().optional(),
-    total_setoran: z.number().optional(),
-    kategori: z.string().optional(),
-    waktu: z.string().optional(),
-    catatan: z.string().optional()
+const editTargetSemesterSchema = z.object({
+    semester: z.string().optional(),
+    tahun_ajaran: z.string().optional(),
+    target: z.number().optional(),
+    keterangan: z.string().optional(),
 });
 
-type EditFormValues = z.infer<typeof editSetoranSchema>;
+type EditFormValues = z.infer<typeof editTargetSemesterSchema>;
 
-export default function EditSetoranPage() {
-    const { id } = useParams();
+export default function EditTargetPage() {
+    const { id } = useParams()
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<EditFormValues>({
-        resolver: zodResolver(editSetoranSchema),
+        resolver: zodResolver(editTargetSemesterSchema),
     });
 
     useEffect(() => {
-        const fetchSetoranData = async () => {
+        const fetchTargetSemesterData = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/hafalan/${id}`, {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/target_semester/${id}`, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("auth_token")}`,
                     },
@@ -63,22 +61,21 @@ export default function EditSetoranPage() {
                 setIsLoading(false);
             }
         };
-        fetchSetoranData();
+        fetchTargetSemesterData();
     }, [id]);
+
 
     const onSubmit = async (data: EditFormValues) => {
         setIsLoading(true);
         try {
             const requestBody = {
-                juz: Number(data.juz),
-                halaman: data.halaman,
-                total_setoran: Number(data.total_setoran),
-                kategori: data.kategori,
-                waktu: data.waktu,
-                catatan: data.catatan
+                semester: data.semester,
+                tahun_ajaran: data.tahun_ajaran,
+                target: data.target,
+                keterangan: data.keterangan,
             };
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/hafalan/${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/target_semester/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -87,14 +84,12 @@ export default function EditSetoranPage() {
                 body: JSON.stringify(requestBody),
             });
 
-            if (!response.ok) throw new Error("Failed to update setoran");
-            toast.success("Setoran berhasil diperbarui");
-            setTimeout(() => {
-                navigate("/dashboard/setoran");
-            }, 400)
+            if (!response.ok) throw new Error("Failed to update target semester");
+            toast.success("Target Semester berhasil diperbarui");
+            navigate(`/dashboard/info-mahasantri`);
         } catch (error) {
-            console.error("Error updating setoran:", error);
-            toast.error("Gagal memperbarui setoran");
+            console.error("Error updating target semester:", error);
+            toast.error("Gagal memperbarui target semester");
         } finally {
             setIsLoading(false);
         }
@@ -116,11 +111,11 @@ export default function EditSetoranPage() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-muted-foreground">Setoran Mahasantri</BreadcrumbPage>
+                                    <BreadcrumbPage className="text-muted-foreground">Target Semester</BreadcrumbPage>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-primary">Edit Setoran</BreadcrumbPage>
+                                    <BreadcrumbPage className="text-primary">Edit Target Semester</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
@@ -128,23 +123,69 @@ export default function EditSetoranPage() {
                 </header>
 
                 <div className="flex flex-1 flex-col gap-6 p-8 bg-gray-50 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold text-gray-800 text-center">Edit Setoran</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 text-center">Input Target Semester Mahasantri</h2>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-                            {/* Input Juz */}
+                            {/* Input Semester */}
                             <FormField
                                 control={form.control}
-                                name="juz"
+                                name="semester"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Juz</FormLabel>
+                                        <FormLabel className="font-bold text-gray-700">Semester</FormLabel>
+                                        <FormControl>
+                                            <Select
+                                                value={field.value}
+                                                onValueChange={(value) => field.onChange(value)}
+                                            >
+                                                <SelectTrigger className="w-full font-poppins">
+                                                    <SelectValue placeholder="Pilih Semester" />
+                                                </SelectTrigger>
+                                                <SelectContent className="font-poppins">
+                                                    <SelectItem value="Ganjil">Ganjil</SelectItem>
+                                                    <SelectItem value="Genap">Genap</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Input Tahun Ajaran */}
+                            <FormField
+                                control={form.control}
+                                name="tahun_ajaran"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="font-bold text-gray-700">Tahun Ajaran</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="text"
+                                                placeholder="Masukkan Tahun Ajaran (ex: 2024/2025)"
+                                                {...field}
+                                                className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Input Target */}
+                            <FormField
+                                control={form.control}
+                                name="target"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="font-bold text-gray-700">Target</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="number"
-                                                placeholder="Masukkan Juz"
+                                                placeholder="Masukkan Target"
                                                 {...field}
-                                                className="no-spinner"
+                                                className="no-spinner border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
                                                 onChange={(e) => {
                                                     const value = e.target.value;
                                                     field.onChange(value ? Number(value) : 0);
@@ -156,113 +197,19 @@ export default function EditSetoranPage() {
                                 )}
                             />
 
-                            {/* Input Halaman */}
+                            {/* Input Keterangan */}
                             <FormField
                                 control={form.control}
-                                name="halaman"
+                                name="keterangan"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Halaman</FormLabel>
+                                        <FormLabel className="font-bold text-gray-700">Keterangan</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="text"
-                                                placeholder="Masukkan Halaman"
+                                                placeholder="Masukkan Ketarangan"
                                                 {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Total Setoran */}
-                            <FormField
-                                control={form.control}
-                                name="total_setoran"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Total Setoran</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                placeholder="Masukkan Total Setoran"
-                                                {...field}
-                                                className="no-spinner"
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    field.onChange(value ? Number(value) : 0); // Konversi ke number
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Kategori */}
-                            <FormField
-                                control={form.control}
-                                name="kategori"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Kategori</FormLabel>
-                                        <FormControl>
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={(value) => field.onChange(value)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Pilih Kategori" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="ziyadah">Ziyadah</SelectItem>
-                                                    <SelectItem value="murojaah">Murojaah</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Waktu */}
-                            <FormField
-                                control={form.control}
-                                name="waktu"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Waktu</FormLabel>
-                                        <FormControl>
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={(value) => field.onChange(value)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Pilih Waktu" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="shubuh">Shubuh</SelectItem>
-                                                    <SelectItem value="isya">Isya</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Catatan */}
-                            <FormField
-                                control={form.control}
-                                name="catatan"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Catatan</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="text"
-                                                placeholder="Masukkan Catatan"
-                                                {...field}
+                                                className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -272,16 +219,16 @@ export default function EditSetoranPage() {
 
                             {/* Submit Button */}
                             <Button
-                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded-md transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                                 type="submit"
                                 disabled={isLoading}
                             >
-                                {isLoading ? "Loading..." : "Edit Setoran"}
+                                {isLoading ? "Loading..." : "Tambah Target Semester"}
                             </Button>
                         </form>
                     </Form>
                 </div>
             </SidebarInset>
         </SidebarProvider>
-    );
+    )
 }
