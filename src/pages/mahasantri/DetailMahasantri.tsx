@@ -14,12 +14,12 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useMemo, useState } from "react";
-import { authCheck } from "@/lib/utils";
+import { authCheck, formatTanggalIndo } from "@/lib/utils";
 import { useNavigate, useParams } from "react-router-dom";
-import { Mahasantri, Mentor, Hafalan, Pagination, TargetSemester, Column } from "@/types";
+import { Mahasantri, Mentor, Hafalan, Pagination, TargetSemester, Column, CsvColumnConfig } from "@/types";
 import { ColumnDef, getCoreRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown, Download, Moon, Plus, Sun } from "lucide-react";
+import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown, Moon, Plus, Sun } from "lucide-react";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { processAllSetoranData } from "@/utils/dataProcessing";
 import PaginationComponent from "@/components/Pagination";
@@ -32,6 +32,8 @@ import toast, { Toaster } from "react-hot-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TahunAjaranFilter from "@/components/filter/TahunAjaranFilter";
 import SemesterFilter from "@/components/filter/SemesterFilter";
+import { exportToCSV } from "@/utils/exportCsv";
+import { CsvExportButton } from "@/components/CsvExportButton";
 
 export default function DetailMahasantriPage() {
     const { id } = useParams();
@@ -383,6 +385,45 @@ export default function DetailMahasantriPage() {
         getPaginationRowModel: getPaginationRowModel(),
     });
 
+    // Export to CSV Handler
+    const handleExportHafalan = () => {
+        const columns: CsvColumnConfig<Hafalan>[] = [
+            {
+                key: 'created_at',
+                header: 'Hari, Tanggal',
+                format: (value) => formatTanggalIndo(value)
+            },
+            { key: 'juz', header: 'Juz' },
+            { key: 'halaman', header: 'Halaman' },
+            { key: 'total_setoran', header: 'Total Setoran' },
+            { key: 'kategori', header: 'Kategori' },
+            { key: 'waktu', header: 'Waktu' },
+            { key: 'catatan', header: 'Catatan' },
+        ];
+
+        exportToCSV(
+            hafalanData,
+            columns,
+            `Rekap Hafalan ${mahasantriData.nama}`
+        );
+    };
+
+    // Di komponen TargetSemester
+    const handleExportTargetSemester = () => {
+        const columns: CsvColumnConfig<TargetSemester>[] = [
+            { key: 'tahun_ajaran', header: 'Tahun Ajaran' },
+            { key: 'semester', header: 'Semester' },
+            { key: 'target', header: 'Target' },
+            { key: 'keterangan', header: 'Keterangan' },
+        ];
+
+        exportToCSV(
+            targetSemesterData,
+            columns,
+            `Target Semester ${mahasantriData.nama}`
+        );
+    };
+
     // Delete Handler
     const handleDeleteSetoran = async () => {
         const loadingToast = toast.loading("Sedang memproses...");
@@ -559,14 +600,7 @@ export default function DetailMahasantriPage() {
 
                                             {/* Export to CSV Button */}
                                             <div className="w-full sm:w-auto">
-                                                <Button
-                                                    variant="outline"
-                                                    className="w-full sm:w-[140px] bg-green-500 hover:bg-green-400 text-white hover:text-white cursor-pointer font-semibold"
-                                                    onClick={() => { }}
-                                                >
-                                                    <Download />
-                                                    Export to CSV
-                                                </Button>
+                                                <CsvExportButton onClick={handleExportHafalan} />
                                             </div>
                                         </div>
 
@@ -657,14 +691,7 @@ export default function DetailMahasantriPage() {
 
                                             {/* Export to CSV Button */}
                                             <div className="w-full gap-2 flex justify-end flex-wrap">
-                                                <Button
-                                                    variant="outline"
-                                                    className="w-full sm:w-[140px] bg-green-500 hover:bg-green-400 text-white hover:text-white cursor-pointer font-semibold"
-                                                    onClick={() => { }}
-                                                >
-                                                    <Download />
-                                                    Export to CSV
-                                                </Button>
+                                                <CsvExportButton onClick={handleExportTargetSemester} />
 
                                                 <Button
                                                     type="button"
@@ -672,7 +699,7 @@ export default function DetailMahasantriPage() {
                                                     className="w-full sm:w-[140px] cursor-pointer font-semibold"
                                                 >
                                                     <Plus />
-                                                    Input Setoran
+                                                    Input Target
                                                 </Button>
                                             </div>
                                         </div>

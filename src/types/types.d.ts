@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Hafalan {
     id: number;
     mahasantri_id: number;
@@ -109,4 +110,16 @@ export interface TargetSemesterDataProps {
 
 export interface Column {
     id: keyof Hafalan;
+}
+
+export interface TokenPayload {
+    id: number;
+    role: string;
+    exp: number;
+}
+
+export interface CsvColumnConfig<T> {
+    key: keyof T;
+    header: string;
+    format?: (value: any) => string;
 }

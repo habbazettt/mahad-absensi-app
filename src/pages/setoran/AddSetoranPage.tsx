@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import toast, { Toaster } from "react-hot-toast";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Mahasantri, Mentor } from "@/types";
 
 const addSetoranSchema = z.object({
@@ -241,6 +241,7 @@ export default function AddSetoranPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="font-bold text-gray-700">Juz</FormLabel>
+                                        <FormDescription>Masukkan dalam format angka (1-30)</FormDescription>
                                         <FormControl>
                                             <Input
                                                 type="number"
@@ -265,6 +266,7 @@ export default function AddSetoranPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="font-bold text-gray-700">Halaman</FormLabel>
+                                        <FormDescription>ex: 2.10 (10 hlm)</FormDescription>
                                         <FormControl>
                                             <Input
                                                 type="text"
@@ -285,10 +287,12 @@ export default function AddSetoranPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="font-bold text-gray-700">Total Setoran</FormLabel>
+                                        <FormDescription>Masukkan total halaman, ex: 10</FormDescription>
                                         <FormControl>
                                             <Input
                                                 type="number"
                                                 placeholder="Masukkan Total Setoran"
+                                                min={1}
                                                 {...field}
                                                 className="no-spinner border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
                                                 onChange={(e) => {
@@ -361,6 +365,7 @@ export default function AddSetoranPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="font-bold text-gray-700">Catatan</FormLabel>
+                                        <FormDescription>Masukkan catatan setoran, ex: baik, cukup</FormDescription>
                                         <FormControl>
                                             <Input
                                                 type="text"

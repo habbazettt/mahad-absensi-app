@@ -1,6 +1,22 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { NavigateFunction } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { TokenPayload } from "@/types";
+
+export const isTokenExpired = (): boolean => {
+  const token = localStorage.getItem("auth_token");
+  if (!token) return true;
+
+  try {
+    const decoded: TokenPayload = jwtDecode(token);
+    const currentTime = Math.floor(Date.now() / 1000);
+    return decoded.exp < currentTime;
+  } catch (error) {
+    console.error("Failed to decode token:", error);
+    return true;
+  }
+};
 
 const navigate = (path: string) => {
   window.location.href = path
@@ -31,9 +47,9 @@ export const handleLogout = (navigate: NavigateFunction) => {
 
 export const authCheck = () => {
   const user = localStorage.getItem("user")
-  if (!user) {
-    navigate("/")
-    return false
+  if (!user || isTokenExpired()) {
+    handleLogout(navigate as NavigateFunction)
+    return false;
   }
 
   try {
