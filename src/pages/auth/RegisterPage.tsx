@@ -122,7 +122,7 @@ export default function RegisterPage() {
             }
 
             toast.success("Register berhasil! 🎉");
-            navigate("/auth/mahasantri/login");
+            navigate("/auth/login");
         } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error.message);
@@ -162,7 +162,7 @@ export default function RegisterPage() {
             toast.dismiss(loadingToast);
             toast.success("Register berhasil! 🎉");
             setTimeout(() => {
-                navigate("/auth/mentor/login");
+                navigate("/auth/login");
             }, 400);
         } catch (error: unknown) {
             if (error instanceof Error) {

@@ -11,7 +11,7 @@ export default function Home() {
         const user = localStorage.getItem("user")
 
         if (!token || !user) {
-            navigate("/auth/mentor/login")
+            navigate("/auth/login")
             return
         }
 
@@ -21,7 +21,7 @@ export default function Home() {
             setStatus(userData.status)
         } catch (error) {
             console.error("Error parsing user data:", error)
-            navigate("/auth/mentor/login")
+            navigate("/auth/login")
         }
     }, [navigate])
 

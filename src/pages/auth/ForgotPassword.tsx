@@ -94,7 +94,7 @@ export default function ForgotPassword() {
             }
 
             toast.success("Reset Password Berhasil! 🎉", { id: toastId })
-            navigate(role === "mahasantri" ? "/auth/mahasantri/login" : "/auth/mentor/login")
+            navigate("/auth/login")
         } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error.message, { id: toastId })

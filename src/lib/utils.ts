@@ -25,7 +25,7 @@ export const handleLogout = (navigate: NavigateFunction) => {
   localStorage.removeItem("user");
 
   setTimeout(() => {
-    navigate("/auth/mentor/login", { replace: true });
+    navigate("/auth/login", { replace: true });
   }, 100);
 };
 
@@ -38,11 +38,11 @@ export const authCheck = () => {
 
   try {
     const userData = JSON.parse(user)
-    if (userData.user_type !== "mentor") navigate("/auth/mentor/login")
+    if (userData.user_type !== "mentor") navigate("/auth/login")
     return true
   } catch (error) {
     console.error("Failed to parse user data:", error)
-    navigate("/auth/mentor/login")
+    navigate("/auth/login")
     return false
   }
 }

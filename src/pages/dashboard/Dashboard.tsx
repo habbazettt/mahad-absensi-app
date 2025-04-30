@@ -82,7 +82,7 @@ export default function DashboardPage() {
 
     useEffect(() => {
         if (!user || user.user_type !== "mentor") {
-            navigate("/auth/mentor/login");
+            navigate("/auth/login");
             return;
         }
 
