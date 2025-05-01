@@ -6,11 +6,11 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"  // Menambahkan scroll horizontal
+      className="relative w-full overflow-x-auto"
     >
       <table
         data-slot="table"
-        className={cn("w-full min-w-[600px] caption-bottom text-sm", className)}  // Set min-width untuk memastikan scroll jika perlu
+        className={cn("w-full min-w-[600px] caption-bottom text-sm", className)}
         {...props}
       />
     </div>

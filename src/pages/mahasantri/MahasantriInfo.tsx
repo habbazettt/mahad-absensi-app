@@ -418,6 +418,7 @@ export default function MahasantriInfoPage() {
                                             sorting={sorting}
                                             onSortingChange={setSorting}
                                             columnVisibility={columnVisibility}
+                                            enablePagination={true}
                                         />
 
                                         <PaginationComponent

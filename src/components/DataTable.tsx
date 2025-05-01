@@ -8,6 +8,7 @@ export default function DataTable<TData, TValue>({
     sorting,
     onSortingChange,
     columnVisibility,
+    enablePagination = true, // Default ke true
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
@@ -19,7 +20,7 @@ export default function DataTable<TData, TValue>({
         onSortingChange,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
+        ...(enablePagination ? { getPaginationRowModel: getPaginationRowModel() } : {}), // Hanya aktifkan pagination jika enablePagination true
     });
 
     return (

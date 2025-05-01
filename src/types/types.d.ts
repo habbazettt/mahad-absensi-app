@@ -74,6 +74,7 @@ export interface DataTableProps<TData, TValue> {
     sorting: SortingState;
     onSortingChange: (sorting: SortingState | Updater<SortingState>) => void;
     columnVisibility: ColumnVisibilityState;
+    enablePagination?: boolean;
 }
 
 export interface DeleteDialogProps {
@@ -137,4 +138,10 @@ export interface PrayerTimes {
 
 export interface TimeWidgetProps {
     className?: string;
+}
+
+export interface AbsensiDailySummary {
+    tanggal: string;
+    shubuh: string;
+    isya: string;
 }

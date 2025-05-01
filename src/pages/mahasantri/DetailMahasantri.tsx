@@ -610,6 +610,7 @@ export default function DetailMahasantriPage() {
                                             sorting={sorting}
                                             onSortingChange={setSorting}
                                             columnVisibility={columnVisibility}
+                                            enablePagination={true}
                                         />
 
                                         <PaginationComponent
@@ -711,6 +712,7 @@ export default function DetailMahasantriPage() {
                                                 sorting={targetSemesterSorting}
                                                 onSortingChange={setTargetSemesterSorting}
                                                 columnVisibility={targetSemesterColumnVisibility}
+                                                enablePagination={true}
                                             />
                                         ) : (
                                             <div className="text-center text-muted-foreground py-4">Tidak ada data target semester.</div>

@@ -314,6 +314,7 @@ export default function MentorInfoPage() {
                                             sorting={sorting}
                                             onSortingChange={setSorting}
                                             columnVisibility={columnVisibility}
+                                            enablePagination={true}
                                         />
 
                                         <PaginationComponent
