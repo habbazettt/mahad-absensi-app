@@ -4,7 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { AbsensiDailySummary, Mahasantri } from "@/types";
+import { AbsensiDailySummary, Mahasantri, Mentor } from "@/types";
 import { ColumnDef, getCoreRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, HelpCircle, Clipboard, Sun, Plus, ChevronDown } from "lucide-react";
@@ -14,14 +14,17 @@ import { Toaster } from "react-hot-toast";
 import MahasantriFilter from "@/components/filter/MahasantriFilter";
 import { authCheck } from "@/lib/utils";
 import DateFilter from "@/components/filter/DateFilter";
+import MentorFilter from "@/components/filter/MentorFilter";
 
 export default function AbsensiPage() {
     const navigate = useNavigate();
+    const [mentors, setMentors] = useState<Mentor[]>([]);
     const [mahasantriData, setMahasantriData] = useState<Mahasantri[]>([]);
     const [absensiData, setAbsensiData] = useState<AbsensiDailySummary[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [sorting, setSorting] = useState<SortingState>([]);
+    const [selectedMentorId, setSelectedMentorId] = useState<string | undefined>(undefined);
     const [selectedMahasantriId, setSelectedMahasantriId] = useState<string | undefined>();
     const [columnVisibility, setColumnVisibility] = useState({});
 
@@ -35,6 +38,20 @@ export default function AbsensiPage() {
             if (authCheck()) {
                 try {
                     setLoading(true);
+
+                    // Fetch mentors first
+                    const mentorsResponse = await fetch(
+                        `${import.meta.env.VITE_API_URL}/mentors?page=1&limit=16`
+                    );
+
+                    if (!mentorsResponse.ok) throw new Error("Gagal mengambil data mentor");
+
+                    const mentorsData = await mentorsResponse.json();
+
+                    if (mentorsData.status) {
+                        setMentors(mentorsData.data.mentors);
+                    }
+
                     await fetchMahasantriData(1, "");
                 } catch (err) {
                     setError("Gagal memuat data awal");
@@ -60,7 +77,7 @@ export default function AbsensiPage() {
             if (!response.ok) throw new Error("Gagal mengambil data mahasantri");
             const data = await response.json();
             if (data.status) {
-                setMahasantriData(data.data.mahasantri);
+                setMahasantriData(data.data.mahasantri)
             }
         } catch (err) {
             setError("Gagal memuat data mahasantri");
@@ -91,6 +108,20 @@ export default function AbsensiPage() {
             console.error("Fetch error:", err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Filter by Mentor
+    const handleMentorFilter = async (mentorId: string) => {
+        setSelectedMentorId(mentorId === "all" ? undefined : mentorId);
+        if (mentorId === "all") {
+            setMahasantriData([]);
+            await fetchMahasantriData(1, "");
+        } else {
+            const filteredMahasantri = mahasantriData.filter(mahasantri => mahasantri.mentor_id === parseInt(mentorId));
+            setMahasantriData(filteredMahasantri);
+            setSelectedMahasantriId(undefined);
+            setAbsensiData([]);
         }
     };
 
@@ -240,8 +271,6 @@ export default function AbsensiPage() {
         getSortedRowModel: getSortedRowModel(),
     });
 
-    console.log("Absensi Data:", absensiData);
-
     return (
         <>
             <Toaster position="top-right" />
@@ -272,7 +301,7 @@ export default function AbsensiPage() {
                                 <div className="p-6 pb-0">
                                     <h2 className="text-2xl font-bold">Rekap Absensi Mahasantri</h2>
                                     <p className="text-muted-foreground mt-2">
-                                        Pilih mahasantri dan bulan untuk melihat rekap absensi
+                                        Pilih mentor, mahasantri, dan bulan untuk melihat rekap absensi
                                     </p>
                                 </div>
                                 <div className="flex gap-2 p-6">
@@ -301,11 +330,21 @@ export default function AbsensiPage() {
                                     <>
                                         <div className="flex flex-col gap-4 py-4 lg:flex-row justify-between items-start lg:items-center sm:gap-4">
                                             <div className="flex flex-col lg:flex-row gap-4">
+                                                {/* Filter Mentor */}
+                                                <MentorFilter
+                                                    selectedMentorId={selectedMentorId}
+                                                    mentors={mentors}
+                                                    handleMentorFilter={handleMentorFilter}
+                                                />
+
+                                                {/* Filter Mahasantri */}
                                                 <MahasantriFilter
                                                     mahasantriData={mahasantriData}
                                                     handleMahasantriFilter={handleMahasantriFilter}
                                                     selectedMahasantriId={selectedMahasantriId}
                                                 />
+
+                                                {/* Filter Bulan dan Tahun */}
                                                 <DateFilter
                                                     selectedMonth={selectedMonth}
                                                     selectedYear={selectedYear}
@@ -314,7 +353,7 @@ export default function AbsensiPage() {
                                                 />
                                             </div>
 
-                                            {/* Columns Dropdown */}
+                                            {/* Dropdown untuk Kolom */}
                                             <div className="w-full sm:w-auto">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
@@ -348,6 +387,7 @@ export default function AbsensiPage() {
                                             </div>
                                         </div>
 
+                                        {/* Tampilkan Data Tabel */}
                                         <DataTable
                                             columns={columns}
                                             data={absensiData}
