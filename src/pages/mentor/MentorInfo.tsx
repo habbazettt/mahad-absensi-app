@@ -37,7 +37,7 @@ import { authCheck } from "@/lib/utils"
 import { exportToCSV } from "@/utils/exportCsv"
 import { CsvExportButton } from "@/components/CsvExportButton"
 
-export default function MahasantriInfoPage() {
+export default function MentorInfoPage() {
     const [mahasantriData, setMahasantriData] = useState<Mahasantri[]>([])
     const [filteredMahasantriData, setFilteredMahasantriData] = useState<Mahasantri[]>([])
     const [mentors, setMentors] = useState<Mentor[]>([])
@@ -197,16 +197,8 @@ export default function MahasantriInfoPage() {
                 );
             },
         },
-        {
-            id: "nim",
-            accessorKey: "nim",
-            header: "NIM",
-        },
-        {
-            id: "jurusan",
-            accessorKey: "jurusan",
-            header: "Jurusan",
-        },
+        { id: "nim", accessorKey: "nim", header: "NIM" },
+        { id: "jurusan", accessorKey: "jurusan", header: "Jurusan" },
         {
             id: "gender",
             accessorKey: "gender",
@@ -321,7 +313,7 @@ export default function MahasantriInfoPage() {
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
-                                        <BreadcrumbPage className="text-primary">Data Mahasantri</BreadcrumbPage>
+                                        <BreadcrumbPage className="text-primary">Data Mentor</BreadcrumbPage>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>

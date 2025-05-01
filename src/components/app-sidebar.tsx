@@ -3,7 +3,8 @@ import {
   BookOpenCheck,
   CalendarRange,
   Info,
-  PieChart,
+  UserLock,
+  Users,
 } from "lucide-react"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
@@ -25,9 +26,14 @@ const data = {
       icon: Info,
     },
     {
+      name: "Data Mentor",
+      url: "/dashboard/info-mentor",
+      icon: UserLock,
+    },
+    {
       name: "Data Mahasantri",
       url: "/dashboard/info-mahasantri",
-      icon: PieChart,
+      icon: Users,
     },
     {
       name: "Absensi",

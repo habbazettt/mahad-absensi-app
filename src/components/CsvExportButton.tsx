@@ -8,6 +8,6 @@ export const CsvExportButton = ({ onClick }: { onClick: () => void }) => (
     onClick={onClick}
   >
     <Download />
-    Export to CSV
+    Export ke CSV
   </Button>
 );

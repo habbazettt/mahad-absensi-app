@@ -323,25 +323,6 @@ export default function RegisterPage() {
                                     >
                                         {isLoading ? "Loading..." : "Buat Akun"}
                                     </Button>
-
-                                    <div className="relative">
-                                        <div className="absolute inset-0 flex items-center">
-                                            <div className="w-full border-t border-gray-400"></div>
-                                        </div>
-                                        <div className="relative flex justify-center text-sm">
-                                            <span className="px-2 bg-white text-gray-500">atau</span>
-                                        </div>
-                                    </div>
-
-                                    <p className="text-center text-sm text-gray-500">
-                                        Sudah Punya Akun?{" "}
-                                        <Link
-                                            to="/auth/login"
-                                            className="text-md font-semibold text-[var(--primary-2)] hover:text-[var(--primary-1)]"
-                                        >
-                                            Masuk
-                                        </Link>
-                                    </p>
                                 </form>
                             </Form>
                         </TabsContent>
@@ -430,20 +411,28 @@ export default function RegisterPage() {
                                     >
                                         {isLoading ? "Loading..." : "Buat Akun"}
                                     </Button>
-
-                                    <p className="text-center text-sm text-gray-500">
-                                        Sudah Punya Akun?{" "}
-                                        <Link
-                                            to={"/auth/login"}
-                                            className="text-md font-semibold text-[var(--primary-2)] hover:text-[var(--primary-1)]"
-                                        >
-                                            Masuk
-                                        </Link>
-                                    </p>
                                 </form>
                             </Form>
                         </TabsContent>
                     </Tabs>
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-400"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-white text-gray-500">atau</span>
+                        </div>
+                    </div>
+
+                    <p className="text-center text-sm text-gray-500">
+                        Sudah Punya Akun?{" "}
+                        <Link
+                            to="/auth/login"
+                            className="text-md font-semibold text-[var(--primary-2)] hover:text-[var(--primary-1)]"
+                        >
+                            Masuk
+                        </Link>
+                    </p>
                 </div>
             </div>
         </div>

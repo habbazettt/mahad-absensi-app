@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { AppSidebar } from "@/components/app-sidebar"
-
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -16,9 +15,8 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
-
 import { Separator } from "@/components/ui/separator"
-import { Hafalan, Mahasantri, Mentor, Pagination } from "@/types"
+import { CsvColumnConfig, Hafalan, Mahasantri, Mentor, Pagination } from "@/types"
 import { ColumnDef, getCoreRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown, Moon, Plus, Sun } from "lucide-react"
@@ -30,10 +28,12 @@ import toast, { Toaster } from "react-hot-toast"
 import DeleteDialogComponent from "@/components/dialogs/DeleteDialog"
 import ActionDropdown from "@/components/ActionDropdown"
 import MentorFilter from "@/components/filter/MentorFilter"
-import { authCheck } from "@/lib/utils"
+import { authCheck, formatTanggalIndo } from "@/lib/utils"
 import MahasantriFilter from "@/components/filter/MahasantriFilter"
 import CategoryFilter from "@/components/filter/CategoryFilter"
 import TimeFilter from "@/components/filter/TimeFilter"
+import { exportToCSV } from "@/utils/exportCsv"
+import { CsvExportButton } from "@/components/CsvExportButton"
 
 export default function SetoranPage() {
     const navigate = useNavigate()
@@ -417,6 +417,45 @@ export default function SetoranPage() {
         return mahasantriData.filter(mahasantri => mahasantri.mentor_id === parseInt(selectedMentorId));
     }, [mahasantriData, selectedMentorId]);
 
+    // Export to CSV Handler
+    const handleExportAllHafalan = () => {
+        const columns: CsvColumnConfig<Hafalan>[] = [
+            {
+                key: 'created_at',
+                header: 'Hari, Tanggal',
+                format: (value) => formatTanggalIndo(value)
+            },
+            {
+                key: "mahasantri_id",
+                header: "Mahasantri",
+                format: (value) => {
+                    const mahasantri = filteredMahasantriData.find(mahasantri => mahasantri.id === value);
+                    return mahasantri ? mahasantri.nama : '';
+                }
+            },
+            {
+                key: "mentor_id",
+                header: "Mentor",
+                format: (value) => {
+                    const mentor = mentors.find(mentor => mentor.id === value);
+                    return mentor ? mentor.nama : '';
+                }
+            },
+            { key: 'juz', header: 'Juz' },
+            { key: 'halaman', header: 'Halaman' },
+            { key: 'total_setoran', header: 'Total Setoran' },
+            { key: 'kategori', header: 'Kategori' },
+            { key: 'waktu', header: 'Waktu' },
+            { key: 'catatan', header: 'Catatan' },
+        ];
+
+        exportToCSV(
+            hafalanData,
+            columns,
+            `Rekap Hafalan`
+        );
+    }
+
     return (
         <>
             <Toaster position="top-right" />
@@ -450,15 +489,20 @@ export default function SetoranPage() {
                                         Total {pagination.total_data} hafalan terdaftar
                                     </p>
                                 </div>
-                                <div className="p-6 pb-0">
-                                    <Button
-                                        type="button"
-                                        onClick={() => navigate('/dashboard/setoran/add')}
-                                        className="cursor-pointer"
-                                    >
-                                        <Plus />
-                                        Input Setoran
-                                    </Button>
+                                <div className="flex gap-2 p-6">
+                                    <div className="">
+                                        <Button
+                                            type="button"
+                                            onClick={() => navigate('/dashboard/setoran/add')}
+                                            className="cursor-pointer"
+                                        >
+                                            <Plus />
+                                            Input Setoran
+                                        </Button>
+                                    </div>
+                                    <div className="">
+                                        <CsvExportButton onClick={handleExportAllHafalan} />
+                                    </div>
                                 </div>
                             </div>
                             <div className="relative overflow-x-auto p-6">

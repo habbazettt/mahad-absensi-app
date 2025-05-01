@@ -8,24 +8,12 @@ import {
     Sun,
     Moon,
     Loader2,
+    CloudSun,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-// Types untuk response API
-interface PrayerTimes {
-    Fajr: string;
-    Sunrise: string;
-    Dhuhr: string;
-    Asar: string;
-    Maghrib: string;
-    Isha: string;
-}
-
-interface TimeWidgetProps {
-    className?: string;
-}
+import { PrayerTimes, TimeWidgetProps } from "@/types";
 
 const TimeWidget = ({ className }: TimeWidgetProps) => {
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -267,7 +255,7 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
                             </div>
                         </div>
                         <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                            <Sun className="h-5 w-5 text-yellow-500" />
+                            <CloudSun className="h-5 w-5 text-yellow-600" />
                             <div>
                                 <p className="font-medium">Ashar</p>
                                 <p className="text-muted-foreground">{prayerTimes.Asar}</p>

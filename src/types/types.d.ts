@@ -123,3 +123,16 @@ export interface CsvColumnConfig<T> {
     header: string;
     format?: (value: any) => string;
 }
+
+export interface PrayerTimes {
+    Fajr: string;
+    Sunrise: string;
+    Dhuhr: string;
+    Asar: string;
+    Maghrib: string;
+    Isha: string;
+}
+
+export interface TimeWidgetProps {
+    className?: string;
+}

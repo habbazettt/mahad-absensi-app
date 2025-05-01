@@ -63,12 +63,13 @@ export default function DashboardPage() {
         currentPage * itemsPerPage
     );
 
-    const allSetoran = mahasantriList.flatMap((m) =>
-        m.list_hafalan.map((h) => ({
+    // Handle array kosong saat membuat allSetoran
+    const allSetoran = mahasantriList?.flatMap((m) =>
+        m.list_hafalan?.map((h) => ({
             ...h,
-            nama: m.mahasantri.nama,
-        }))
-    );
+            nama: m.mahasantri?.nama || 'Tanpa Nama',
+        })) || []
+    ) || [];
 
     // Pagination logic for Setoran
     const totalSetoranPages = Math.ceil(allSetoran.length / setoranPerPage);
@@ -107,16 +108,18 @@ export default function DashboardPage() {
         const fetchData = async () => {
             try {
                 const mahasantriList = await fetchHafalanByMentor(userId, token);
-                setMahasantriList(mahasantriList);
+                const safeMahasantriList = mahasantriList || [];
+                setMahasantriList(safeMahasantriList);
 
-                const total = mahasantriList.reduce(
-                    (acc: number, item: MahasantriWithHafalan) => acc + item.list_hafalan.length,
+                // Handle array kosong saat menghitung total
+                const total = safeMahasantriList.reduce(
+                    (acc: number, item: MahasantriWithHafalan) => acc + (item.list_hafalan?.length || 0),
                     0
                 );
                 setTotalHafalan(total);
 
-                // Proses data untuk Line Chart (Ziyadah & Murojaah per tanggal)
-                const processedData = processSetoranData(mahasantriList);
+                // Proses data untuk Line Chart
+                const processedData = processSetoranData(safeMahasantriList);
                 const chartLabels = processedData.map((item) => item.date);
                 const ziyadahLineData = processedData.map((item) => item.kategori.ziyadah || 0);
                 const murojaahLineData = processedData.map((item) => item.kategori.murojaah || 0);
@@ -142,7 +145,7 @@ export default function DashboardPage() {
                 });
 
                 // Proses data untuk Bar Chart (Ziyadah & Murojaah per Mahasantri)
-                const processedSetoranPerMahasantri = processSetoranDataPerMahasantri(mahasantriList);
+                const processedSetoranPerMahasantri = processSetoranDataPerMahasantri(safeMahasantriList);
                 const barLabels = processedSetoranPerMahasantri.map((item) => item.nama);
                 const ziyadahBarData = processedSetoranPerMahasantri.map((item) => item.ziyadah);
                 const murojaahBarData = processedSetoranPerMahasantri.map((item) => item.murojaah);
@@ -164,6 +167,9 @@ export default function DashboardPage() {
                 });
             } catch (error) {
                 console.error("Gagal fetch data:", error);
+                // Reset state jika fetch gagal
+                setMahasantriList([]);
+                setTotalHafalan(0)
             }
         };
 

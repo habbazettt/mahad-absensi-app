@@ -15,6 +15,7 @@ import RegisterPage from './pages/auth/RegisterPage.tsx'
 import LoginPage from './pages/auth/LoginPage.tsx'
 import AddTargetPage from './pages/target-semester/AddTargetPage.tsx'
 import EditTargetPage from './pages/target-semester/EditTarget.tsx'
+import MentorInfoPage from './pages/mentor/MentorInfo.tsx'
 
 function App() {
   return (
@@ -24,13 +25,15 @@ function App() {
       {/* Main Dashboard */}
       <Route path='/dashboard' element={<DashboardPage />} />
 
+      {/* Mentor Pages */}
+      <Route path='/dashboard/info-mentor' element={<MentorInfoPage />} />
+      <Route path='/dashboard/mentor/edit/:id' element={<EditMentorPage />} />
+
       {/* Info Mahasantri Pages */}
       <Route path='/dashboard/info-mahasantri' element={<MahasantriInfoPage />} />
       <Route path='/dashboard/info-mahasantri/detail/:id' element={<DetailMahasantriPage />} />
       <Route path='/dashboard/info-mahasantri/edit/:id' element={<EditMahasantriPage />} />
 
-      {/* Mentor Pages */}
-      <Route path='/dashboard/mentor/edit/:id' element={<EditMentorPage />} />
 
       {/* Absensi Pages */}
       <Route path='/dashboard/absensi' element={<AbsensiPage />} />
