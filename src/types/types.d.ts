@@ -27,6 +27,8 @@ export interface Mentor {
     id: number
     nama: string
     gender: string
+    email: string
+    mahasantri_count: number
 }
 
 export interface MahasantriWithHafalan {
@@ -81,7 +83,7 @@ export interface DeleteDialogProps {
     handleDelete: () => void;
 }
 
-type RowData = Hafalan | Mahasantri | TargetSemester
+type RowData = Hafalan | Mahasantri | TargetSemester | Mentor
 
 export interface ActionDropdownProps {
     row: {

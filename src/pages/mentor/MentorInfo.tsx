@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useMemo, useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import {
@@ -23,13 +22,11 @@ import {
     SortingState,
     getSortedRowModel,
 } from "@tanstack/react-table"
-import { Input } from "@/components/ui/input"
-import { CsvColumnConfig, Mahasantri, Mentor, Pagination } from "@/types"
+import { CsvColumnConfig, Mentor, Pagination } from "@/types"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown } from "lucide-react"
 import toast, { Toaster } from "react-hot-toast"
 import PaginationComponent from "@/components/Pagination"
-import MentorFilter from "@/components/filter/MentorFilter"
 import DataTable from "@/components/DataTable"
 import DeleteDialogComponent from "@/components/dialogs/DeleteDialog"
 import ActionDropdown from "@/components/ActionDropdown"
@@ -38,8 +35,6 @@ import { exportToCSV } from "@/utils/exportCsv"
 import { CsvExportButton } from "@/components/CsvExportButton"
 
 export default function MentorInfoPage() {
-    const [mahasantriData, setMahasantriData] = useState<Mahasantri[]>([])
-    const [filteredMahasantriData, setFilteredMahasantriData] = useState<Mahasantri[]>([])
     const [mentors, setMentors] = useState<Mentor[]>([])
     const [pagination, setPagination] = useState<Pagination>({
         current_page: 1,
@@ -48,30 +43,18 @@ export default function MentorInfoPage() {
     })
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
-    const [searchTerm, setSearchTerm] = useState("")
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
     const [sorting, setSorting] = useState<SortingState>([])
     const [openDialog, setOpenDialog] = useState(false)
     const [selectedId, setSelectedId] = useState(0)
     const [columnVisibility, setColumnVisibility] = useState({});
-
-    // Debounce search input
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm)
-        }, 600)
-
-        return () => {
-            clearTimeout(handler)
-        }
-    }, [searchTerm])
 
     useEffect(() => {
         const fetchInitialData = async () => {
             if (authCheck()) {
                 try {
                     setLoading(true)
-                    // Fetch mentors first
+
+                    // Fetch mentors
                     const mentorsResponse = await fetch(
                         `${import.meta.env.VITE_API_URL}/mentors?page=1&limit=16`
                     )
@@ -81,11 +64,13 @@ export default function MentorInfoPage() {
                     const mentorsData = await mentorsResponse.json()
 
                     if (mentorsData.status) {
-                        setMentors(mentorsData.data.mentors)
+                        setMentors(mentorsData.data.mentors);
+                        setPagination({
+                            current_page: mentorsData.data.pagination.current_page,
+                            total_data: mentorsData.data.pagination.total_mentors,
+                            total_pages: mentorsData.data.pagination.total_pages,
+                        });
                     }
-
-                    // Then fetch mahasantri
-                    await fetchMahasantriData(1, "")
                 } catch (err) {
                     setError("Gagal memuat data awal")
                     console.error("Initial fetch error:", err)
@@ -97,70 +82,16 @@ export default function MentorInfoPage() {
         fetchInitialData()
     }, [])
 
-    // Handle search and pagination
-    useEffect(() => {
-        if (debouncedSearchTerm !== "") {
-            setPagination(prev => ({ ...prev, current_page: 1 }))
-            fetchMahasantriData(1, debouncedSearchTerm)
-        } else {
-            fetchMahasantriData(pagination.current_page, "")
-        }
-    }, [debouncedSearchTerm])
-
     const handlePageChange = (newPage: number) => {
         if (newPage < 1 || newPage > pagination.total_pages) return
         setPagination(prev => ({
             ...prev,
             current_page: newPage
         }))
-        fetchMahasantriData(newPage, debouncedSearchTerm)
-    }
-
-    const handleMentorFilter = (mentorId: string) => {
-        if (mentorId === "all") {
-            setFilteredMahasantriData(mahasantriData);
-        } else {
-            const filteredData = mahasantriData.filter(mahasantri => mahasantri.mentor_id.toString() === mentorId);
-            setFilteredMahasantriData(filteredData);
-        }
-    };
-
-    const fetchMahasantriData = async (page: number, search: string) => {
-        try {
-            setLoading(true)
-            const url = new URL(`${import.meta.env.VITE_API_URL}/mahasantri`)
-            url.searchParams.append('page', page.toString())
-            url.searchParams.append('limit', '10')
-            if (search) {
-                url.searchParams.append('nama', search)
-            }
-            const response = await fetch(url.toString())
-            if (!response.ok) throw new Error("Gagal mengambil data mahasantri")
-            const data = await response.json()
-            if (data.status) {
-                setMahasantriData(data.data.mahasantri)
-                setFilteredMahasantriData(data.data.mahasantri);
-                setPagination({
-                    current_page: data.data.pagination.current_page,
-                    total_data: data.data.pagination.total_data,
-                    total_pages: data.data.pagination.total_pages
-                })
-            }
-        } catch (err) {
-            setError("Gagal memuat data mahasantri")
-            console.error("Fetch error:", err)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const getMentorName = (mentorId: number) => {
-        const mentor = mentors.find(m => m.id === mentorId)
-        return mentor ? mentor.nama : 'Belum ada mentor'
     }
 
     // Definisi Kolom Tabel
-    const columns = useMemo<ColumnDef<Mahasantri>[]>(() => [
+    const columns = useMemo<ColumnDef<Mentor>[]>(() => [
         {
             id: "nama",
             accessorKey: "nama",
@@ -185,20 +116,10 @@ export default function MentorInfoPage() {
             },
         },
         {
-            id: "mentor_id",
-            accessorKey: "mentor_id",
-            header: "Mentor",
-            cell: ({ row }) => {
-                const mentorId = row.getValue("mentor_id") as number;
-                return (
-                    <span className="font-medium">
-                        {row.getValue("gender") === 'L' ? `Ust. ${getMentorName(mentorId)}` : `Usth. ${getMentorName(mentorId)}`}
-                    </span>
-                );
-            },
+            id: "email",
+            accessorKey: "email",
+            header: "Email",
         },
-        { id: "nim", accessorKey: "nim", header: "NIM" },
-        { id: "jurusan", accessorKey: "jurusan", header: "Jurusan" },
         {
             id: "gender",
             accessorKey: "gender",
@@ -210,6 +131,11 @@ export default function MentorInfoPage() {
             ),
         },
         {
+            id: "mahasantri_count",
+            accessorKey: "mahasantri_count",
+            header: "Jumlah Mahasantri",
+        },
+        {
             id: "actions",
             enableHiding: false,
             cell: ({ row }) => {
@@ -218,16 +144,16 @@ export default function MentorInfoPage() {
                         row={row}
                         setOpenDialog={setOpenDialog}
                         setSelectedId={setSelectedId}
-                        keyword="Mahasantri"
-                        editPath="/dashboard/info-mahasantri/edit"
+                        keyword="Mentor"
+                        editPath="/dashboard/mentor/edit"
                     />
                 );
             },
         },
-    ], [mentors]);
+    ], []);
 
     const table = useReactTable({
-        data: filteredMahasantriData,
+        data: mentors,
         columns,
         state: {
             sorting,
@@ -238,18 +164,18 @@ export default function MentorInfoPage() {
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-    })
+    });
 
-    const handleDeleteMahasantri = async () => {
+    const handleDeleteMentor = async () => {
         const loadingToast = toast.loading("Sedang memproses...");
         setLoading(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/mahasantri/${selectedId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/mentors/${selectedId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
                 }
-            })
+            });
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -257,44 +183,35 @@ export default function MentorInfoPage() {
             }
 
             toast.dismiss(loadingToast);
-
-            toast.success("Data Mahasantri berhasil dihapus!")
+            toast.success("Data Mentor berhasil dihapus!");
 
             setTimeout(() => {
-                window.location.reload()
-            }, 500)
+                window.location.reload();
+            }, 500);
         } catch (error) {
             console.error("error", error);
             toast.dismiss(loadingToast);
-            toast.error("Mahasantri gagal dihapus!");
+            toast.error("Mentor gagal dihapus!");
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     // Export to CSV Handler
-    const handleExportAllMahasantri = () => {
-        const columns: CsvColumnConfig<Mahasantri>[] = [
-            { key: "nama", header: "Mahasantri", },
-            {
-                key: "mentor_id",
-                header: "Mentor",
-                format: (value) => {
-                    const mentor = mentors.find(mentor => mentor.id === value);
-                    return mentor ? mentor.nama : '';
-                }
-            },
-            { key: "nim", header: "NIM" },
-            { key: "jurusan", header: "Jurusan" },
+    const handleExportAllMentors = () => {
+        const columns: CsvColumnConfig<Mentor>[] = [
+            { key: "nama", header: "Nama Mentor" },
+            { key: "email", header: "Email" },
             { key: "gender", header: "Gender" },
+            { key: "mahasantri_count", header: "Jumlah Mahasantri" },
         ];
 
         exportToCSV(
-            filteredMahasantriData,
+            mentors,
             columns,
-            `Rekap Data Mahasantri`
+            `Rekap Data Mentor`
         );
-    }
+    };
 
     return (
         <>
@@ -324,13 +241,13 @@ export default function MentorInfoPage() {
                         <div className="rounded-lg border bg-card shadow-sm">
                             <div className="flex flex-col md:flex-row md:items-center justify-between">
                                 <div className="p-6 pb-0">
-                                    <h2 className="text-2xl font-bold">Daftar Mahasantri</h2>
+                                    <h2 className="text-2xl font-bold">Daftar Mentor</h2>
                                     <p className="text-muted-foreground mt-2">
-                                        Total {pagination.total_data} mahasantri terdaftar
+                                        Total {pagination.total_data} mentor terdaftar
                                     </p>
                                 </div>
                                 <div className="p-6 pb-0">
-                                    <CsvExportButton onClick={handleExportAllMahasantri} />
+                                    <CsvExportButton onClick={handleExportAllMentors} />
                                 </div>
                             </div>
                             <div className="relative overflow-x-auto p-6">
@@ -345,19 +262,6 @@ export default function MentorInfoPage() {
                                 ) : (
                                     <>
                                         <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:gap-4">
-                                            {/* Filter by Mentor */}
-                                            <MentorFilter mentors={mentors} handleMentorFilter={handleMentorFilter} />
-
-                                            {/* Search Input */}
-                                            <div className="flex items-center flex-1 relative">
-                                                <Input
-                                                    placeholder="Cari nama mahasantri..."
-                                                    value={searchTerm}
-                                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                                    className="w-full pr-10"
-                                                />
-                                            </div>
-
                                             {/* Columns Dropdown */}
                                             <div className="w-full sm:w-auto">
                                                 <DropdownMenu>
@@ -378,9 +282,9 @@ export default function MentorInfoPage() {
                                                                 const columnLabels: { [key: string]: string } = {
                                                                     mentor_id: "Mentor",
                                                                     nama: "Nama",
-                                                                    nim: "NIM",
-                                                                    jurusan: "Jurusan",
-                                                                    gender: "Gender"
+                                                                    email: "Email",
+                                                                    gender: "Gender",
+                                                                    mahasantri_count: "Jumlah Mahasantri"
                                                                 };
 
                                                                 return (
@@ -406,7 +310,7 @@ export default function MentorInfoPage() {
 
                                         <DataTable
                                             columns={columns}
-                                            data={filteredMahasantriData}
+                                            data={mentors}
                                             sorting={sorting}
                                             onSortingChange={setSorting}
                                             columnVisibility={columnVisibility}
@@ -428,8 +332,8 @@ export default function MentorInfoPage() {
             <DeleteDialogComponent
                 openDialog={openDialog}
                 setOpenDialog={setOpenDialog}
-                handleDelete={handleDeleteMahasantri}
-                keyword="Mahasantri"
+                handleDelete={handleDeleteMentor}
+                keyword="Mentor"
             />
         </>
     )
