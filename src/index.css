@@ -13,15 +13,12 @@
     @apply bg-[var(--progress-primary)] transition-all duration-300;
   }
 
-  /* Tambahkan variabel progress primary untuk light dan dark mode */
   :root {
     --progress-primary: var(--primary-3);
-    /* Warna default: #578FCA */
   }
 
   .dark {
     --progress-primary: var(--chart-3);
-    /* Warna dark mode: oklch(0.769 0.188 70.08) */
   }
 }
 

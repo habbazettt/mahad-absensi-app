@@ -101,7 +101,7 @@ export default function AbsensiPage() {
             const data = await response.json();
 
             if (data.status) {
-                setAbsensiData(data.data);
+                setAbsensiData(data.data.daily_summary);
             }
         } catch (err) {
             setError("Gagal memuat data absensi");
