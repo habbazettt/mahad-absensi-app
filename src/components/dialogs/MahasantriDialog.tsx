@@ -16,7 +16,7 @@ export default function MahasantriDialog({
                     </AlertDialogDescription>
                 </AlertDialogHeader>
 
-                <div className="w-full overflow-x-auto max-w-full max-h-[50vh]">
+                <div className="w-full overflow-x-auto max-w-full">
                     <DialogDataTable columns={mahasantriColumns} data={data} />
                     <div className="flex justify-between mt-4">
                         <button onClick={onPrev} disabled={currentPage === 1} className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50">Previous</button>

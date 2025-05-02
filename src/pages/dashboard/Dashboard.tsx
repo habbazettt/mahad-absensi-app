@@ -16,7 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import StatCard from "@/components/widget/StatCard";
 import { BookOpen, Users } from "lucide-react";
-import { MahasantriWithHafalan } from "@/types";
+import { Absensi, MahasantriWithHafalan } from "@/types";
 import MahasantriDialog from "@/components/dialogs/MahasantriDialog";
 import SetoranDialog from "@/components/dialogs/SetoranDialog";
 import { fetchHafalanByMentor } from "@/utils/fetchHalaman";
@@ -28,6 +28,9 @@ import { handleLogout } from "@/lib/utils";
 import TimeWidget from "@/components/widget/TimeWidget";
 import { Card } from "@/components/ui/card";
 import TodaySetoranList from "@/components/widget/TodaySetoranList";
+import AttendanceWidget from "@/components/widget/AttendanceWidget";
+import AbsensiDialog from "@/components/dialogs/AbsensiDialog";
+import TodayAttendanceList from "@/components/widget/TodayAttendanceWidget";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, BarElement, PointElement);
 
@@ -77,6 +80,16 @@ export default function DashboardPage() {
         (setoranCurrentPage - 1) * setoranPerPage,
         setoranCurrentPage * setoranPerPage
     );
+
+    const [absensiData, setAbsensiData] = useState({
+        total: 0,
+        hadir: 0,
+        izin: 0,
+        absen: 0
+    });
+    const [absensiDetails, setAbsensiDetails] = useState<Absensi[]>([]);
+    const [isAbsensiDialogOpen, setIsAbsensiDialogOpen] = useState(false);
+    const [absensiCurrentPage, setAbsensiCurrentPage] = useState(1);
 
     const user = JSON.parse(localStorage.getItem("user") ?? '{}');
     const token = localStorage.getItem("auth_token") ?? '';
@@ -167,13 +180,55 @@ export default function DashboardPage() {
                 });
             } catch (error) {
                 console.error("Gagal fetch data:", error);
-                // Reset state jika fetch gagal
                 setMahasantriList([]);
                 setTotalHafalan(0)
             }
         };
 
+        const fetchAbsensi = async () => {
+            try {
+                const today = new Date();
+                const dd = String(today.getDate()).padStart(2, '0');
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const yyyy = today.getFullYear();
+                const todayStr = `${dd}-${mm}-${yyyy}`;
+
+                const response = await fetch(
+                    `${import.meta.env.VITE_API_URL}/absensi?mentor_id=${userId}&tanggal=${todayStr}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    setAbsensiData({ total: 0, hadir: 0, izin: 0, absen: 0 });
+                    setAbsensiDetails([]);
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.status) {
+                    const absensi = data.data.absensi;
+                    setAbsensiDetails(absensi);
+
+                    setAbsensiData({
+                        total: absensi.length,
+                        hadir: absensi.filter((a: { status: string }) => a.status === 'hadir').length,
+                        izin: absensi.filter((a: { status: string }) => a.status === 'izin').length,
+                        absen: absensi.filter((a: { status: string }) => a.status === 'absen').length
+                    });
+                }
+            } catch (error) {
+                console.error('Gagal mengambil data absensi:', error);
+                setAbsensiData({ total: 0, hadir: 0, izin: 0, absen: 0 });
+                setAbsensiDetails([]);
+            }
+        };
+
         fetchData();
+        fetchAbsensi();
     }, []);
 
     const handlePrevPage = () => {
@@ -213,9 +268,11 @@ export default function DashboardPage() {
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-0  font-poppins">
                     <h1 className="text-2xl lg:text-4xl font-semibold bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 text-black mt-4">
                         <span className="inline-flex items-center space-x-3">
-                            <span>Welcome, Ust. {userName}🙏</span>
+                            <span>Welcome, Ust. {userName}</span>
                         </span>
                     </h1>
+
+                    <TimeWidget />
 
                     {/* Stat Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -236,11 +293,19 @@ export default function DashboardPage() {
                             gradient="green"
                             className="hover:border-green-100 md:col-span-1"
                         />
+
                     </div>
+                    <AttendanceWidget
+                        total={absensiData.total}
+                        hadir={absensiData.hadir}
+                        izin={absensiData.izin}
+                        absen={absensiData.absen}
+                        onViewDetails={() => setIsAbsensiDialogOpen(true)}
+                    />
 
                     {/* Time Widget & Today Setoran List    */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <TimeWidget className="lg:col-span-1 md:col-span-2" />
+                        <TodayAttendanceList className="lg:col-span-1 md:col-span-2" />
                         <TodaySetoranList className="lg:col-span-1 md:col-span-2" />
                     </div>
 
@@ -346,6 +411,15 @@ export default function DashboardPage() {
                         totalPages={totalSetoranPages}
                         onPrev={handleSetoranPrevPage}
                         onNext={handleSetoranNextPage}
+                    />
+
+                    <AbsensiDialog
+                        open={isAbsensiDialogOpen}
+                        onClose={() => setIsAbsensiDialogOpen(false)}
+                        data={absensiDetails.slice((absensiCurrentPage - 1) * 5, absensiCurrentPage * 5)}
+                        currentPage={absensiCurrentPage}
+                        totalPages={Math.ceil(absensiDetails.length / 5)}
+                        onPageChange={(page) => setAbsensiCurrentPage(page)}
                     />
                 </div>
             </SidebarInset>

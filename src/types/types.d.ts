@@ -84,7 +84,7 @@ export interface DeleteDialogProps {
     handleDelete: () => void;
 }
 
-type RowData = Hafalan | Mahasantri | TargetSemester | Mentor
+type RowData = Hafalan | Mahasantri | TargetSemester | Mentor | Absensi
 
 export interface ActionDropdownProps {
     row: {
@@ -144,4 +144,37 @@ export interface AbsensiDailySummary {
     tanggal: string;
     shubuh: string;
     isya: string;
+}
+
+export interface Absensi {
+    id: number;
+    mahasantri: {
+        id: number;
+        nama: string;
+    };
+    waktu: 'shubuh' | 'isya';
+    status: 'hadir' | 'izin' | 'absen';
+    tanggal: string;
+    created_at: string;
+}
+
+export interface AbsensiDialogProps {
+    open: boolean;
+    onClose: () => void;
+    data: Absensi[];
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+}
+
+export interface TodayAttendanceWidgetProps {
+    className?: string;
+}
+
+export interface AttendanceSummary {
+    mahasantriId: number;
+    nama: string;
+    totalHadir: number;
+    totalIzin: number;
+    totalAbsen: number;
 }
