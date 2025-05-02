@@ -23,6 +23,8 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import toast, { Toaster } from "react-hot-toast";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Mahasantri, Mentor } from "@/types";
+import { format } from 'date-fns';
+import { Datepicker } from 'flowbite-react'
 
 const addAbsensiSchema = z.object({
     mahasantri_id: z.number(),
@@ -40,6 +42,7 @@ export default function AddAbsensiPage() {
     const [mahasantris, setMahasantris] = useState<Mahasantri[]>([]);
     const [filteredMahasantris, setFilteredMahasantris] = useState<Mahasantri[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
     const form = useForm<AddFormValues>({
         resolver: zodResolver(addAbsensiSchema),
@@ -115,7 +118,7 @@ export default function AddAbsensiPage() {
                 tanggal: data.tanggal,
             };
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/hafalan`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/absensi`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -124,12 +127,12 @@ export default function AddAbsensiPage() {
                 body: JSON.stringify(requestBody),
             });
 
-            if (!response.ok) throw new Error("Failed to add setoran");
-            toast.success("Setoran berhasil ditambahkan");
-            navigate("/dashboard/setoran");
+            if (!response.ok) throw new Error("Failed to add absensi");
+            toast.success("Absensi berhasil ditambahkan");
+            navigate("/dashboard/absensi");
         } catch (error) {
-            console.error("Error adding setoran:", error);
-            toast.error("Gagal menambahkan setoran");
+            console.error("Error adding absensi:", error);
+            toast.error("Gagal menambahkan absensi");
         } finally {
             setIsLoading(false);
         }
@@ -254,6 +257,40 @@ export default function AddAbsensiPage() {
                                 )}
                             />
 
+                            {/* Input Tanggal */}
+                            <FormField
+                                control={form.control}
+                                name="tanggal"
+                                render={() => (
+                                    <FormItem>
+                                        <FormLabel className="font-bold text-gray-700">Tanggal</FormLabel>
+                                        <FormDescription>Masukkan tanggal halaqoh</FormDescription>
+                                        <FormControl>
+                                            <Datepicker
+                                                value={selectedDate}
+                                                id="tanggal"
+                                                className="w-full font-poppins"
+                                                placeholder="Pilih Tanggal"
+                                                showTodayButton
+                                                labelTodayButton="Hari Ini"
+                                                showClearButton
+                                                labelClearButton="Bersihkan"
+                                                language="id"
+                                                autoHide
+                                                onChange={(date) => {
+                                                    if (date) {
+                                                        setSelectedDate(date);
+                                                        const formattedDate = format(date, 'dd-MM-yyyy');
+                                                        form.setValue("tanggal", formattedDate);
+                                                    }
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
                             {/* Input Status */}
                             <FormField
                                 control={form.control}
@@ -284,7 +321,7 @@ export default function AddAbsensiPage() {
 
                             {/* Submit Button */}
                             <Button
-                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded-md transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white cursor-pointer py-2 px-4 rounded-md transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                                 type="submit"
                                 disabled={isLoading}
                             >

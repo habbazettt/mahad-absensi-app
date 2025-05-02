@@ -4,7 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { AbsensiDailySummary, Mahasantri, Mentor } from "@/types";
+import { AbsensiDailySummary, CsvColumnConfig, Mahasantri, Mentor } from "@/types";
 import { ColumnDef, getCoreRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, HelpCircle, Clipboard, Sun, Plus, ChevronDown } from "lucide-react";
@@ -15,6 +15,10 @@ import MahasantriFilter from "@/components/filter/MahasantriFilter";
 import { authCheck } from "@/lib/utils";
 import DateFilter from "@/components/filter/DateFilter";
 import MentorFilter from "@/components/filter/MentorFilter";
+import { CsvExportButton } from "@/components/CsvExportButton";
+import { exportToCSV } from "@/utils/exportCsv";
+import { format, parse } from "date-fns";
+import { id } from 'date-fns/locale';
 
 export default function AbsensiPage() {
     const navigate = useNavigate();
@@ -27,6 +31,8 @@ export default function AbsensiPage() {
     const [selectedMentorId, setSelectedMentorId] = useState<string | undefined>(undefined);
     const [selectedMahasantriId, setSelectedMahasantriId] = useState<string | undefined>();
     const [columnVisibility, setColumnVisibility] = useState({});
+
+    const [selectedMahasantri, setSelectedMahasantri] = useState<Mahasantri | undefined>(undefined);
 
     // Ambil bulan dan tahun saat ini
     const currentDate = new Date();
@@ -87,7 +93,7 @@ export default function AbsensiPage() {
         }
     };
 
-    const fetchAbsensiData = async (mahasantri_id: number) => {
+    const fetchAbsensiData = async (mahasantri_id: number, selectedMonth: string, selectedYear: string) => {
         try {
             setLoading(true);
             const response = await fetch(`${import.meta.env.VITE_API_URL}/absensi/mahasantri/${mahasantri_id}/daily-summary?month=${selectedMonth}&year=${selectedYear}`, {
@@ -128,33 +134,44 @@ export default function AbsensiPage() {
     const handleMahasantriFilter = async (mahasantriId: string) => {
         if (mahasantriId === "all") {
             setSelectedMahasantriId(undefined);
+            setSelectedMahasantri(undefined);
             setAbsensiData([]);
         } else {
+            const selected = mahasantriData.find(mahasantri => mahasantri.id === parseInt(mahasantriId))
             setSelectedMahasantriId(mahasantriId);
-            await fetchAbsensiData(parseInt(mahasantriId));
+            setSelectedMahasantri(selected);
+            await fetchAbsensiData(parseInt(mahasantriId), selectedMonth, selectedYear);
         }
     };
 
     const handleMonthChange = (month: string) => {
         setSelectedMonth(month);
         if (selectedMahasantriId) {
-            fetchAbsensiData(parseInt(selectedMahasantriId));
+            fetchAbsensiData(parseInt(selectedMahasantriId), month, selectedYear);
         }
     };
 
     const handleYearChange = (year: string) => {
         setSelectedYear(year);
         if (selectedMahasantriId) {
-            fetchAbsensiData(parseInt(selectedMahasantriId));
+            fetchAbsensiData(parseInt(selectedMahasantriId), selectedMonth, year);
         }
     };
 
     // Definisi Kolom Tabel
-    const columns = useMemo<ColumnDef<AbsensiDailySummary[]>[]>(() => [
+    const columns = useMemo<ColumnDef<AbsensiDailySummary>[]>(() => [
         {
             id: "tanggal",
             accessorKey: "tanggal",
             header: "Tanggal",
+            cell: ({ row }) => {
+                const dateStr = row.getValue("tanggal") as string
+                const date = parse(dateStr, 'dd-MM-yyyy', new Date())
+
+                const formattedDate = format(date, 'EEEE, dd MMM yyyy', { locale: id });
+
+                return <span>{formattedDate}</span>
+            },
         },
         {
             id: "shubuh",
@@ -259,7 +276,7 @@ export default function AbsensiPage() {
     ], []);
 
     const table = useReactTable({
-        data: [absensiData],
+        data: absensiData,
         columns,
         state: {
             sorting,
@@ -270,6 +287,33 @@ export default function AbsensiPage() {
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
     });
+
+    const handleExportDailySummary = () => {
+        const columns: CsvColumnConfig<AbsensiDailySummary>[] = [
+            {
+                key: 'tanggal',
+                header: 'Tanggal',
+            },
+            {
+                key: 'shubuh',
+                header: 'Shubuh',
+            },
+            {
+                key: "isya",
+                header: "Isya",
+            }
+        ];
+
+        const mahasantriName = selectedMahasantri && selectedMahasantri.nama;
+
+        exportToCSV(
+            absensiData,
+            columns,
+            `Rekap Absensi ${mahasantriName} - ${selectedMonth} ${selectedYear}`
+        );
+    };
+
+    console.log(selectedMahasantri);
 
     return (
         <>
@@ -315,6 +359,9 @@ export default function AbsensiPage() {
                                             Input Absensi
                                         </Button>
                                     </div>
+                                    <div>
+                                        <CsvExportButton onClick={handleExportDailySummary} />
+                                    </div>
                                 </div>
                             </div>
                             <div className="relative overflow-x-auto p-6">
@@ -328,8 +375,8 @@ export default function AbsensiPage() {
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="flex flex-col gap-4 py-4 lg:flex-row justify-between items-start lg:items-center sm:gap-4">
-                                            <div className="flex flex-col lg:flex-row gap-4">
+                                        <div className="w-full flex flex-wrap gap-4 py-4 lg:flex-row justify-between items-start lg:items-center sm:gap-4">
+                                            <div className="flex flex-wrap gap-4">
                                                 {/* Filter Mentor */}
                                                 <MentorFilter
                                                     selectedMentorId={selectedMentorId}

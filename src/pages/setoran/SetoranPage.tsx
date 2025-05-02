@@ -500,7 +500,7 @@ export default function SetoranPage() {
                                             Input Setoran
                                         </Button>
                                     </div>
-                                    <div className="">
+                                    <div>
                                         <CsvExportButton onClick={handleExportAllHafalan} />
                                     </div>
                                 </div>

@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "flowbite-react patch"
   },
   "dependencies": {
     "@fullcalendar/bootstrap5": "^6.1.17",
@@ -33,6 +34,8 @@
     "chart.js": "^4.4.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "flowbite-react": "^0.11.7",
     "framer-motion": "^12.7.4",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.501.0",
