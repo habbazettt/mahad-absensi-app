@@ -635,7 +635,7 @@ export default function DetailMahasantriPage() {
                                 ) : (
                                     <>
                                         <div className="w-full flex flex-wrap gap-4 py-4 justify-between items-start lg:items-center sm:gap-4">
-                                            <div className="flex flex-wrap gap-4">  
+                                            <div className="flex flex-wrap gap-4">
                                                 <TahunAjaranFilter
                                                     selectedTahunAjaran={selectedTahunAjaran}
                                                     handleTahunAjaranFilter={handleTahunAjaranFilter}
@@ -689,19 +689,17 @@ export default function DetailMahasantriPage() {
                                                     </DropdownMenu>
                                                 </div>
                                             </div>
-
-                                            {/* Export to CSV Button */}
-                                            <div className="w-full gap-2 flex justify-end flex-wrap">
-                                                <CsvExportButton onClick={handleExportTargetSemester} />
-
+                                            <div className="flex gap-2">
                                                 <Button
                                                     type="button"
                                                     onClick={() => navigate('/dashboard/target-semester/add')}
-                                                    className="w-full sm:w-[140px] cursor-pointer font-semibold"
+                                                    className="sm:w-[140px] cursor-pointer font-semibold"
                                                 >
                                                     <Plus />
                                                     Input Target
                                                 </Button>
+
+                                                <CsvExportButton onClick={handleExportTargetSemester} />
                                             </div>
                                         </div>
 

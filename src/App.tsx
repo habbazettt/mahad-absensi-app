@@ -18,6 +18,7 @@ import EditTargetPage from './pages/target-semester/EditTarget.tsx'
 import MentorInfoPage from './pages/mentor/MentorInfo.tsx'
 import AddAbsensiPage from './pages/absensi/AddAbsensiPage.tsx'
 import DetailAbsensiPage from './pages/absensi/DetailAbsensiPage.tsx'
+import EditAbsensiPage from './pages/absensi/EditAbsensiPage.tsx'
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
       <Route path='/dashboard/absensi' element={<AbsensiPage />} />
       <Route path='/dashboard/absensi/add' element={<AddAbsensiPage />} />
       <Route path='/dashboard/absensi/detail' element={<DetailAbsensiPage />} />
+      <Route path='/dashboard/absensi/edit/:id' element={<EditAbsensiPage />} />
 
       {/* Setoran Pages */}
       <Route path='/dashboard/setoran' element={<SetoranPage />} />

@@ -244,7 +244,7 @@ export default function DetailAbsensiPage() {
                 return (
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isHadir ? 'bg-green-200 text-green-800' : isIzin ? 'bg-blue-200 text-blue-800' : 'bg-red-200 text-red-800'}`}>
                         {isHadir ? <CheckCircle className="h-4 w-4 mr-1" /> : isIzin ? <Calendar className="h-4 w-4 mr-1" /> : <XCircle className="h-4 w-4 mr-1" />}
-                        {isHadir ? 'Hadir' : isIzin ? 'Izin' : 'Tidak Hadir'}
+                        {isHadir ? 'Hadir' : isIzin ? 'Izin' : 'Alpa'}
                     </span>
                 );
             },
@@ -366,7 +366,7 @@ export default function DetailAbsensiPage() {
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
-                                        <BreadcrumbPage className="text-muted-foreground">Absensi</BreadcrumbPage>
+                                        <BreadcrumbPage className="text-muted-foreground">Absensi Halaqoh</BreadcrumbPage>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>

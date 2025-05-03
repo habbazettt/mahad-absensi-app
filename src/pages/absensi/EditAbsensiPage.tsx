@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
     Breadcrumb,
@@ -22,104 +22,63 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import toast, { Toaster } from "react-hot-toast";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Mahasantri, Mentor } from "@/types";
-import { format } from 'date-fns';
-import { Datepicker } from 'flowbite-react'
+import { Datepicker } from "flowbite-react";
+import { format } from "date-fns";
 
-const addAbsensiSchema = z.object({
-    mahasantri_id: z.number(),
-    mentor_id: z.number(),
-    waktu: z.string(),
-    status: z.string(),
-    tanggal: z.string(),
+const editAbsensiSchema = z.object({
+    waktu: z.string().optional(),
+    status: z.string().optional(),
+    tanggal: z.string().optional(),
 });
 
-type AddFormValues = z.infer<typeof addAbsensiSchema>;
+type EditFormValues = z.infer<typeof editAbsensiSchema>;
 
-export default function AddAbsensiPage() {
+export default function EditAbsensiPage() {
+    const { id } = useParams();
     const navigate = useNavigate();
-    const [mentors, setMentors] = useState<Mentor[]>([]);
-    const [mahasantris, setMahasantris] = useState<Mahasantri[]>([]);
-    const [filteredMahasantris, setFilteredMahasantris] = useState<Mahasantri[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-    const form = useForm<AddFormValues>({
-        resolver: zodResolver(addAbsensiSchema),
+    const form = useForm<EditFormValues>({
+        resolver: zodResolver(editAbsensiSchema),
     });
 
     useEffect(() => {
-        const fetchMentors = async () => {
+        const fetchAbsensiData = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/mentors?page=1&limit=16`);
-                if (!response.ok) throw new Error("Failed to fetch mentors");
-                const data = await response.json();
-                setMentors(data.data.mentors);
-            } catch (error) {
-                console.error("Error fetching mentors:", error);
-                toast.error("Gagal mengambil data mentor");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        // Fetch Mahasantri Data
-        const fetchMahasantriData = async () => {
-            setIsLoading(true);
-            try {
-                const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/mahasantri`, {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/absensi/${id}`, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("auth_token")}`,
                     },
                 });
-                if (!response.ok) throw new Error("Failed to fetch mahasantri data");
+                if (!response.ok) throw new Error("Failed to fetch absensi data");
                 const data = await response.json();
+                form.reset(data.data.absensi);
 
-                // Akses data.data.mahasantri
-                if (Array.isArray(data.data.mahasantri)) {
-                    setMahasantris(data.data.mahasantri);
-                } else {
-                    console.error("Data mahasantri tidak dalam format array:", data.data.mahasantri);
-                    toast.error("Data mahasantri tidak valid");
-                }
+                const fetchedDate = new Date(data.data.absensi.tanggal);
+                setSelectedDate(fetchedDate);
             } catch (error) {
-                console.error("Error fetching mahasantri data:", error);
-                toast.error("Gagal mengambil data mahasantri");
+                console.error("Error fetching absensi data:", error);
+                toast.error("Gagal mengambil data absensi");
             } finally {
                 setIsLoading(false);
             }
         };
+        fetchAbsensiData();
+    }, [id]);
 
-        fetchMentors();
-        fetchMahasantriData();
-    }, []);
-
-    // Update filtered mahasantris when mentor_id changes
-    useEffect(() => {
-        const selectedMentorId = form.watch("mentor_id");
-        if (selectedMentorId) {
-            const filtered = mahasantris.filter(mahasantri => mahasantri.mentor_id === selectedMentorId);
-            setFilteredMahasantris(filtered);
-        } else {
-            setFilteredMahasantris([]);
-        }
-    }, [form.watch("mentor_id"), mahasantris]);
-
-    const onSubmit = async (data: AddFormValues) => {
+    const onSubmit = async (data: EditFormValues) => {
         setIsLoading(true);
         try {
             const requestBody = {
-                mahasantri_id: data.mahasantri_id,
-                mentor_id: data.mentor_id,
-                waktu: data.waktu,
                 status: data.status,
+                waktu: data.waktu,
                 tanggal: data.tanggal,
             };
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/absensi`, {
-                method: "POST",
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/absensi/${id}`, {
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${localStorage.getItem("auth_token")}`,
@@ -127,12 +86,14 @@ export default function AddAbsensiPage() {
                 body: JSON.stringify(requestBody),
             });
 
-            if (!response.ok) throw new Error("Failed to add absensi");
-            toast.success("Absensi berhasil ditambahkan");
-            navigate("/dashboard/absensi");
+            if (!response.ok) throw new Error("Failed to update absensi");
+            toast.success("Absensi berhasil diperbarui");
+            setTimeout(() => {
+                navigate("/dashboard/absensi/detail");
+            }, 400)
         } catch (error) {
-            console.error("Error adding absensi:", error);
-            toast.error("Gagal menambahkan absensi");
+            console.error("Error updating absensi:", error);
+            toast.error("Gagal memperbarui absensi");
         } finally {
             setIsLoading(false);
         }
@@ -158,7 +119,11 @@ export default function AddAbsensiPage() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-primary">Input Absensi</BreadcrumbPage>
+                                    <BreadcrumbPage className="text-muted-foreground">Detail Absensi</BreadcrumbPage>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbPage className="text-primary">Edit Absensi</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
@@ -166,70 +131,9 @@ export default function AddAbsensiPage() {
                 </header>
 
                 <div className="flex flex-1 flex-col gap-6 p-8 bg-gray-50 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold text-gray-800 text-center">Input Absensi Mahasantri</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 text-center">Edit Absensi</h2>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                            {/* Dropdown Mentor */}
-                            <FormField
-                                control={form.control}
-                                name="mentor_id"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="font-bold text-gray-700">Pilih Mentor</FormLabel>
-                                        <FormControl>
-                                            <Select
-                                                value={field.value ? String(field.value) : ""}
-                                                onValueChange={(value) => field.onChange(Number(value))}
-                                                disabled={isLoading}
-                                            >
-                                                <SelectTrigger className="w-full font-poppins">
-                                                    <SelectValue placeholder="Pilih Mentor" />
-                                                </SelectTrigger>
-                                                <SelectContent className="font-poppins">
-                                                    {mentors.map((mentor) => (
-                                                        <SelectItem key={mentor.id} value={String(mentor.id)}>
-                                                            {mentor.gender === "L" ? "Ust. " : "Usth. "}
-                                                            {mentor.nama}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Dropdown Mahasantri berdasarkan Mentor */}
-                            <FormField
-                                control={form.control}
-                                name="mahasantri_id"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="font-bold text-gray-700">Pilih Mahasantri</FormLabel>
-                                        <FormControl>
-                                            <Select
-                                                value={field.value ? String(field.value) : ""}
-                                                onValueChange={(value) => field.onChange(Number(value))}
-                                                disabled={isLoading || filteredMahasantris.length === 0}
-                                            >
-                                                <SelectTrigger className="w-full font-poppins">
-                                                    <SelectValue placeholder="Pilih Mahasantri" />
-                                                </SelectTrigger>
-                                                <SelectContent className="font-poppins">
-                                                    {filteredMahasantris.map((mahasantri) => (
-                                                        <SelectItem key={mahasantri.id} value={String(mahasantri.id)}>
-                                                            {mahasantri.nama}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
                             {/* Input Tanggal */}
                             <FormField
                                 control={form.control}
@@ -322,16 +226,16 @@ export default function AddAbsensiPage() {
 
                             {/* Submit Button */}
                             <Button
-                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white cursor-pointer py-2 px-4 rounded-md transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                                 type="submit"
                                 disabled={isLoading}
                             >
-                                {isLoading ? "Loading..." : "Tambah Setoran"}
+                                {isLoading ? "Loading..." : "Edit Setoran"}
                             </Button>
                         </form>
                     </Form>
                 </div>
             </SidebarInset>
         </SidebarProvider>
-    )
+    );
 }

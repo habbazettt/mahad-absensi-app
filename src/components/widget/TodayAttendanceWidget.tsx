@@ -47,7 +47,7 @@ export default function TodayAttendanceList({ className }: TodayAttendanceWidget
                                 nama: mahasantri.nama,
                                 totalHadir: 0,
                                 totalIzin: 0,
-                                totalAbsen: 0,
+                                totalAlpa: 0,
                             };
                         }
 
@@ -56,8 +56,8 @@ export default function TodayAttendanceList({ className }: TodayAttendanceWidget
                             summary[mahasantri.id].totalHadir += 1;
                         } else if (absensi.status === 'izin') {
                             summary[mahasantri.id].totalIzin += 1;
-                        } else if (absensi.status === 'absen') {
-                            summary[mahasantri.id].totalAbsen += 1;
+                        } else if (absensi.status === 'alpa') {
+                            summary[mahasantri.id].totalAlpa += 1;
                         }
                     });
 
@@ -149,7 +149,7 @@ export default function TodayAttendanceList({ className }: TodayAttendanceWidget
                                             className="px-3 py-1 bg-red-100 text-red-800 hover:bg-red-100/80 w-fit"
                                             variant="outline"
                                         >
-                                            Absen: {summary.totalAbsen}
+                                            Alpa: {summary.totalAlpa}
                                         </Badge>
                                     </div>
                                 </div>

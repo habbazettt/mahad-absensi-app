@@ -65,10 +65,10 @@ const AbsensiFilter: React.FC<AbsensiFilterProps> = ({ selectedWaktu, handleWakt
                         Izin
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
-                        checked={selectedStatus === "absen"}
-                        onCheckedChange={() => handleStatusFilter(selectedStatus === "absen" ? "all" : "absen")}
+                        checked={selectedStatus === "alpa"}
+                        onCheckedChange={() => handleStatusFilter(selectedStatus === "alpa" ? "all" : "alpa")}
                     >
-                        Absen
+                        Alpa
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                         checked={selectedStatus === undefined}

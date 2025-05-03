@@ -7,7 +7,7 @@ interface AttendanceWidgetProps {
     total: number;
     hadir: number;
     izin: number;
-    absen: number;
+    alpa: number;
     onViewDetails: () => void;
 }
 
@@ -15,7 +15,7 @@ export default function AttendanceWidget({
     total,
     hadir,
     izin,
-    absen,
+    alpa,
     onViewDetails
 }: AttendanceWidgetProps) {
     return (
@@ -59,8 +59,8 @@ export default function AttendanceWidget({
                 </div>
 
                 <div className="text-center p-4 bg-red-50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">{absen}</div>
-                    <div className="text-sm text-red-800">Absen</div>
+                    <div className="text-2xl font-bold text-red-600">{alpa}</div>
+                    <div className="text-sm text-red-800">Alpa</div>
                 </div>
             </div>
 

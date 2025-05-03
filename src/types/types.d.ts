@@ -160,7 +160,7 @@ export interface Absensi {
         gender: string;
     }
     waktu: 'shubuh' | 'isya';
-    status: 'hadir' | 'izin' | 'absen';
+    status: 'hadir' | 'izin' | 'alpa';
     tanggal: string;
     created_at: string;
 }
@@ -183,13 +183,13 @@ export interface AttendanceSummary {
     nama: string;
     totalHadir: number;
     totalIzin: number;
-    totalAbsen: number;
+    totalAlpa: number;
 }
 
 export interface AbsensiCount {
     [date: string]: {
         hadir: number;
         izin: number;
-        absen: number;
+        alpa: number;
     };
 }

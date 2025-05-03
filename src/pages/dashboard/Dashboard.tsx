@@ -56,7 +56,7 @@ export default function DashboardPage() {
         total: 0,
         hadir: 0,
         izin: 0,
-        absen: 0
+        alpa: 0
     });
     const [absensiDetails, setAbsensiDetails] = useState<Absensi[]>([]);
     const [isAbsensiDialogOpen, setIsAbsensiDialogOpen] = useState(false);
@@ -206,7 +206,7 @@ export default function DashboardPage() {
                 );
 
                 if (!response.ok) {
-                    setAbsensiData({ total: 0, hadir: 0, izin: 0, absen: 0 });
+                    setAbsensiData({ total: 0, hadir: 0, izin: 0, alpa: 0 });
                     setAbsensiDetails([]);
                     return;
                 }
@@ -220,12 +220,12 @@ export default function DashboardPage() {
                         total: absensi.length,
                         hadir: absensi.filter((a: { status: string }) => a.status === 'hadir').length,
                         izin: absensi.filter((a: { status: string }) => a.status === 'izin').length,
-                        absen: absensi.filter((a: { status: string }) => a.status === 'absen').length
+                        alpa: absensi.filter((a: { status: string }) => a.status === 'alpa').length
                     });
                 }
             } catch (error) {
                 console.error('Gagal mengambil data absensi:', error);
-                setAbsensiData({ total: 0, hadir: 0, izin: 0, absen: 0 });
+                setAbsensiData({ total: 0, hadir: 0, izin: 0, alpa: 0 });
                 setAbsensiDetails([]);
             }
         };
@@ -258,7 +258,7 @@ export default function DashboardPage() {
                             year: 'numeric'
                         }).replace(/\./g, '');
                         if (!acc[date]) {
-                            acc[date] = { hadir: 0, izin: 0, absen: 0 };
+                            acc[date] = { hadir: 0, izin: 0, alpa: 0 };
                         }
                         switch (curr.status) {
                             case 'hadir':
@@ -267,8 +267,8 @@ export default function DashboardPage() {
                             case 'izin':
                                 acc[date].izin += 1;
                                 break;
-                            case 'absen':
-                                acc[date].absen += 1;
+                            case 'alpa':
+                                acc[date].alpa += 1;
                                 break;
                             default:
                                 console.error(`Unknown status: ${curr.status}`);
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                     const labels = Object.keys(absensiCount);
                     const hadirData = labels.map(date => absensiCount[date].hadir);
                     const izinData = labels.map(date => absensiCount[date].izin);
-                    const absenData = labels.map(date => absensiCount[date].absen);
+                    const alpaData = labels.map(date => absensiCount[date].alpa);
 
                     setAbsensiChartData({
                         labels: labels,
@@ -299,8 +299,8 @@ export default function DashboardPage() {
                                 borderWidth: 2,
                             },
                             {
-                                label: "Absen",
-                                data: absenData,
+                                label: "Alpa",
+                                data: alpaData,
                                 backgroundColor: "#F44336",
                                 borderColor: "#D32F2F",
                                 borderWidth: 2,
@@ -327,8 +327,8 @@ export default function DashboardPage() {
                                 borderWidth: 2,
                             },
                             {
-                                label: "Absen",
-                                data: absenData,
+                                label: "Alpa",
+                                data: alpaData  ,
                                 backgroundColor: "#F44336",
                                 borderColor: "#D32F2F",
                                 borderWidth: 2,
@@ -414,7 +414,7 @@ export default function DashboardPage() {
                         total={absensiData.total}
                         hadir={absensiData.hadir}
                         izin={absensiData.izin}
-                        absen={absensiData.absen}
+                        alpa={absensiData.alpa}
                         onViewDetails={() => setIsAbsensiDialogOpen(true)}
                     />
 

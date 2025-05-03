@@ -204,9 +204,9 @@ export default function AbsensiPage() {
                         statusText = 'Libur';
                         Icon = <Sun className="h-4 w-4 mr-1" />;
                         break;
-                    case 'absen':
+                    case 'alpa':
                         statusClass = 'bg-red-200 text-red-800';
-                        statusText = 'Absen';
+                        statusText = 'Alpa';
                         Icon = <XCircle className="h-4 w-4 mr-1" />;
                         break;
                     default:
@@ -254,9 +254,9 @@ export default function AbsensiPage() {
                         statusText = 'Libur';
                         Icon = <Sun className="h-4 w-4 mr-1" />;
                         break;
-                    case 'absen':
+                    case 'alpa':
                         statusClass = 'bg-red-200 text-red-800';
-                        statusText = 'Absen';
+                        statusText = 'Alpa';
                         Icon = <XCircle className="h-4 w-4 mr-1" />;
                         break;
                     default:
@@ -312,8 +312,6 @@ export default function AbsensiPage() {
             `Rekap Absensi ${mahasantriName} - ${selectedMonth} ${selectedYear}`
         );
     };
-
-    console.log(selectedMahasantri);
 
     return (
         <>
