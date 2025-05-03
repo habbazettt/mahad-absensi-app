@@ -178,3 +178,11 @@ export interface AttendanceSummary {
     totalIzin: number;
     totalAbsen: number;
 }
+
+export interface AbsensiCount {
+    [date: string]: {
+        hadir: number;
+        izin: number;
+        absen: number;
+    };
+}

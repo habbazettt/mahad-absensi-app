@@ -230,33 +230,6 @@ export default function AddAbsensiPage() {
                                 )}
                             />
 
-                            {/* Input Waktu */}
-                            <FormField
-                                control={form.control}
-                                name="waktu"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="font-bold text-gray-700">Waktu</FormLabel>
-                                        <FormDescription>Masukkan waktu halaqoh (Shubuh / Isya)</FormDescription>
-                                        <FormControl>
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={(value) => field.onChange(value)}
-                                            >
-                                                <SelectTrigger className="w-full font-poppins">
-                                                    <SelectValue placeholder="Pilih Waktu" />
-                                                </SelectTrigger>
-                                                <SelectContent className="font-poppins">
-                                                    <SelectItem value="shubuh">Shubuh</SelectItem>
-                                                    <SelectItem value="isya">Isya</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
                             {/* Input Tanggal */}
                             <FormField
                                 control={form.control}
@@ -284,7 +257,35 @@ export default function AddAbsensiPage() {
                                                         form.setValue("tanggal", formattedDate);
                                                     }
                                                 }}
+                                                maxDate={new Date()}
                                             />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Input Waktu */}
+                            <FormField
+                                control={form.control}
+                                name="waktu"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="font-bold text-gray-700">Waktu</FormLabel>
+                                        <FormDescription>Masukkan waktu halaqoh (Shubuh / Isya)</FormDescription>
+                                        <FormControl>
+                                            <Select
+                                                value={field.value}
+                                                onValueChange={(value) => field.onChange(value)}
+                                            >
+                                                <SelectTrigger className="w-full font-poppins">
+                                                    <SelectValue placeholder="Pilih Waktu" />
+                                                </SelectTrigger>
+                                                <SelectContent className="font-poppins">
+                                                    <SelectItem value="shubuh">Shubuh</SelectItem>
+                                                    <SelectItem value="isya">Isya</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

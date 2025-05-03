@@ -141,6 +141,12 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
         return `${hours} jam ${minutes} menit tersisa`;
     };
 
+    // Menentukan apakah saat ini adalah weekend
+    const isWeekend = currentTime.getDay() === 0 || currentTime.getDay() === 6; // 0 = Minggu, 6 = Sabtu
+
+    // Menentukan kelas latar belakang berdasarkan waktu
+    const backgroundClass = currentTime.getHours() >= 18 ? "bg-gray-800 text-white" : "bg-white text-black";
+
     if (loading) {
         return (
             <Card className="p-6 flex items-center justify-center">
@@ -162,9 +168,9 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className={`${className}`}
+            className={`${className} ${backgroundClass}`}
         >
-            <Card className="p-6 shadow-lg relative overflow-hidden  dark:from-slate-800 dark:to-slate-900">
+            <Card className="p-6 shadow-lg relative overflow-hidden">
                 <div className="flex flex-col gap-6">
                     {/* Header Section */}
                     <div className="flex items-center justify-between">
@@ -193,7 +199,6 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
                             })}
                         </span>
                     </div>
-
 
                     {/* Halaqoh Status */}
                     {getHalaqohDetails() && (
@@ -236,6 +241,14 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
                                 )}
                             </div>
                         </motion.div>
+                    )}
+
+                    {/* Status Weekend */}
+                    {isWeekend && (
+                        <div className="rounded-xl p-4 bg-red-200 text-yellow-800">
+                            <h3 className="text-lg font-semibold">Selamat Berakhir Pekan!</h3>
+                            <p className="text-sm">Nikmati waktu Anda di akhir pekan.</p>
+                        </div>
                     )}
 
                     {/* Jadwal Sholat */}

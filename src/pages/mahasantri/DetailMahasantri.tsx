@@ -546,8 +546,8 @@ export default function DetailMahasantriPage() {
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="flex flex-col gap-4 py-4 lg:flex-row justify-between items-start lg:items-center sm:gap-4">
-                                            <div className="flex flex-col lg:flex-row gap-4">
+                                        <div className="w-full flex flex-wrap gap-4 py-4 justify-between items-start lg:items-center sm:gap-4">
+                                            <div className="flex flex-wrap gap-4">
                                                 <CategoryFilter
                                                     selectedCategory={selectedCategory}
                                                     handleCategoryFilter={handleCategoryFilter}
@@ -634,8 +634,8 @@ export default function DetailMahasantriPage() {
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="flex flex-col gap-4 py-4 lg:flex-row justify-between items-start lg:items-center sm:gap-4">
-                                            <div className="flex flex-col lg:flex-row gap-4">
+                                        <div className="w-full flex flex-wrap gap-4 py-4 justify-between items-start lg:items-center sm:gap-4">
+                                            <div className="flex flex-wrap gap-4">  
                                                 <TahunAjaranFilter
                                                     selectedTahunAjaran={selectedTahunAjaran}
                                                     handleTahunAjaranFilter={handleTahunAjaranFilter}

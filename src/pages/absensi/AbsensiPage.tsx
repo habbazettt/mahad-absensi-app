@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { AbsensiDailySummary, CsvColumnConfig, Mahasantri, Mentor } from "@/types";
 import { ColumnDef, getCoreRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, HelpCircle, Clipboard, Sun, Plus, ChevronDown } from "lucide-react";
+import { CheckCircle, XCircle, HelpCircle, Clipboard, Sun, Plus, ChevronDown, CalendarSearch } from "lucide-react";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import DataTable from "@/components/DataTable";
 import { Toaster } from "react-hot-toast";
@@ -348,20 +348,26 @@ export default function AbsensiPage() {
                                         Pilih mentor, mahasantri, dan bulan untuk melihat rekap absensi
                                     </p>
                                 </div>
-                                <div className="flex gap-2 p-6">
-                                    <div className="">
-                                        <Button
-                                            type="button"
-                                            onClick={() => navigate('/dashboard/absensi/add')}
-                                            className="cursor-pointer"
-                                        >
-                                            <Plus />
-                                            Input Absensi
-                                        </Button>
-                                    </div>
-                                    <div>
-                                        <CsvExportButton onClick={handleExportDailySummary} />
-                                    </div>
+                                <div className="flex flex-wrap gap-2 p-6">
+                                    <Button
+                                        type="button"
+                                        onClick={() => navigate('/dashboard/absensi/add')}
+                                        className="cursor-pointer"
+                                    >
+                                        <Plus />
+                                        Input Absensi
+                                    </Button>
+
+                                    <CsvExportButton onClick={handleExportDailySummary} />
+
+                                    <Button
+                                        type="button"
+                                        onClick={() => navigate('/dashboard/absensi/detail')}
+                                        className="cursor-pointer bg-[var(--primary-1)] hover:bg-[var(--primary-2)]"
+                                    >
+                                        <CalendarSearch />
+                                        Detail Absensi
+                                    </Button>
                                 </div>
                             </div>
                             <div className="relative overflow-x-auto p-6">
@@ -375,7 +381,7 @@ export default function AbsensiPage() {
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="w-full flex flex-wrap gap-4 py-4 lg:flex-row justify-between items-start lg:items-center sm:gap-4">
+                                        <div className="w-full flex flex-wrap gap-4 py-4 justify-between items-start lg:items-center sm:gap-4">
                                             <div className="flex flex-wrap gap-4">
                                                 {/* Filter Mentor */}
                                                 <MentorFilter

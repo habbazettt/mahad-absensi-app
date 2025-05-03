@@ -35,7 +35,7 @@ import TimeFilter from "@/components/filter/TimeFilter"
 import { exportToCSV } from "@/utils/exportCsv"
 import { CsvExportButton } from "@/components/CsvExportButton"
 
-export default function SetoranPage() {
+export default function DetailAbsensiPage() {
     const navigate = useNavigate()
     const [hafalanData, setHafalanData] = useState<Hafalan[]>([])
     const [mentors, setMentors] = useState<Mentor[]>([])
@@ -473,7 +473,11 @@ export default function SetoranPage() {
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
-                                        <BreadcrumbPage className="text-primary">Setoran Mahasantri</BreadcrumbPage>
+                                        <BreadcrumbPage className="text-muted-foreground">Absensi Halaqoh</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator />
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-primary">Detail Absensi</BreadcrumbPage>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>

@@ -16,7 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import StatCard from "@/components/widget/StatCard";
 import { BookOpen, Users } from "lucide-react";
-import { Absensi, MahasantriWithHafalan } from "@/types";
+import { Absensi, AbsensiCount, MahasantriWithHafalan } from "@/types";
 import MahasantriDialog from "@/components/dialogs/MahasantriDialog";
 import SetoranDialog from "@/components/dialogs/SetoranDialog";
 import { fetchHafalanByMentor } from "@/utils/fetchHalaman";
@@ -51,8 +51,22 @@ export default function DashboardPage() {
     const [mahasantriList, setMahasantriList] = useState<MahasantriWithHafalan[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isHafalanDialogOpen, setIsHafalanDialogOpen] = useState(false);
+
+    const [absensiData, setAbsensiData] = useState({
+        total: 0,
+        hadir: 0,
+        izin: 0,
+        absen: 0
+    });
+    const [absensiDetails, setAbsensiDetails] = useState<Absensi[]>([]);
+    const [isAbsensiDialogOpen, setIsAbsensiDialogOpen] = useState(false);
+    const [absensiCurrentPage, setAbsensiCurrentPage] = useState(1);
+
+    // Chart states
     const [chartData, setChartData] = useState<ChartData<'line', number[], string> | null>(null);
     const [barChartData, setBarChartData] = useState<ChartData<'bar', number[], string> | null>(null);
+    const [absensiChartData, setAbsensiChartData] = useState<ChartData<'bar', number[], string> | null>(null);
+    const [absensiLineChartData, setAbsensiLineChartData] = useState<ChartData<'line', number[], string> | null>(null);
 
     // Pagination states for Mahasantri and Setoran
     const [currentPage, setCurrentPage] = useState(1);
@@ -66,7 +80,6 @@ export default function DashboardPage() {
         currentPage * itemsPerPage
     );
 
-    // Handle array kosong saat membuat allSetoran
     const allSetoran = mahasantriList?.flatMap((m) =>
         m.list_hafalan?.map((h) => ({
             ...h,
@@ -80,16 +93,6 @@ export default function DashboardPage() {
         (setoranCurrentPage - 1) * setoranPerPage,
         setoranCurrentPage * setoranPerPage
     );
-
-    const [absensiData, setAbsensiData] = useState({
-        total: 0,
-        hadir: 0,
-        izin: 0,
-        absen: 0
-    });
-    const [absensiDetails, setAbsensiDetails] = useState<Absensi[]>([]);
-    const [isAbsensiDialogOpen, setIsAbsensiDialogOpen] = useState(false);
-    const [absensiCurrentPage, setAbsensiCurrentPage] = useState(1);
 
     const user = JSON.parse(localStorage.getItem("user") ?? '{}');
     const token = localStorage.getItem("auth_token") ?? '';
@@ -227,8 +230,120 @@ export default function DashboardPage() {
             }
         };
 
+        const fetchAbsensiData = async () => {
+            try {
+                const response = await fetch(
+                    `${import.meta.env.VITE_API_URL}/absensi?mentor_id=${user.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    console.error("Gagal mengambil data absensi");
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.status) {
+                    const absensi = data.data.absensi;
+
+                    // Proses data untuk chart
+                    const absensiCount = absensi.reduce((acc: AbsensiCount, curr: { tanggal: string; status: string }) => {
+                        const date = new Date(curr.tanggal).toLocaleDateString('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        }).replace(/\./g, '');
+                        if (!acc[date]) {
+                            acc[date] = { hadir: 0, izin: 0, absen: 0 };
+                        }
+                        switch (curr.status) {
+                            case 'hadir':
+                                acc[date].hadir += 1;
+                                break;
+                            case 'izin':
+                                acc[date].izin += 1;
+                                break;
+                            case 'absen':
+                                acc[date].absen += 1;
+                                break;
+                            default:
+                                console.error(`Unknown status: ${curr.status}`);
+                        }
+                        return acc;
+                    }, {});
+
+                    const labels = Object.keys(absensiCount);
+                    const hadirData = labels.map(date => absensiCount[date].hadir);
+                    const izinData = labels.map(date => absensiCount[date].izin);
+                    const absenData = labels.map(date => absensiCount[date].absen);
+
+                    setAbsensiChartData({
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "Hadir",
+                                data: hadirData,
+                                backgroundColor: "#4CAF50", // Hijau
+                                borderColor: "#388E3C", // Hijau Gelap
+                                borderWidth: 2,
+                            },
+                            {
+                                label: "Izin",
+                                data: izinData,
+                                backgroundColor: "#2196F3",
+                                borderColor: "#1976D2",
+                                borderWidth: 2,
+                            },
+                            {
+                                label: "Absen",
+                                data: absenData,
+                                backgroundColor: "#F44336",
+                                borderColor: "#D32F2F",
+                                borderWidth: 2,
+                            }
+                        ]
+                    });
+
+                    // Set data untuk Line Chart
+                    setAbsensiLineChartData({
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "Hadir",
+                                data: hadirData,
+                                backgroundColor: "#4CAF50",
+                                borderColor: "#388E3C",
+                                borderWidth: 2,
+                            },
+                            {
+                                label: "Izin",
+                                data: izinData,
+                                backgroundColor: "#2196F3",
+                                borderColor: "#1976D2",
+                                borderWidth: 2,
+                            },
+                            {
+                                label: "Absen",
+                                data: absenData,
+                                backgroundColor: "#F44336",
+                                borderColor: "#D32F2F",
+                                borderWidth: 2,
+                            }
+                        ]
+                    });
+                }
+            } catch (error) {
+                console.error("Gagal mengambil data absensi:", error);
+            }
+        };
+
         fetchData();
         fetchAbsensi();
+        fetchAbsensiData();
     }, []);
 
     const handlePrevPage = () => {
@@ -311,7 +426,7 @@ export default function DashboardPage() {
 
                     {/* Charts Section */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        {/* Line Chart Container */}
+                        {/* Line Chart */}
                         <Card className="p-4 md:p-6">
                             <div className="flex flex-col h-full">
                                 {/* Chart Header */}
@@ -350,7 +465,7 @@ export default function DashboardPage() {
                             </div>
                         </Card>
 
-                        {/* Bar Chart Container */}
+                        {/* Bar Chart */}
                         <Card className="p-4 md:p-6">
                             <div className="flex flex-col h-full">
                                 {/* Chart Header */}
@@ -385,6 +500,117 @@ export default function DashboardPage() {
                                                 },
                                             }}
                                         />
+                                    )}
+                                </div>
+                            </div>
+                        </Card>
+
+                        {/* Chart Absensi Line */}
+                        <Card className="p-4 md:p-6">
+                            <div className="flex flex-col h-full">
+                                <div className="pb-4 border-b">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                                            <span className="bg-green-100 text-green-800 p-2 rounded-lg">
+                                                📈
+                                            </span>
+                                            Tren Absensi 30 Hari Terakhir
+                                        </h3>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                        Perkembangan absensi dari waktu ke waktu
+                                    </p>
+                                </div>
+
+                                <div className="relative h-[300px] md:h-[400px] mt-4">
+                                    {absensiLineChartData ? (
+                                        <Line
+                                            data={absensiLineChartData}
+                                            options={{
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                scales: {
+                                                    x: {
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Tanggal'
+                                                        }
+                                                    },
+                                                    y: {
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Jumlah'
+                                                        },
+                                                        beginAtZero: true
+                                                    }
+                                                },
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top' as const,
+                                                    },
+                                                    tooltip: {
+                                                        mode: 'index' as const,
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                    ) : (
+                                        <div className="flex items-center justify-center h-full text-gray-500">
+                                            Memuat data absensi...
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </Card>
+
+                        {/* Chart Absensi */}
+                        <Card className="p-4 md:p-6">
+                            <div className="flex flex-col h-full">
+                                <div className="pb-4 border-b">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                                            <span className="bg-red-100 text-red-800 p-2 rounded-lg">
+                                                📅
+                                            </span>
+                                            Rekapitulasi Absensi
+                                        </h3>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                        Statistik absensi harian seluruh mahasantri
+                                    </p>
+                                </div>
+
+                                <div className="relative h-[300px] md:h-[400px] mt-4">
+                                    {absensiChartData ? (
+                                        <Bar
+                                            data={absensiChartData}
+                                            options={{
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                scales: {
+                                                    x: {
+                                                        stacked: true,
+                                                    },
+                                                    y: {
+                                                        stacked: true,
+                                                        beginAtZero: true
+                                                    }
+                                                },
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top' as const,
+                                                    },
+                                                    title: {
+                                                        display: true,
+                                                        text: 'Distribusi Absensi per Hari'
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                    ) : (
+                                        <div className="flex items-center justify-center h-full text-gray-500">
+                                            Memuat data absensi...
+                                        </div>
                                     )}
                                 </div>
                             </div>
