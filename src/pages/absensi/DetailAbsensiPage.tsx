@@ -1,128 +1,114 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { AppSidebar } from "@/components/app-sidebar"
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AppSidebar } from "@/components/app-sidebar";
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-
+} from "@/components/ui/breadcrumb";
 import {
     SidebarInset,
     SidebarProvider,
     SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
-import { CsvColumnConfig, Hafalan, Mahasantri, Mentor, Pagination } from "@/types"
-import { ColumnDef, getCoreRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
-import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown, Moon, Plus, Sun } from "lucide-react"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { processAllSetoranData } from "@/utils/dataProcessing"
-import PaginationComponent from "@/components/Pagination"
-import DataTable from "@/components/DataTable"
-import toast, { Toaster } from "react-hot-toast"
-import DeleteDialogComponent from "@/components/dialogs/DeleteDialog"
-import ActionDropdown from "@/components/ActionDropdown"
-import MentorFilter from "@/components/filter/MentorFilter"
-import { authCheck, formatTanggalIndo } from "@/lib/utils"
-import MahasantriFilter from "@/components/filter/MahasantriFilter"
-import CategoryFilter from "@/components/filter/CategoryFilter"
-import TimeFilter from "@/components/filter/TimeFilter"
-import { exportToCSV } from "@/utils/exportCsv"
-import { CsvExportButton } from "@/components/CsvExportButton"
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import { CsvColumnConfig, Absensi, Pagination, Mentor, Mahasantri } from "@/types";
+import { ColumnDef, getCoreRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
+import { Button } from "@/components/ui/button";
+import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, Calendar, CheckCircle, ChevronDown, Moon, Plus, Sun, XCircle } from "lucide-react";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import PaginationComponent from "@/components/Pagination";
+import DataTable from "@/components/DataTable";
+import toast, { Toaster } from "react-hot-toast";
+import { exportToCSV } from "@/utils/exportCsv";
+import { CsvExportButton } from "@/components/CsvExportButton";
+import AbsensiFilter from "@/components/filter/AbsensiFilter";
+import MahasantriFilter from "@/components/filter/MahasantriFilter";
+import MentorFilter from "@/components/filter/MentorFilter";
+import { authCheck } from "@/lib/utils";
+import { format, parse } from "date-fns";
+import { id } from "date-fns/locale";
+import ActionDropdown from "@/components/ActionDropdown";
+import DeleteDialogComponent from "@/components/dialogs/DeleteDialog";
 
 export default function DetailAbsensiPage() {
-    const navigate = useNavigate()
-    const [hafalanData, setHafalanData] = useState<Hafalan[]>([])
-    const [mentors, setMentors] = useState<Mentor[]>([])
-    const [mahasantriData, setMahasantriData] = useState<Mahasantri[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState("")
-    const [sorting, setSorting] = useState<SortingState>([])
+    const navigate = useNavigate();
+    const [absensiData, setAbsensiData] = useState<Absensi[]>([]);
+    const [mentors, setMentors] = useState<Mentor[]>([]);
+    const [mahasantriData, setMahasantriData] = useState<Mahasantri[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [sorting, setSorting] = useState<SortingState>([]);
     const [pagination, setPagination] = useState<Pagination>({
         current_page: 1,
         total_data: 0,
         total_pages: 1,
-    })
-    const [openDialog, setOpenDialog] = useState(false)
+    });
     const [columnVisibility, setColumnVisibility] = useState({});
 
-    const [selectedId, setSelectedId] = useState(0)
-    const [selectedMentorId, setSelectedMentorId] = useState<string | undefined>(undefined);
-    const [selectedMahasantriId, setSelectedMahasantriId] = useState<string | undefined>(undefined);
+    const [selectedWaktu, setSelectedWaktu] = useState<string | undefined>(undefined);
+    const [selectedStatus, setSelectedStatus] = useState<string | undefined>(undefined);
+    const [selectedMahasantriId, setSelectedMahasantriId] = useState<string | null>(null);
+    const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null);
 
-    const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
-    const [selectedTime, setSelectedTime] = useState<string | undefined>(undefined);
+    const [openDialog, setOpenDialog] = useState(false)
+    const [selectedId, setSelectedId] = useState(0)
 
     useEffect(() => {
         const fetchInitialData = async () => {
             if (authCheck()) {
                 try {
-                    setLoading(true)
+                    setLoading(true);
+
                     // Fetch mentors first
                     const mentorsResponse = await fetch(
                         `${import.meta.env.VITE_API_URL}/mentors?page=1&limit=16`
-                    )
+                    );
 
-                    if (!mentorsResponse.ok) throw new Error("Gagal mengambil data mentor")
+                    if (!mentorsResponse.ok) throw new Error("Gagal mengambil data mentor");
 
-                    const mentorsData = await mentorsResponse.json()
+                    const mentorsData = await mentorsResponse.json();
 
                     if (mentorsData.status) {
-                        setMentors(mentorsData.data.mentors)
+                        setMentors(mentorsData.data.mentors);
                     }
 
-                    // Then fetch hafalan
-                    await fetchHafalanData(1)
-
-                    // Then fetch santri
-                    await fetchMahasantriData(1, "")
+                    await fetchMahasantriData(1, "");
                 } catch (err) {
-                    setError("Gagal memuat data awal")
-                    console.error("Initial fetch error:", err)
+                    setError("Gagal memuat data awal");
+                    console.error("Initial fetch error:", err);
                 } finally {
-                    setLoading(false)
+                    setLoading(false);
                 }
             }
-        }
-        fetchInitialData()
-    }, [])
+        };
+        fetchInitialData();
+    }, []);
 
-    const handlePageChange = (newPage: number) => {
-        if (newPage < 1 || newPage > pagination.total_pages) return
-        setPagination(prev => ({
-            ...prev,
-            current_page: newPage
-        }))
-        fetchHafalanData(newPage)
-    }
+    useEffect(() => {
+        fetchAbsensiData(1);
+    }, [selectedWaktu, selectedStatus, selectedMahasantriId, selectedMentorId]);
 
-    const fetchHafalanData = async (page: number, mentor_id?: number, mahasantri_id?: number, kategori?: string, waktu?: string) => {
+    const fetchAbsensiData = async (page: number) => {
         try {
             setLoading(true);
-            const url = new URL(`${import.meta.env.VITE_API_URL}/hafalan`);
+            const url = new URL(`${import.meta.env.VITE_API_URL}/absensi`);
             url.searchParams.append('page', page.toString());
             url.searchParams.append('limit', '10');
-            url.searchParams.append('sort', sorting[0]?.desc ? 'desc' : 'asc');
-
-            if (mentor_id) {
-                url.searchParams.append('mentor_id', mentor_id.toString());
+            if (selectedStatus) {
+                url.searchParams.append('status', selectedStatus);
             }
-
-            if (mahasantri_id) {
-                url.searchParams.append('mahasantri_id', mahasantri_id.toString());
+            if (selectedWaktu) {
+                url.searchParams.append('waktu', selectedWaktu);
             }
-
-            if (kategori) {
-                url.searchParams.append('kategori', kategori);
+            if (selectedMahasantriId) {
+                url.searchParams.append('mahasantri_id', selectedMahasantriId.toString());
             }
-
-            if (waktu) {
-                url.searchParams.append('waktu', waktu);
+            if (selectedMentorId) {
+                url.searchParams.append('mentor_id', selectedMentorId.toString());
             }
 
             const response = await fetch(url.toString(), {
@@ -131,13 +117,11 @@ export default function DetailAbsensiPage() {
                 },
             });
 
-            if (!response.ok) throw new Error("Gagal mengambil data hafalan");
+            if (!response.ok) throw new Error("Gagal mengambil data absensi");
 
             const data = await response.json();
-
             if (data.status) {
-                const processedHafalanData = processAllSetoranData(data.data.hafalan);
-                setHafalanData(processedHafalanData);
+                setAbsensiData(data.data.absensi);
                 setPagination({
                     current_page: data.data.pagination.current_page,
                     total_data: data.data.pagination.total_data,
@@ -147,7 +131,7 @@ export default function DetailAbsensiPage() {
                 console.error("Error fetching data:", data.message);
             }
         } catch (error) {
-            setError("Gagal memuat data hafalan");
+            setError("Gagal memuat data absensi");
             console.error("Fetch error:", error);
         } finally {
             setLoading(false);
@@ -159,7 +143,7 @@ export default function DetailAbsensiPage() {
             setLoading(true);
             const url = new URL(`${import.meta.env.VITE_API_URL}/mahasantri`);
             url.searchParams.append('page', page.toString());
-            url.searchParams.append('limit', '10');
+            url.searchParams.append('limit', '1000');
             if (search) {
                 url.searchParams.append('nama', search);
             }
@@ -177,28 +161,15 @@ export default function DetailAbsensiPage() {
         }
     };
 
-    const getMentorName = (mentorId: number) => {
-        const mentor = mentors.find(m => m.id === mentorId);
-        return mentor ? mentor.nama : 'Belum ada mentor';
+    const handlePageChange = (newPage: number) => {
+        if (newPage < 1 || newPage > pagination.total_pages) return;
+        fetchAbsensiData(newPage);
     };
 
-    const getMentorGender = (mentorId: number) => {
-        const mentor = mentors.find(m => m.id === mentorId);
-        return mentor?.gender === "L" ? "Ust. " : "Ust. ";
-    };
-
-    const getMahasantriName = (mahasantriId: number) => {
-        const mahasantri = mahasantriData.find(m => m.id === mahasantriId);
-        return mahasantri ? mahasantri.nama : 'Belum ada mahasantri';
-    };
-
-    // Definisi Kolom Tabel
-    const columns = useMemo<ColumnDef<Hafalan>[]>(() => [
+    const columns = useMemo<ColumnDef<Absensi>[]>(() => [
         {
-            id: "created_at",
-            accessorKey: "created_at",
-            enableSorting: true,
-            enableHiding: true,
+            id: "tanggal",
+            accessorKey: "tanggal",
             header: ({ column }) => {
                 const isSorted = column.getIsSorted();
                 return (
@@ -206,7 +177,7 @@ export default function DetailAbsensiPage() {
                         variant="ghost"
                         onClick={() => column.toggleSorting(isSorted === "asc")}
                     >
-                        Hari, Tanggal
+                        Tanggal
                         {isSorted === "asc" ? (
                             <ArrowUpWideNarrow className="ml-2 h-4 w-4" />
                         ) : isSorted === "desc" ? (
@@ -217,78 +188,32 @@ export default function DetailAbsensiPage() {
                     </Button>
                 );
             },
-            sortingFn: (rowA, rowB) => {
-                const dateA = rowA.original.original_created_at;
-                const dateB = rowB.original.original_created_at;
+            cell: ({ row }) => {
+                const dateStr = row.getValue("tanggal") as string
+                const date = parse(dateStr, 'dd-MM-yyyy', new Date())
 
-                if (!dateA && !dateB) return 0;
-                if (!dateA) return 1;
-                if (!dateB) return -1;
+                const formattedDate = format(date, 'EEEE, dd MMM yyyy', { locale: id });
 
-                return dateA.getTime() - dateB.getTime();
+                return <span>{formattedDate}</span>
             },
         },
         {
             id: "mahasantri_id",
             accessorKey: "mahasantri_id",
             header: "Mahasantri",
-            enableHiding: true,
             cell: ({ row }) => {
-                const mahasantri_id = row.getValue("mahasantri_id") as number;
-                return (
-                    <span className="font-medium">
-                        {getMahasantriName(mahasantri_id)}
-                    </span>
-                );
+                const mahasantri = row.original.mahasantri;
+                return <span className="font-medium">{mahasantri.nama}</span>;
             },
         },
         {
             id: "mentor_id",
             accessorKey: "mentor_id",
             header: "Mentor",
-            enableHiding: true,
             cell: ({ row }) => {
-                const mentorId = row.getValue("mentor_id") as number;
-                return (
-                    <span className="font-medium">
-                        {getMentorGender(mentorId)}
-                        {getMentorName(mentorId)}
-                    </span>
-                );
+                const mentor = row.original.mentor;
+                return <span className="font-medium">{mentor.gender === 'L' ? `Ust. ${mentor.nama}` : `Usth. ${mentor.nama}`}</span>;
             },
-        },
-        {
-            id: "juz",
-            accessorKey: "juz",
-            header: "Juz",
-            enableHiding: true,
-        },
-        {
-            id: "halaman",
-            accessorKey: "halaman",
-            header: "Halaman",
-            enableHiding: true,
-        },
-        {
-            id: "total_setoran",
-            accessorKey: "total_setoran",
-            header: "Total Setoran",
-            enableHiding: true,
-            cell: ({ row }) => (
-                <h1>
-                    {row.getValue("total_setoran")} halaman
-                </h1>
-            )
-        },
-        {
-            id: "kategori",
-            accessorKey: "kategori",
-            header: "Kategori",
-            cell: ({ row }) => (
-                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${row.getValue("kategori") === 'ziyadah' ? 'bg-blue-500/20' : 'bg-pink-600/20'} text-primary`}>
-                    {row.getValue("kategori")}
-                </span>
-            ),
         },
         {
             id: "waktu",
@@ -308,10 +233,21 @@ export default function DetailAbsensiPage() {
             }
         },
         {
-            id: "catatan",
-            accessorKey: "catatan",
-            header: "Catatan",
-            enableHiding: true,
+            id: "status",
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }) => {
+                const status: string = row.getValue("status");
+                const isHadir = status === 'hadir';
+                const isIzin = status === 'izin';
+
+                return (
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isHadir ? 'bg-green-200 text-green-800' : isIzin ? 'bg-blue-200 text-blue-800' : 'bg-red-200 text-red-800'}`}>
+                        {isHadir ? <CheckCircle className="h-4 w-4 mr-1" /> : isIzin ? <Calendar className="h-4 w-4 mr-1" /> : <XCircle className="h-4 w-4 mr-1" />}
+                        {isHadir ? 'Hadir' : isIzin ? 'Izin' : 'Tidak Hadir'}
+                    </span>
+                );
+            },
         },
         {
             id: "actions",
@@ -322,16 +258,16 @@ export default function DetailAbsensiPage() {
                         row={row}
                         setOpenDialog={setOpenDialog}
                         setSelectedId={setSelectedId}
-                        keyword="Setoran"
-                        editPath="/dashboard/setoran/edit"
+                        keyword="Absensi"
+                        editPath="/dashboard/absensi/edit"
                     />
                 );
             },
         },
-    ], [mentors, mahasantriData, hafalanData]);
+    ], [navigate]);
 
     const table = useReactTable({
-        data: hafalanData,
+        data: absensiData,
         columns,
         state: {
             sorting,
@@ -344,11 +280,48 @@ export default function DetailAbsensiPage() {
         getPaginationRowModel: getPaginationRowModel(),
     });
 
-    const handleDeleteSetoran = async () => {
+    // Filter by Mentor
+    const handleMentorFilter = async (mentorId: string) => {
+        setSelectedMentorId(mentorId === "all" ? null : parseInt(mentorId).toString());
+        fetchAbsensiData(1);
+    };
+
+    // Filter by Mahasantri
+    const handleMahasantriFilter = async (mahasantriId: string) => {
+        setSelectedMahasantriId(mahasantriId === "all" ? null : parseInt(mahasantriId).toString());
+        fetchAbsensiData(1);
+    };
+
+    // Filter by Waktu
+    const handleWaktuFilter = async (waktu: string) => {
+        setSelectedWaktu(waktu === "all" ? undefined : waktu);
+        fetchAbsensiData(1);
+    };
+
+    // Filter by Status
+    const handleStatusFilter = async (status: string) => {
+        setSelectedStatus(status === "all" ? undefined : status);
+        fetchAbsensiData(1);
+    };
+
+    // Export to CSV Handler
+    const handleExportAllAbsensi = () => {
+        const columns: CsvColumnConfig<Absensi>[] = [
+            { key: 'tanggal', header: 'Tanggal' },
+            { key: 'mahasantri_id', header: 'Mahasantri', format: (value) => absensiData.find(a => a.mahasantri.id === value)?.mahasantri.nama ?? '' },
+            { key: 'mentor_id', header: 'Mentor', format: (value) => absensiData.find(a => a.mentor_id === value)?.mentor.nama ?? '' },
+            { key: 'waktu', header: 'Waktu' },
+            { key: 'status', header: 'Status' },
+        ];
+
+        exportToCSV(absensiData, columns, `Rekap Absensi`);
+    };
+
+    const handleDeleteAbsensi = async () => {
         const loadingToast = toast.loading("Sedang memproses...");
         setLoading(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/hafalan/${selectedId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/absensi/${selectedId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -376,86 +349,6 @@ export default function DetailAbsensiPage() {
         }
     }
 
-    // Filter by Mentor
-    const handleMentorFilter = async (mentorId: string) => {
-        setSelectedMentorId(mentorId === "all" ? undefined : mentorId);
-        if (mentorId === "all") {
-            await fetchHafalanData(1);
-        } else {
-            await fetchHafalanData(1, parseInt(mentorId));
-        }
-    };
-
-    // Filter by Mahasantri
-    const handleMahasantriFilter = async (mahasantriId: string) => {
-        if (mahasantriId === "all") {
-            setSelectedMahasantriId(undefined);
-            setSelectedMentorId(undefined);
-            await fetchHafalanData(1);
-        } else {
-            setSelectedMahasantriId(mahasantriId);
-            await fetchHafalanData(1, undefined, parseInt(mahasantriId));
-        }
-    };
-
-    // Filter by Category
-    const handleCategoryFilter = async (category: string) => {
-        const selectedCat = category === "all" ? undefined : category;
-        setSelectedCategory(selectedCat);
-        await fetchHafalanData(1, undefined, Number(selectedMahasantriId), selectedCat, selectedTime);
-    };
-
-    // Filter by Time
-    const handleTimeFilter = async (time: string) => {
-        const selectedTm = time === "all" ? undefined : time;
-        setSelectedTime(selectedTm);
-        await fetchHafalanData(1, undefined, Number(selectedMahasantriId), selectedCategory, selectedTm);
-    };
-
-    const filteredMahasantriData = useMemo(() => {
-        if (!selectedMentorId) return mahasantriData;
-        return mahasantriData.filter(mahasantri => mahasantri.mentor_id === parseInt(selectedMentorId));
-    }, [mahasantriData, selectedMentorId]);
-
-    // Export to CSV Handler
-    const handleExportAllHafalan = () => {
-        const columns: CsvColumnConfig<Hafalan>[] = [
-            {
-                key: 'created_at',
-                header: 'Hari, Tanggal',
-                format: (value) => formatTanggalIndo(value)
-            },
-            {
-                key: "mahasantri_id",
-                header: "Mahasantri",
-                format: (value) => {
-                    const mahasantri = filteredMahasantriData.find(mahasantri => mahasantri.id === value);
-                    return mahasantri ? mahasantri.nama : '';
-                }
-            },
-            {
-                key: "mentor_id",
-                header: "Mentor",
-                format: (value) => {
-                    const mentor = mentors.find(mentor => mentor.id === value);
-                    return mentor ? mentor.nama : '';
-                }
-            },
-            { key: 'juz', header: 'Juz' },
-            { key: 'halaman', header: 'Halaman' },
-            { key: 'total_setoran', header: 'Total Setoran' },
-            { key: 'kategori', header: 'Kategori' },
-            { key: 'waktu', header: 'Waktu' },
-            { key: 'catatan', header: 'Catatan' },
-        ];
-
-        exportToCSV(
-            hafalanData,
-            columns,
-            `Rekap Hafalan`
-        );
-    }
-
     return (
         <>
             <Toaster position="top-right" />
@@ -473,7 +366,7 @@ export default function DetailAbsensiPage() {
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
-                                        <BreadcrumbPage className="text-muted-foreground">Absensi Halaqoh</BreadcrumbPage>
+                                        <BreadcrumbPage className="text-muted-foreground">Absensi</BreadcrumbPage>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
@@ -488,24 +381,24 @@ export default function DetailAbsensiPage() {
                         <div className="rounded-lg border bg-card shadow-sm">
                             <div className="flex flex-col md:flex-row md:items-center justify-between">
                                 <div className="p-6 pb-0">
-                                    <h2 className="text-2xl font-bold">Daftar Setoran Hafalan Mahasantri</h2>
+                                    <h2 className="text-2xl font-bold">Daftar Absensi Mahasantri</h2>
                                     <p className="text-muted-foreground mt-2">
-                                        Total {pagination.total_data} hafalan terdaftar
+                                        Total {pagination.total_data} absensi terdaftar
                                     </p>
                                 </div>
                                 <div className="flex gap-2 p-6">
                                     <div className="">
                                         <Button
                                             type="button"
-                                            onClick={() => navigate('/dashboard/setoran/add')}
+                                            onClick={() => navigate('/dashboard/absensi/add')}
                                             className="cursor-pointer"
                                         >
                                             <Plus />
-                                            Input Setoran
+                                            Input Absensi
                                         </Button>
                                     </div>
                                     <div>
-                                        <CsvExportButton onClick={handleExportAllHafalan} />
+                                        <CsvExportButton onClick={handleExportAllAbsensi} />
                                     </div>
                                 </div>
                             </div>
@@ -522,21 +415,26 @@ export default function DetailAbsensiPage() {
                                     <>
                                         <div className="w-full flex flex-wrap gap-4 py-4 justify-between items-start lg:items-center sm:gap-4">
                                             <div className="flex flex-wrap gap-4">
-                                                <MentorFilter selectedMentorId={selectedMentorId} mentors={mentors} handleMentorFilter={handleMentorFilter} />
+                                                {/* Filter Mentor */}
+                                                <MentorFilter
+                                                    selectedMentorId={selectedMentorId}
+                                                    mentors={mentors}
+                                                    handleMentorFilter={handleMentorFilter}
+                                                />
 
+                                                {/* Filter Mahasantri */}
                                                 <MahasantriFilter
-                                                    mahasantriData={filteredMahasantriData}
-                                                    handleMahasantriFilter={handleMahasantriFilter}
                                                     selectedMahasantriId={selectedMahasantriId}
+                                                    mahasantriData={mahasantriData}
+                                                    handleMahasantriFilter={handleMahasantriFilter}
                                                 />
 
-                                                <CategoryFilter
-                                                    selectedCategory={selectedCategory}
-                                                    handleCategoryFilter={handleCategoryFilter}
-                                                />
-                                                <TimeFilter
-                                                    selectedTime={selectedTime}
-                                                    handleTimeFilter={handleTimeFilter}
+                                                {/* Filter Waktu dan Status */}
+                                                <AbsensiFilter
+                                                    selectedWaktu={selectedWaktu}
+                                                    handleWaktuFilter={handleWaktuFilter}
+                                                    selectedStatus={selectedStatus}
+                                                    handleStatusFilter={handleStatusFilter}
                                                 />
                                             </div>
 
@@ -560,7 +458,9 @@ export default function DetailAbsensiPage() {
                                                                 const columnLabels: { [key: string]: string } = {
                                                                     mentor_id: "Mentor",
                                                                     mahasantri_id: "Mahasantri",
-                                                                    created_at: "Hari, Tanggal"
+                                                                    tanggal: "Tanggal",
+                                                                    waktu: "Waktu",
+                                                                    status: "Status"
                                                                 };
 
                                                                 return (
@@ -586,7 +486,7 @@ export default function DetailAbsensiPage() {
 
                                         <DataTable
                                             columns={columns}
-                                            data={hafalanData}
+                                            data={absensiData}
                                             sorting={sorting}
                                             onSortingChange={setSorting}
                                             columnVisibility={columnVisibility}
@@ -609,9 +509,9 @@ export default function DetailAbsensiPage() {
             <DeleteDialogComponent
                 openDialog={openDialog}
                 setOpenDialog={setOpenDialog}
-                handleDelete={handleDeleteSetoran}
-                keyword="Setoran"
+                handleDelete={handleDeleteAbsensi}
+                keyword="Absensi"
             />
         </>
-    )
+    );
 }

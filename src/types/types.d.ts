@@ -148,10 +148,17 @@ export interface AbsensiDailySummary {
 
 export interface Absensi {
     id: number;
+    mahasantri_id: number;
+    mentor_id: number;
     mahasantri: {
         id: number;
         nama: string;
     };
+    mentor: {
+        id: number;
+        nama: string;
+        gender: string;
+    }
     waktu: 'shubuh' | 'isya';
     status: 'hadir' | 'izin' | 'absen';
     tanggal: string;
