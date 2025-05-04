@@ -145,7 +145,7 @@ const TimeWidget = ({ className }: TimeWidgetProps) => {
     const isWeekend = currentTime.getDay() === 0 || currentTime.getDay() === 6; // 0 = Minggu, 6 = Sabtu
 
     // Menentukan kelas latar belakang berdasarkan waktu
-    const backgroundClass = currentTime.getHours() >= 18 ? "bg-gray-800 text-white" : "bg-white text-black";
+    const backgroundClass = currentTime.getHours() >= 18 ? "text-white" : "bg-white text-black";
 
     if (loading) {
         return (

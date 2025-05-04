@@ -39,7 +39,7 @@ export default function StatCard({
             )} />
 
             {/* Animated Background Effect */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-primary/10" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-[var(--primary-1)]/10 hover:bg-[var(--primary-1)]/10" />
 
             <div className="flex items-center gap-4">
                 {/* Icon Container with Gradient */}
