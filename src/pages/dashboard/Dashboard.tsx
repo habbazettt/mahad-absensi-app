@@ -250,88 +250,127 @@ export default function DashboardPage() {
                 if (data.status) {
                     const absensi = data.data.absensi;
 
+                    // Fungsi untuk parsing tanggal DD-MM-YYYY
+                    const parseTanggal = (tanggalStr: string) => {
+                        const [day, month, year] = tanggalStr.split('-').map(part => parseInt(part, 10));
+                        return { day, month, year, original: tanggalStr };
+                    };
+
+                    // Urutkan absensi berdasarkan tanggal (terlama ke terbaru)
+                    const sortedAbsensi = [...absensi].sort((a, b) => {
+                        const dateA = parseTanggal(a.tanggal);
+                        const dateB = parseTanggal(b.tanggal);
+
+                        if (dateA.year !== dateB.year) return dateA.year - dateB.year;
+                        if (dateA.month !== dateB.month) return dateA.month - dateB.month;
+                        return dateA.day - dateB.day;
+                    });
+
+                    // Ambil hanya 7 hari terakhir untuk tampilan yang lebih baik
+                    const uniqueDates = Array.from(new Set(sortedAbsensi.map(item => item.tanggal)));
+                    const last7Dates = uniqueDates.slice(-7); // Ambil 7 tanggal terakhir
+
                     // Proses data untuk chart
-                    const absensiCount = absensi.reduce((acc: AbsensiCount, curr: { tanggal: string; status: string }) => {
-                        const date = new Date(curr.tanggal).toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                        }).replace(/\./g, '');
-                        if (!acc[date]) {
-                            acc[date] = { hadir: 0, izin: 0, alpa: 0 };
-                        }
-                        switch (curr.status) {
-                            case 'hadir':
-                                acc[date].hadir += 1;
-                                break;
-                            case 'izin':
-                                acc[date].izin += 1;
-                                break;
-                            case 'alpa':
-                                acc[date].alpa += 1;
-                                break;
-                            default:
-                                console.error(`Unknown status: ${curr.status}`);
-                        }
-                        return acc;
-                    }, {});
+                    const absensiCount: AbsensiCount = {};
 
-                    const labels = Object.keys(absensiCount);
-                    const hadirData = labels.map(date => absensiCount[date].hadir);
-                    const izinData = labels.map(date => absensiCount[date].izin);
-                    const alpaData = labels.map(date => absensiCount[date].alpa);
+                    // Inisialisasi semua tanggal yang akan ditampilkan
+                    last7Dates.forEach(date => {
+                        absensiCount[date] = { hadir: 0, izin: 0, alpa: 0 };
+                    });
 
+                    // Hitung jumlah status per tanggal
+                    sortedAbsensi.forEach(item => {
+                        if (last7Dates.includes(item.tanggal)) {
+                            switch (item.status) {
+                                case 'hadir':
+                                    absensiCount[item.tanggal].hadir += 1;
+                                    break;
+                                case 'izin':
+                                    absensiCount[item.tanggal].izin += 1;
+                                    break;
+                                case 'alpa':
+                                    absensiCount[item.tanggal].alpa += 1;
+                                    break;
+                                default:
+                                    console.error(`Unknown status: ${item.status}`);
+                            }
+                        }
+                    });
+
+                    // Format tanggal untuk label chart: "DD/MM"
+                    const formattedLabels = last7Dates.map(date => {
+                        const [day, month] = date.split('-');
+                        return `${day}/${month}`;
+                    });
+
+                    const hadirData = last7Dates.map(date => absensiCount[date].hadir);
+                    const izinData = last7Dates.map(date => absensiCount[date].izin);
+                    const alpaData = last7Dates.map(date => absensiCount[date].alpa);
+
+                    // Set data untuk Bar Chart
                     setAbsensiChartData({
-                        labels: labels,
+                        labels: formattedLabels,
                         datasets: [
                             {
                                 label: "Hadir",
                                 data: hadirData,
                                 backgroundColor: "#4CAF50", // Hijau
                                 borderColor: "#388E3C", // Hijau Gelap
-                                borderWidth: 2,
+                                borderWidth: 1,
                             },
                             {
                                 label: "Izin",
                                 data: izinData,
                                 backgroundColor: "#2196F3",
                                 borderColor: "#1976D2",
-                                borderWidth: 2,
+                                borderWidth: 1,
                             },
                             {
                                 label: "Alpa",
                                 data: alpaData,
                                 backgroundColor: "#F44336",
                                 borderColor: "#D32F2F",
-                                borderWidth: 2,
+                                borderWidth: 1,
                             }
                         ]
                     });
 
                     // Set data untuk Line Chart
                     setAbsensiLineChartData({
-                        labels: labels,
+                        labels: formattedLabels,
                         datasets: [
                             {
                                 label: "Hadir",
                                 data: hadirData,
-                                backgroundColor: "#4CAF50",
+                                backgroundColor: "rgba(76, 175, 80, 0.2)",
                                 borderColor: "#388E3C",
                                 borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: "#4CAF50",
+                                pointRadius: 4,
                             },
                             {
                                 label: "Izin",
                                 data: izinData,
-                                backgroundColor: "#2196F3",
+                                backgroundColor: "rgba(33, 150, 243, 0.2)",
                                 borderColor: "#1976D2",
                                 borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: "#2196F3",
+                                pointRadius: 4,
                             },
                             {
                                 label: "Alpa",
-                                data: alpaData  ,
-                                backgroundColor: "#F44336",
+                                data: alpaData,
+                                backgroundColor: "rgba(244, 67, 54, 0.2)",
                                 borderColor: "#D32F2F",
                                 borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: "#F44336",
+                                pointRadius: 4,
                             }
                         ]
                     });
