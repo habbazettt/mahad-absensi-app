@@ -3,8 +3,8 @@ import {
   ChevronsUpDown,
   Edit,
   LogOut,
+  School,
   User,
-  VenusAndMars,
 } from "lucide-react"
 import {
   Avatar,
@@ -47,7 +47,10 @@ interface User {
   nama: string
   email: string
   gender: string
-  mahasantri_count: number
+  mahasantri_count?: number
+  nim?: string
+  jurusan?: string
+  mentor_id?: number
   user_type: "mentor" | "mahasantri"
 }
 
@@ -92,7 +95,8 @@ export function NavUser() {
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.nama}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  {user.user_type === "mahasantri" && <span className="truncate text-xs">{user.nim}</span>}
+                  {user.user_type === "mentor" && <span className="truncate text-xs">{user.email}</span>}
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
@@ -112,7 +116,8 @@ export function NavUser() {
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{user.nama}</span>
-                    <span className="truncate text-xs">{user.email}</span>
+                    {user.user_type === "mahasantri" && <span className="truncate text-xs">{user.nim}</span>}
+                    {user.user_type === "mentor" && <span className="truncate text-xs">{user.email}</span>}
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -122,20 +127,29 @@ export function NavUser() {
                   <BadgeCheck />
                   Role: {user.user_type}
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <User />
-                  Mahasantri Dibimbing: {user.mahasantri_count}
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <VenusAndMars />
-                  Gender: {user.gender === "L" ? "Laki-laki" : "Perempuan"}
-                </DropdownMenuItem>
+                {user.user_type === "mahasantri" ? (
+                  <>
+                    <DropdownMenuItem>
+                      <User />
+                      NIM: {user.nim}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <School />
+                      Jurusan: {user.jurusan}
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem>
+                    <User />
+                    Mahasantri Dibimbing: {user.mahasantri_count}
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate(`/dashboard/mentor/edit/${user.id}`)}>
+              {user.user_type === "mentor" && <DropdownMenuItem onClick={() => navigate(`/dashboard/${user.user_type}/edit/${user.id}`)}>
                 <Edit className="text-blue-400" />
                 Edit Profil
-              </DropdownMenuItem>
+              </DropdownMenuItem>}
               <DropdownMenuItem onClick={() => setOpenDialog(true)}>
                 <LogOut className="text-red-500" />
                 Logout

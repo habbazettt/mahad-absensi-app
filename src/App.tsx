@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom'
-import Home from './pages/Home.tsx'
 import ForgotPassword from './pages/auth/ForgotPassword.tsx'
 import DashboardPage from './pages/dashboard/Dashboard.tsx'
 import MahasantriInfoPage from './pages/mahasantri/MahasantriInfo.tsx'
@@ -19,14 +18,21 @@ import MentorInfoPage from './pages/mentor/MentorInfo.tsx'
 import AddAbsensiPage from './pages/absensi/AddAbsensiPage.tsx'
 import DetailAbsensiPage from './pages/absensi/DetailAbsensiPage.tsx'
 import EditAbsensiPage from './pages/absensi/EditAbsensiPage.tsx'
+import DashboardMahasantri from './pages/dashboard/DashboardMahasantri.tsx'
+import ComingSoon from './pages/ComingSoon.tsx'
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+
 
       {/* Main Dashboard */}
       <Route path='/dashboard' element={<DashboardPage />} />
+      <Route path='/dashboard/mahasantri' element={<DashboardMahasantri />} />
+
+      {/* Mahasantri Features Pages */}
+      <Route path='/dashboard/ai-rekomendasi' element={<ComingSoon />} />
+      <Route path='/dashboard/raport-kelulusan' element={<ComingSoon />} />
 
       {/* Mentor Pages */}
       <Route path='/dashboard/info-mentor' element={<MentorInfoPage />} />
@@ -36,7 +42,6 @@ function App() {
       <Route path='/dashboard/info-mahasantri' element={<MahasantriInfoPage />} />
       <Route path='/dashboard/info-mahasantri/detail/:id' element={<DetailMahasantriPage />} />
       <Route path='/dashboard/info-mahasantri/edit/:id' element={<EditMahasantriPage />} />
-
 
       {/* Absensi Pages */}
       <Route path='/dashboard/absensi' element={<AbsensiPage />} />

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 
-export default function NotFound() {
+export default function ComingSoon() {
     return (
         <div className="min-h-screen grid lg:grid-cols-5 bg-gray-100">
             <Toaster
@@ -52,15 +52,15 @@ export default function NotFound() {
             <div className="flex flex-col lg:col-span-2 items-center justify-center p-8">
                 <div className="w-full max-w-lg space-y-6 text-center bg-white shadow-lg rounded-lg p-6">
                     <img
-                        src="/404.svg"
+                        src="/comingsoon.svg"
                         alt="404 Not Found"
                         width={360}
                         height={460}
                         className="mx-auto mb-4"
                     />
-                    <h1 className="text-4xl font-bold text-gray-800">404 - Not Found</h1>
+                    <h1 className="text-4xl font-bold text-gray-800">404 - Coming Soon</h1>
                     <p className="mt-2 text-lg text-gray-600">
-                        Maaf, halaman yang Anda cari tidak ditemukan.
+                        Halaman ini sedang dalam tahap pengembangan
                     </p>
                     <Link to="/auth/login" className="mt-4">
                         <Button className="w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 rounded transition duration-300 ease-in-out transform hover:scale-105">

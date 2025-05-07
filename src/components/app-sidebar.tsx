@@ -1,6 +1,7 @@
 import * as React from "react"
 import {
   BookOpenCheck,
+  BrainCircuit,
   CalendarRange,
   Info,
   UserLock,
@@ -49,6 +50,34 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  // Ambil user dari localStorage
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const { user_type } = user
+
+  // Filter projects berdasarkan user_type
+  let filteredProjects = data.projects
+
+  if (user_type === 'mentor') {
+    // Mentor hanya melihat menu tertentu
+    filteredProjects = data.projects.filter(project =>
+      project.name !== 'Data Mahasantri'
+    )
+  } else if (user_type === 'mahasantri') {
+    // Mahasantri hanya melihat menu tertentu
+    filteredProjects = [
+      {
+        name: "Raport Kelulusan",
+        url: "/dashboard/raport-kelulusan",
+        icon: BookOpenCheck,
+      },
+      {
+        name: "AI Rekomendasi",
+        url: "/dashboard/ai-rekomendasi",
+        icon: BrainCircuit,
+      }
+    ]
+  }
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -65,7 +94,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavProjects projects={data.projects} />
+        <NavProjects projects={filteredProjects} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
