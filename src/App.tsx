@@ -25,7 +25,6 @@ function App() {
   return (
     <Routes>
 
-
       {/* Main Dashboard */}
       <Route path='/dashboard' element={<DashboardPage />} />
       <Route path='/dashboard/mahasantri' element={<DashboardMahasantri />} />
