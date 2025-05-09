@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input"
 import { CsvColumnConfig, Mahasantri, Mentor, Pagination } from "@/types"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown } from "lucide-react"
-import toast, { Toaster } from "react-hot-toast"
+import toast from "react-hot-toast"
 import PaginationComponent from "@/components/Pagination"
 import MentorFilter from "@/components/filter/MentorFilter"
 import DataTable from "@/components/DataTable"
@@ -36,6 +36,7 @@ import ActionDropdown from "@/components/ActionDropdown"
 import { authCheck } from "@/lib/utils"
 import { exportToCSV } from "@/utils/exportCsv"
 import { CsvExportButton } from "@/components/CsvExportButton"
+import ToasterLayout from "@/components/ToasterLayout"
 
 export default function MahasantriInfoPage() {
     const [mahasantriData, setMahasantriData] = useState<Mahasantri[]>([])
@@ -306,30 +307,7 @@ export default function MahasantriInfoPage() {
 
     return (
         <>
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    duration: 5000,
-                    style: {
-                        maxWidth: '500px',
-                        padding: '12px 16px',
-                    },
-                    success: {
-                        style: {
-                            border: '1px solid #10B981',
-                            backgroundColor: '#ECFDF5',
-                            color: '#065F46',
-                        },
-                    },
-                    error: {
-                        style: {
-                            border: '1px solid #EF4444',
-                            backgroundColor: '#FEF2F2',
-                            color: '#991B1B',
-                        },
-                    },
-                }}
-            />
+            <ToasterLayout />
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>

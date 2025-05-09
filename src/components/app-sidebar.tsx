@@ -66,13 +66,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     // Mahasantri hanya melihat menu tertentu
     filteredProjects = [
       {
+        name: "Informasi",
+        url: "/dashboard/mahasantri",
+        icon: Info,
+      },
+      {
         name: "Raport Kelulusan",
-        url: "/dashboard/raport-kelulusan",
+        url: "/dashboard/mahasantri/raport-kelulusan",
         icon: BookOpenCheck,
       },
       {
         name: "AI Rekomendasi",
-        url: "/dashboard/ai-rekomendasi",
+        url: "/dashboard/mahasantri/ai-rekomendasi",
         icon: BrainCircuit,
       }
     ]

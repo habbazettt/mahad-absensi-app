@@ -30,8 +30,8 @@ function App() {
       <Route path='/dashboard/mahasantri' element={<DashboardMahasantri />} />
 
       {/* Mahasantri Features Pages */}
-      <Route path='/dashboard/ai-rekomendasi' element={<ComingSoon />} />
-      <Route path='/dashboard/raport-kelulusan' element={<ComingSoon />} />
+      <Route path='/dashboard/mahasantri/ai-rekomendasi' element={<ComingSoon />} />
+      <Route path='/dashboard/mahasantri/raport-kelulusan' element={<ComingSoon />} />
 
       {/* Mentor Pages */}
       <Route path='/dashboard/info-mentor' element={<MentorInfoPage />} />

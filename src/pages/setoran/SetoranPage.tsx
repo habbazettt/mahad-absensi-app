@@ -24,7 +24,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { processAllSetoranData } from "@/utils/dataProcessing"
 import PaginationComponent from "@/components/Pagination"
 import DataTable from "@/components/DataTable"
-import toast, { Toaster } from "react-hot-toast"
+import toast from "react-hot-toast"
 import DeleteDialogComponent from "@/components/dialogs/DeleteDialog"
 import ActionDropdown from "@/components/ActionDropdown"
 import MentorFilter from "@/components/filter/MentorFilter"
@@ -34,6 +34,7 @@ import CategoryFilter from "@/components/filter/CategoryFilter"
 import TimeFilter from "@/components/filter/TimeFilter"
 import { exportToCSV } from "@/utils/exportCsv"
 import { CsvExportButton } from "@/components/CsvExportButton"
+import ToasterLayout from "@/components/ToasterLayout"
 
 export default function SetoranPage() {
     const navigate = useNavigate()
@@ -458,30 +459,7 @@ export default function SetoranPage() {
 
     return (
         <>
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    duration: 5000,
-                    style: {
-                        maxWidth: '500px',
-                        padding: '12px 16px',
-                    },
-                    success: {
-                        style: {
-                            border: '1px solid #10B981',
-                            backgroundColor: '#ECFDF5',
-                            color: '#065F46',
-                        },
-                    },
-                    error: {
-                        style: {
-                            border: '1px solid #EF4444',
-                            backgroundColor: '#FEF2F2',
-                            color: '#991B1B',
-                        },
-                    },
-                }}
-            />
+            <ToasterLayout />
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>

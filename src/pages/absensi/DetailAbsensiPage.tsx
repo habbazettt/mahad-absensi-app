@@ -22,7 +22,7 @@ import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, Calendar, CheckCir
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import PaginationComponent from "@/components/Pagination";
 import DataTable from "@/components/DataTable";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { exportToCSV } from "@/utils/exportCsv";
 import { CsvExportButton } from "@/components/CsvExportButton";
 import AbsensiFilter from "@/components/filter/AbsensiFilter";
@@ -33,6 +33,7 @@ import { format, parse } from "date-fns";
 import { id } from "date-fns/locale";
 import ActionDropdown from "@/components/ActionDropdown";
 import DeleteDialogComponent from "@/components/dialogs/DeleteDialog";
+import ToasterLayout from "@/components/ToasterLayout";
 
 export default function DetailAbsensiPage() {
     const navigate = useNavigate();
@@ -351,30 +352,7 @@ export default function DetailAbsensiPage() {
 
     return (
         <>
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    duration: 5000,
-                    style: {
-                        maxWidth: '500px',
-                        padding: '12px 16px',
-                    },
-                    success: {
-                        style: {
-                            border: '1px solid #10B981',
-                            backgroundColor: '#ECFDF5',
-                            color: '#065F46',
-                        },
-                    },
-                    error: {
-                        style: {
-                            border: '1px solid #EF4444',
-                            backgroundColor: '#FEF2F2',
-                            color: '#991B1B',
-                        },
-                    },
-                }}
-            />
+            <ToasterLayout />
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>

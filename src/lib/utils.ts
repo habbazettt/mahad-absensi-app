@@ -62,3 +62,21 @@ export const authCheck = () => {
     return false
   }
 }
+
+export const authMahasantriCheck = () => {
+  const user = localStorage.getItem("user")
+  if (!user || isTokenExpired()) {
+    handleLogout(navigate as NavigateFunction)
+    return false;
+  }
+
+  try {
+    const userData = JSON.parse(user)
+    if (userData.user_type !== "mahasantri") navigate("/auth/login")
+    return true
+  } catch (error) {
+    console.error("Failed to parse user data:", error)
+    navigate("/auth/login")
+    return false
+  }
+}

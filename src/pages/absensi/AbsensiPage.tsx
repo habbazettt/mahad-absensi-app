@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, HelpCircle, Clipboard, Sun, Plus, ChevronDown, CalendarSearch } from "lucide-react";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import DataTable from "@/components/DataTable";
-import { Toaster } from "react-hot-toast";
 import MahasantriFilter from "@/components/filter/MahasantriFilter";
 import { authCheck } from "@/lib/utils";
 import DateFilter from "@/components/filter/DateFilter";
@@ -19,6 +18,7 @@ import { CsvExportButton } from "@/components/CsvExportButton";
 import { exportToCSV } from "@/utils/exportCsv";
 import { format, parse } from "date-fns";
 import { id } from 'date-fns/locale';
+import ToasterLayout from "@/components/ToasterLayout";
 
 export default function AbsensiPage() {
     const navigate = useNavigate();
@@ -315,30 +315,7 @@ export default function AbsensiPage() {
 
     return (
         <>
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    duration: 5000,
-                    style: {
-                        maxWidth: '500px',
-                        padding: '12px 16px',
-                    },
-                    success: {
-                        style: {
-                            border: '1px solid #10B981',
-                            backgroundColor: '#ECFDF5',
-                            color: '#065F46',
-                        },
-                    },
-                    error: {
-                        style: {
-                            border: '1px solid #EF4444',
-                            backgroundColor: '#FEF2F2',
-                            color: '#991B1B',
-                        },
-                    },
-                }}
-            />
+            <ToasterLayout />
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
-import { Toaster } from "react-hot-toast"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -18,6 +17,7 @@ import {
     FormControl,
     FormMessage
 } from "@/components/ui/form"
+import ToasterLayout from "@/components/ToasterLayout"
 
 const mahasantriSchema = z.object({
     nim: z.string().min(8, "NIM minimal 8 karakter"),
@@ -111,30 +111,7 @@ export default function ForgotPassword() {
 
     return (
         <div className="min-h-screen grid lg:grid-cols-5">
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    duration: 5000,
-                    style: {
-                        maxWidth: '500px',
-                        padding: '12px 16px',
-                    },
-                    success: {
-                        style: {
-                            border: '1px solid #10B981',
-                            backgroundColor: '#ECFDF5',
-                            color: '#065F46',
-                        },
-                    },
-                    error: {
-                        style: {
-                            border: '1px solid #EF4444',
-                            backgroundColor: '#FEF2F2',
-                            color: '#991B1B',
-                        },
-                    },
-                }}
-            />
+            <ToasterLayout />
             {/* Left section */}
             <div className="relative hidden lg:flex lg:col-span-3 flex-col items-center justify-center p-8 bg-[var(--primary-1)] text-white">
                 <div className="max-w-lg mx-auto text-center space-y-5">
