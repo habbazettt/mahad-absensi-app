@@ -17,19 +17,22 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { handleLogout, isTokenExpired } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-import { Column, Hafalan, Mahasantri, Mentor, Pagination, TargetSemester } from "@/types";
+import { AbsensiDailySummary, Column, Hafalan, Mahasantri, Mentor, Pagination, TargetSemester } from "@/types";
 import ToasterLayout from "@/components/ToasterLayout";
 import CategoryFilter from "@/components/filter/CategoryFilter";
 import TimeFilter from "@/components/filter/TimeFilter";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, ChevronDown, Moon, Sun } from "lucide-react";
+import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpWideNarrow, CheckCircle, ChevronDown, Clipboard, HelpCircle, Moon, Sun, XCircle } from "lucide-react";
 import PaginationComponent from "@/components/Pagination";
 import DataTable from "@/components/DataTable";
 import { ColumnDef, getCoreRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import TahunAjaranFilter from "@/components/filter/TahunAjaranFilter";
 import SemesterFilter from "@/components/filter/SemesterFilter";
 import { processAllSetoranData } from "@/utils/dataProcessing";
+import DateFilter from "@/components/filter/DateFilter";
+import { format, parse } from "date-fns";
+import { id } from "date-fns/locale";
 
 export default function DashboardMahasantri() {
     const [user, setUser] = useState<Mahasantri>({
@@ -53,6 +56,7 @@ export default function DashboardMahasantri() {
         total_data: 0,
         total_pages: 1,
     });
+    const [absensiData, setAbsensiData] = useState<AbsensiDailySummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
     const navigate = useNavigate();
@@ -66,10 +70,20 @@ export default function DashboardMahasantri() {
     const [targetSemesterSorting, setTargetSemesterSorting] = useState<SortingState>([]);
     const [targetSemesterColumnVisibility, setTargetSemesterColumnVisibility] = useState({});
 
+    const [absensiSorting, setAbsensiSorting] = useState<SortingState>([]);
+    const [absensiColumnVisibility, setAbsensiColumnVisibility] = useState({});
+
     const [selectedTahunAjaran, setSelectedTahunAjaran] = useState<string | undefined>(undefined);
     const [selectedSemester, setSelectedSemester] = useState<string | undefined>(undefined);
 
     const [targetSemesterData, setTargetSemesterData] = useState<TargetSemester[]>([]);
+
+    // Ambil bulan dan tahun saat ini
+    const currentDate = new Date();
+    const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    const currentYear = currentDate.getFullYear().toString();
+    const [selectedMonth, setSelectedMonth] = useState<string>((currentDate.getMonth() + 1).toString().padStart(2, '0'));
+    const [selectedYear, setSelectedYear] = useState<string>(currentDate.getFullYear().toString());
 
     useEffect(() => {
         const fetchInitialHafalanTargetData = async () => {
@@ -81,6 +95,7 @@ export default function DashboardMahasantri() {
                 }
                 await fetchHafalanData(1);
                 await fetchTargetSemesterData();
+                await fetchAbsensiData(currentMonth, currentYear)
             } catch (err) {
                 setError("Gagal memuat data awal");
                 console.error("Initial fetch error:", err);
@@ -118,6 +133,9 @@ export default function DashboardMahasantri() {
     }, [navigate]);
 
     useEffect(() => {
+    }, [])
+
+    useEffect(() => {
         const fetchMentors = async () => {
             if (!user || !user.mentor_id) {
                 setError("Mentor ID tidak ditemukan. Silakan hubungi administrator untuk memperbarui data Anda.");
@@ -125,7 +143,7 @@ export default function DashboardMahasantri() {
             }
             try {
                 setIsLoading(true);
-                setError(""); // Reset error state
+                setError("");
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/mentors/${user.mentor_id}`, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("auth_token")}`,
@@ -220,6 +238,29 @@ export default function DashboardMahasantri() {
         }
     };
 
+    const fetchAbsensiData = async (selectedMonth: string, selectedYear: string) => {
+        try {
+            setIsLoading(true);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/absensi/mahasantri/${user.id}/daily-summary?month=${selectedMonth}&year=${selectedYear}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("auth_token")}`
+                }
+            });
+
+            if (!response.ok) throw new Error("Gagal mengambil data absensi");
+
+            const data = await response.json();
+
+            if (data.status) {
+                setAbsensiData(data.data.daily_summary);
+            }
+        } catch (err) {
+            setError("Gagal memuat data absensi");
+            console.error("Fetch error:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handlePageChange = (newPage: number) => {
         if (newPage < 1 || newPage > pagination.total_pages) return;
@@ -253,6 +294,16 @@ export default function DashboardMahasantri() {
         setSelectedSemester(selectedSemester);
         await fetchTargetSemesterData(selectedTahunAjaran, selectedSemester);
     }
+
+    const handleMonthChange = (month: string) => {
+        setSelectedMonth(month);
+        fetchAbsensiData(month, selectedYear);
+    };
+
+    const handleYearChange = (year: string) => {
+        setSelectedYear(year);
+        fetchAbsensiData(selectedMonth, year);
+    };
 
     // Definisi Kolom Tabel
     const columns = useMemo<ColumnDef<Hafalan>[]>(() => [
@@ -356,6 +407,122 @@ export default function DashboardMahasantri() {
         },
     ], []);
 
+    const absensiColumns = useMemo<ColumnDef<AbsensiDailySummary>[]>(() => [
+        {
+            id: "tanggal",
+            accessorKey: "tanggal",
+            header: "Tanggal",
+            cell: ({ row }) => {
+                const dateStr = row.getValue("tanggal") as string
+                const date = parse(dateStr, 'dd-MM-yyyy', new Date())
+
+                const formattedDate = format(date, 'EEEE, dd MMM yyyy', { locale: id });
+
+                return <span>{formattedDate}</span>
+            },
+        },
+        {
+            id: "shubuh",
+            accessorKey: "shubuh",
+            header: "Shubuh",
+            cell: ({ row }) => {
+                const shubuhStatus = row.getValue("shubuh");
+                let statusClass = '';
+                let statusText = '';
+                let Icon = null;
+
+                switch (shubuhStatus) {
+                    case 'hadir':
+                        statusClass = 'bg-green-200 text-green-800';
+                        statusText = 'Hadir';
+                        Icon = <CheckCircle className="h-4 w-4 mr-1" />;
+                        break;
+                    case 'belum-absen':
+                        statusClass = 'bg-yellow-200 text-yellow-800';
+                        statusText = 'Belum Absen';
+                        Icon = <HelpCircle className="h-4 w-4 mr-1" />;
+                        break;
+                    case 'izin':
+                        statusClass = 'bg-blue-200 text-blue-800';
+                        statusText = 'Izin';
+                        Icon = <Clipboard className="h-4 w-4 mr-1" />;
+                        break;
+                    case 'libur':
+                        statusClass = 'bg-gray-200 text-gray-800';
+                        statusText = 'Libur';
+                        Icon = <Sun className="h-4 w-4 mr-1" />;
+                        break;
+                    case 'alpa':
+                        statusClass = 'bg-red-200 text-red-800';
+                        statusText = 'Alpa';
+                        Icon = <XCircle className="h-4 w-4 mr-1" />;
+                        break;
+                    default:
+                        statusClass = 'bg-gray-200 text-gray-800';
+                        statusText = 'Tidak Diketahui';
+                        Icon = <HelpCircle className="h-4 w-4 mr-1" />;
+                }
+
+                return (
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass}`}>
+                        {Icon}
+                        {statusText}
+                    </span>
+                );
+            }
+        },
+        {
+            id: "isya",
+            accessorKey: "isya",
+            header: "Isya",
+            cell: ({ row }) => {
+                const isyaStatus = row.getValue("isya");
+                let statusClass = '';
+                let statusText = '';
+                let Icon = null;
+
+                switch (isyaStatus) {
+                    case 'hadir':
+                        statusClass = 'bg-green-200 text-green-800';
+                        statusText = 'Hadir';
+                        Icon = <CheckCircle className="h-4 w-4 mr-1" />;
+                        break;
+                    case 'belum-absen':
+                        statusClass = 'bg-yellow-200 text-yellow-800';
+                        statusText = 'Belum Absen';
+                        Icon = <HelpCircle className="h-4 w-4 mr-1" />;
+                        break;
+                    case 'izin':
+                        statusClass = 'bg-blue-200 text-blue-800';
+                        statusText = 'Izin';
+                        Icon = <Clipboard className="h-4 w-4 mr-1" />;
+                        break;
+                    case 'libur':
+                        statusClass = 'bg-gray-200 text-gray-800';
+                        statusText = 'Libur';
+                        Icon = <Sun className="h-4 w-4 mr-1" />;
+                        break;
+                    case 'alpa':
+                        statusClass = 'bg-red-200 text-red-800';
+                        statusText = 'Alpa';
+                        Icon = <XCircle className="h-4 w-4 mr-1" />;
+                        break;
+                    default:
+                        statusClass = 'bg-gray-200 text-gray-800';
+                        statusText = 'Tidak Diketahui';
+                        Icon = <HelpCircle className="h-4 w-4 mr-1" />;
+                }
+
+                return (
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass}`}>
+                        {Icon}
+                        {statusText}
+                    </span>
+                );
+            }
+        },
+    ], []);
+
     const table = useReactTable({
         data: hafalanData,
         columns,
@@ -382,6 +549,19 @@ export default function DashboardMahasantri() {
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+    });
+
+    const absensiTable = useReactTable({
+        data: absensiData,
+        columns: absensiColumns,
+        state: {
+            sorting: absensiSorting,
+            columnVisibility: absensiColumnVisibility,
+        },
+        onSortingChange: setAbsensiSorting,
+        onColumnVisibilityChange: setAbsensiColumnVisibility,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
     });
 
     return (
@@ -432,6 +612,77 @@ export default function DashboardMahasantri() {
                                         )}
                                     </CardContent>
                                 </Card>
+
+                                {/* Absensi Halaqoh */}
+                                <div className="rounded-lg border bg-card shadow-sm p-6">
+                                    <h2 className="text-2xl font-bold">Absensi Halaqoh</h2>
+                                    {error ? (
+                                        <div className="text-red-500 text-center py-8">{error}</div>
+                                    ) : isLoading ? (
+                                        <div className="space-y-4">
+                                            {[...Array(5)].map((_, i) => (
+                                                <div key={i} className="h-12 w-full bg-muted/50 rounded-lg animate-pulse" />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="w-full flex flex-wrap gap-4 py-4 justify-between items-start lg:items-center sm:gap-4">
+                                                <div className="flex flex-wrap gap-4">
+                                                    {/* Filter Bulan dan Tahun */}
+                                                    <DateFilter
+                                                        selectedMonth={selectedMonth}
+                                                        selectedYear={selectedYear}
+                                                        handleMonthChange={handleMonthChange}
+                                                        handleYearChange={handleYearChange}
+                                                    />
+                                                </div>
+
+                                                {/* Dropdown untuk Kolom */}
+                                                <div className="w-full sm:w-auto">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button
+                                                                variant="outline"
+                                                                className="w-full sm:w-[140px] justify-between"
+                                                            >
+                                                                Columns
+                                                                <ChevronDown className="ml-2 h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            {absensiTable
+                                                                .getAllColumns()
+                                                                .filter((column) => column.getCanHide())
+                                                                .map((column) => (
+                                                                    <DropdownMenuCheckboxItem
+                                                                        key={column.id}
+                                                                        className="capitalize"
+                                                                        checked={column.getIsVisible()}
+                                                                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                                                                    >
+                                                                        {column.id
+                                                                            .replace(/_/g, ' ')
+                                                                            .replace(/^\w/, (c) => c.toUpperCase())
+                                                                        }
+                                                                    </DropdownMenuCheckboxItem>
+                                                                ))}
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
+                                            </div>
+
+                                            {/* Tampilkan Data Tabel */}
+                                            <DataTable
+                                                columns={absensiColumns}
+                                                data={absensiData}
+                                                sorting={absensiSorting}
+                                                onSortingChange={setAbsensiSorting}
+                                                columnVisibility={absensiColumnVisibility}
+                                                enablePagination={false}
+                                            />
+                                        </>
+                                    )}
+                                </div>
 
                                 {/* Setoran Hafalan */}
                                 <div className="rounded-lg border bg-card shadow-sm p-6">
