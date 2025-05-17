@@ -50,20 +50,12 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  // Ambil user dari localStorage
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   const { user_type } = user
 
-  // Filter projects berdasarkan user_type
   let filteredProjects = data.projects
 
-  if (user_type === 'mentor') {
-    // Mentor hanya melihat menu tertentu
-    filteredProjects = data.projects.filter(project =>
-      project.name !== 'Data Mahasantri'
-    )
-  } else if (user_type === 'mahasantri') {
-    // Mahasantri hanya melihat menu tertentu
+  if (user_type === 'mahasantri') {
     filteredProjects = [
       {
         name: "Informasi",
