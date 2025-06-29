@@ -3,6 +3,8 @@ import { twMerge } from "tailwind-merge"
 import { NavigateFunction } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { TokenPayload } from "@/types";
+import { format, parse } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 export const isTokenExpired = (): boolean => {
   const token = localStorage.getItem("auth_token");
@@ -80,3 +82,18 @@ export const authMahasantriCheck = () => {
     return false
   }
 }
+
+export const formatTanggalDisplay = (tanggalString?: string): string => {
+  if (!tanggalString) {
+    return "-";
+  }
+
+  try {
+    const tanggalObjek = parse(tanggalString, 'dd-MM-yyyy', new Date());
+    return format(tanggalObjek, 'dd MMMM yyyy', { locale: id });
+
+  } catch (error) {
+    console.error("Gagal memformat tanggal:", error);
+    return tanggalString;
+  }
+};

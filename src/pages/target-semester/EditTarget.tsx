@@ -24,6 +24,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import toast from "react-hot-toast";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import ToasterLayout from "@/components/ToasterLayout";
+import Footer from "@/components/Footer";
 
 const editTargetSemesterSchema = z.object({
     semester: z.string().optional(),
@@ -97,139 +98,142 @@ export default function EditTargetPage() {
     };
 
     return (
-        <SidebarProvider>
-            <ToasterLayout />
-            <AppSidebar />
-            <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
-                    <div className="flex items-center gap-2 px-4">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator orientation="vertical" className="mr-2 h-4" />
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-muted-foreground">Dashboard</BreadcrumbPage>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-muted-foreground">Target Semester</BreadcrumbPage>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-primary">Edit Target Semester</BreadcrumbPage>
-                                </BreadcrumbItem>
-                            </BreadcrumbList>
-                        </Breadcrumb>
+        <>
+            <SidebarProvider>
+                <ToasterLayout />
+                <AppSidebar />
+                <SidebarInset>
+                    <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
+                        <div className="flex items-center gap-2 px-4">
+                            <SidebarTrigger className="-ml-1" />
+                            <Separator orientation="vertical" className="mr-2 h-4" />
+                            <Breadcrumb>
+                                <BreadcrumbList>
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-muted-foreground">Dashboard</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator />
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-muted-foreground">Target Semester</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator />
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-primary">Edit Target Semester</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                </BreadcrumbList>
+                            </Breadcrumb>
+                        </div>
+                    </header>
+
+                    <div className="flex flex-1 flex-col gap-6 p-8 bg-gray-50 rounded-lg shadow-md">
+                        <h2 className="text-2xl font-bold text-gray-800 text-center">Input Target Semester Mahasantri</h2>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
+                                {/* Input Semester */}
+                                <FormField
+                                    control={form.control}
+                                    name="semester"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="font-bold text-gray-700">Semester</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    value={field.value}
+                                                    onValueChange={(value) => field.onChange(value)}
+                                                >
+                                                    <SelectTrigger className="w-full font-poppins">
+                                                        <SelectValue placeholder="Pilih Semester" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="font-poppins">
+                                                        <SelectItem value="Ganjil">Ganjil</SelectItem>
+                                                        <SelectItem value="Genap">Genap</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Input Tahun Ajaran */}
+                                <FormField
+                                    control={form.control}
+                                    name="tahun_ajaran"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="font-bold text-gray-700">Tahun Ajaran</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Masukkan Tahun Ajaran (ex: 2024/2025)"
+                                                    {...field}
+                                                    className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Input Target */}
+                                <FormField
+                                    control={form.control}
+                                    name="target"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="font-bold text-gray-700">Target</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Masukkan Target"
+                                                    {...field}
+                                                    className="no-spinner border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        field.onChange(value ? Number(value) : 0);
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Input Keterangan */}
+                                <FormField
+                                    control={form.control}
+                                    name="keterangan"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="font-bold text-gray-700">Keterangan</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Masukkan Ketarangan"
+                                                    {...field}
+                                                    className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Submit Button */}
+                                <Button
+                                    className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded-md transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    type="submit"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "Loading..." : "Tambah Target Semester"}
+                                </Button>
+                            </form>
+                        </Form>
                     </div>
-                </header>
-
-                <div className="flex flex-1 flex-col gap-6 p-8 bg-gray-50 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold text-gray-800 text-center">Input Target Semester Mahasantri</h2>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-
-                            {/* Input Semester */}
-                            <FormField
-                                control={form.control}
-                                name="semester"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="font-bold text-gray-700">Semester</FormLabel>
-                                        <FormControl>
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={(value) => field.onChange(value)}
-                                            >
-                                                <SelectTrigger className="w-full font-poppins">
-                                                    <SelectValue placeholder="Pilih Semester" />
-                                                </SelectTrigger>
-                                                <SelectContent className="font-poppins">
-                                                    <SelectItem value="Ganjil">Ganjil</SelectItem>
-                                                    <SelectItem value="Genap">Genap</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Tahun Ajaran */}
-                            <FormField
-                                control={form.control}
-                                name="tahun_ajaran"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="font-bold text-gray-700">Tahun Ajaran</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="text"
-                                                placeholder="Masukkan Tahun Ajaran (ex: 2024/2025)"
-                                                {...field}
-                                                className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Target */}
-                            <FormField
-                                control={form.control}
-                                name="target"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="font-bold text-gray-700">Target</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                placeholder="Masukkan Target"
-                                                {...field}
-                                                className="no-spinner border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    field.onChange(value ? Number(value) : 0);
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Keterangan */}
-                            <FormField
-                                control={form.control}
-                                name="keterangan"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="font-bold text-gray-700">Keterangan</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="text"
-                                                placeholder="Masukkan Ketarangan"
-                                                {...field}
-                                                className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary-1)]"
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Submit Button */}
-                            <Button
-                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded-md transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                                type="submit"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? "Loading..." : "Tambah Target Semester"}
-                            </Button>
-                        </form>
-                    </Form>
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
+                </SidebarInset>
+            </SidebarProvider>
+            <Footer />
+        </>
     )
 }

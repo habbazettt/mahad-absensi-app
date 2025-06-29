@@ -34,6 +34,7 @@ import { authCheck } from "@/lib/utils"
 import { exportToCSV } from "@/utils/exportCsv"
 import { CsvExportButton } from "@/components/CsvExportButton"
 import ToasterLayout from "@/components/ToasterLayout"
+import Footer from "@/components/Footer"
 
 export default function MentorInfoPage() {
     const [mentors, setMentors] = useState<Mentor[]>([])
@@ -52,44 +53,53 @@ export default function MentorInfoPage() {
     useEffect(() => {
         const fetchInitialData = async () => {
             if (authCheck()) {
-                try {
-                    setLoading(true)
-
-                    // Fetch mentors
-                    const mentorsResponse = await fetch(
-                        `${import.meta.env.VITE_API_URL}/mentors?page=1&limit=16`
-                    )
-
-                    if (!mentorsResponse.ok) throw new Error("Gagal mengambil data mentor")
-
-                    const mentorsData = await mentorsResponse.json()
-
-                    if (mentorsData.status) {
-                        setMentors(mentorsData.data.mentors);
-                        setPagination({
-                            current_page: mentorsData.data.pagination.current_page,
-                            total_data: mentorsData.data.pagination.total_mentors,
-                            total_pages: mentorsData.data.pagination.total_pages,
-                        });
-                    }
-                } catch (err) {
-                    setError("Gagal memuat data awal")
-                    console.error("Initial fetch error:", err)
-                } finally {
-                    setLoading(false)
-                }
+                await fetchMentorData(1);
             }
-        }
+        };
         fetchInitialData()
     }, [])
 
+    const fetchMentorData = async (page: number) => {
+        try {
+            setLoading(true);
+
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/mentors?page=${page}&limit=10`
+            );
+
+            if (!response.ok) throw new Error("Gagal mengambil data mentor");
+
+            const data = await response.json();
+
+            if (data.status) {
+                setMentors(data.data.mentors);
+                setPagination({
+                    current_page: data.data.pagination.current_page,
+                    total_data: data.data.pagination.total_mentors,
+                    total_pages: data.data.pagination.total_pages,
+                });
+            }
+        } catch (err) {
+            setError("Gagal memuat data mentor");
+            console.error("Mentor fetch error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     const handlePageChange = (newPage: number) => {
-        if (newPage < 1 || newPage > pagination.total_pages) return
+        if (newPage < 1 || newPage > pagination.total_pages) return;
+
         setPagination(prev => ({
             ...prev,
-            current_page: newPage
-        }))
-    }
+            current_page: newPage,
+        }));
+
+        fetchMentorData(newPage);
+    };
+
+
 
     // Definisi Kolom Tabel
     const columns = useMemo<ColumnDef<Mentor>[]>(() => [
@@ -329,6 +339,7 @@ export default function MentorInfoPage() {
                     </div>
                 </SidebarInset>
             </SidebarProvider>
+            <Footer />
 
             {/* Alert Dialog with Framer Motion */}
             <DeleteDialogComponent

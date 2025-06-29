@@ -19,23 +19,37 @@ import AddAbsensiPage from './pages/absensi/AddAbsensiPage.tsx'
 import DetailAbsensiPage from './pages/absensi/DetailAbsensiPage.tsx'
 import EditAbsensiPage from './pages/absensi/EditAbsensiPage.tsx'
 import DashboardMahasantri from './pages/dashboard/DashboardMahasantri.tsx'
-import ComingSoon from './pages/ComingSoon.tsx'
+import RekomendasiPage from './pages/rekomendasi/RekomendasiPage.tsx'
+import AddJadwalPage from './pages/data-murojaah/AddJadwalPage.tsx'
+import DailyLogDashboardPage from './pages/daily-log/DailyLogDashboardPage.tsx'
+import MentorMonitorPage from './pages/daily-log/LogMonitorDashboardPage.tsx'
+import WelcomePage from './pages/WelcomePage.tsx'
+import RaportPage from './pages/raport/RaportPage.tsx'
+import NewUserResetPassword from './pages/auth/NewUserResetPassword.tsx'
 
 function App() {
   return (
     <Routes>
 
+      {/* Welcome Page */}
+      <Route path='/' element={<WelcomePage />} />
+
       {/* Main Dashboard */}
       <Route path='/dashboard' element={<DashboardPage />} />
       <Route path='/dashboard/mahasantri' element={<DashboardMahasantri />} />
 
+      {/* AI Recommendation Pages */}
+      <Route path='/dashboard/ai-rekomendasi' element={<RekomendasiPage />} />
+      <Route path='/dashboard/data-murojaah/add' element={<AddJadwalPage />} />
+
       {/* Mahasantri Features Pages */}
-      <Route path='/dashboard/mahasantri/ai-rekomendasi' element={<ComingSoon />} />
-      <Route path='/dashboard/mahasantri/raport-kelulusan' element={<ComingSoon />} />
+      <Route path='/dashboard/mahasantri/raport-kelulusan' element={<RaportPage />} />
+      <Route path='/dashboard/mahasantri/murojaah-harian' element={<DailyLogDashboardPage />} />
 
       {/* Mentor Pages */}
       <Route path='/dashboard/info-mentor' element={<MentorInfoPage />} />
       <Route path='/dashboard/mentor/edit/:id' element={<EditMentorPage />} />
+      <Route path='/dashboard/monitor-murojaah' element={<MentorMonitorPage />} />
 
       {/* Info Mahasantri Pages */}
       <Route path='/dashboard/info-mahasantri' element={<MahasantriInfoPage />} />
@@ -61,6 +75,7 @@ function App() {
       <Route path='auth/register' element={<RegisterPage />} />
       <Route path='auth/login' element={<LoginPage />} />
       <Route path='/auth/forgot-password' element={<ForgotPassword />} />
+      <Route path='/auth/reset-password/newuser' element={<NewUserResetPassword />} />
 
       {/* Not Found */}
       <Route path='*' element={<NotFound />} />

@@ -84,16 +84,17 @@ export interface DeleteDialogProps {
     handleDelete: () => void;
 }
 
-type RowData = Hafalan | Mahasantri | TargetSemester | Mentor | Absensi
+type RowData = Hafalan | Mahasantri | TargetSemester | Mentor | Absensi | DetailLog
 
 export interface ActionDropdownProps {
     row: {
         original: RowData;
     };
+    onEdit?: () => void;
+    editPath?: string;
+    keyword: string;
     setOpenDialog: (open: boolean) => void;
     setSelectedId: (id: number) => void;
-    keyword: string;
-    editPath: string;
 }
 
 export interface TargetSemester {
@@ -192,4 +193,97 @@ export interface AbsensiCount {
         izin: number;
         alpa: number;
     };
+}
+
+export interface RecommendationResult {
+    tipe_rekomendasi: string;
+    rekomendasi_jadwal: string;
+    persentase_efektif_historis: number;
+    estimasi_q_value: number;
+}
+
+export interface DetailLog {
+    id: number;
+    waktu_murojaah: string;
+    status: string;
+    catatan: string;
+    updated_at: string;
+    target_start_juz: number,
+    target_start_halaman: number,
+    target_end_juz: number,
+    target_end_halaman: number,
+    total_target_halaman: number,
+    selesai_end_juz: number,
+    selesai_end_halaman: number,
+    total_selesai_halaman: number,
+}
+
+export interface LogHarian {
+    id: number;
+    tanggal: string;
+    total_target_halaman: number;
+    total_selesai_halaman: number;
+    detail_logs: DetailLog[];
+}
+
+export interface HariProduktif {
+    tanggal: string;
+    total_selesai_halaman: number;
+}
+
+export interface Statistik {
+    total_selesai_halaman: number;
+    total_hari_aktif: number;
+    rata_rata_halaman_per_hari: number;
+    sesi_paling_produktif: string;
+    hari_paling_produktif: HariProduktif;
+}
+
+export interface RekapMingguan {
+    mahasantri_id: number;
+    nama_mahasantri: string;
+    total_target_halaman_mingguan: number;
+    total_selesai_halaman_mingguan: number;
+    persentase_pencapaian: number;
+}
+
+export interface MahasantriInfo {
+    id: number;
+    nama: string;
+}
+
+export interface DetailLogInMentorView {
+    id: number;
+    waktu_murojaah: string;
+    target_start_juz: number;
+    target_start_halaman: number;
+    target_end_juz: number;
+    target_end_halaman: number;
+    total_target_halaman: number;
+    selesai_end_juz: number;
+    selesai_end_halaman: number;
+    total_selesai_halaman: number;
+    status: string;
+    catatan: string;
+    updated_at: string;
+}
+
+export interface LogHarianMahasantri {
+    log_id: number;
+    tanggal: string;
+    total_target_halaman: number;
+    total_selesai_halaman: number;
+    mahasantri: MahasantriInfo;
+    detail_logs: DetailLogInMentorView[];
+}
+
+export interface Recommendation {
+    id: number;
+    state: string;
+    mahasantri_id?: number;
+    mentor_id?: number;
+    rekomendasi_jadwal: string;
+    tipe_rekomendasi: string;
+    estimasi_q_value?: number;
+    persentase_efektif_historis?: number;
 }

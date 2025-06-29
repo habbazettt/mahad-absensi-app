@@ -25,6 +25,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Datepicker } from "flowbite-react";
 import { format } from "date-fns";
 import ToasterLayout from "@/components/ToasterLayout";
+import Footer from "@/components/Footer";
 
 const editAbsensiSchema = z.object({
     waktu: z.string().optional(),
@@ -101,142 +102,145 @@ export default function EditAbsensiPage() {
     };
 
     return (
-        <SidebarProvider>
-            <ToasterLayout />
-            <AppSidebar />
-            <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
-                    <div className="flex items-center gap-2 px-4">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator orientation="vertical" className="mr-2 h-4" />
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-muted-foreground">Dashboard</BreadcrumbPage>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-muted-foreground">Absensi Halaqoh</BreadcrumbPage>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-muted-foreground">Detail Absensi</BreadcrumbPage>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-primary">Edit Absensi</BreadcrumbPage>
-                                </BreadcrumbItem>
-                            </BreadcrumbList>
-                        </Breadcrumb>
+        <>
+            <SidebarProvider>
+                <ToasterLayout />
+                <AppSidebar />
+                <SidebarInset>
+                    <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
+                        <div className="flex items-center gap-2 px-4">
+                            <SidebarTrigger className="-ml-1" />
+                            <Separator orientation="vertical" className="mr-2 h-4" />
+                            <Breadcrumb>
+                                <BreadcrumbList>
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-muted-foreground">Dashboard</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator />
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-muted-foreground">Absensi Halaqoh</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator />
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-muted-foreground">Detail Absensi</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator />
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-primary">Edit Absensi</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                </BreadcrumbList>
+                            </Breadcrumb>
+                        </div>
+                    </header>
+
+                    <div className="flex flex-1 flex-col gap-6 p-8 bg-gray-50 rounded-lg shadow-md">
+                        <h2 className="text-2xl font-bold text-gray-800 text-center">Edit Absensi</h2>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                {/* Input Tanggal */}
+                                <FormField
+                                    control={form.control}
+                                    name="tanggal"
+                                    render={() => (
+                                        <FormItem>
+                                            <FormLabel className="font-bold text-gray-700">Tanggal</FormLabel>
+                                            <FormDescription>Masukkan tanggal halaqoh</FormDescription>
+                                            <FormControl>
+                                                <Datepicker
+                                                    value={selectedDate}
+                                                    id="tanggal"
+                                                    className="w-full font-poppins"
+                                                    placeholder="Pilih Tanggal"
+                                                    showTodayButton
+                                                    labelTodayButton="Hari Ini"
+                                                    showClearButton
+                                                    labelClearButton="Bersihkan"
+                                                    language="id"
+                                                    autoHide
+                                                    onChange={(date) => {
+                                                        if (date) {
+                                                            setSelectedDate(date);
+                                                            const formattedDate = format(date, 'dd-MM-yyyy');
+                                                            form.setValue("tanggal", formattedDate);
+                                                        }
+                                                    }}
+                                                    maxDate={new Date()}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Input Waktu */}
+                                <FormField
+                                    control={form.control}
+                                    name="waktu"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="font-bold text-gray-700">Waktu</FormLabel>
+                                            <FormDescription>Masukkan waktu halaqoh (Shubuh / Isya)</FormDescription>
+                                            <FormControl>
+                                                <Select
+                                                    value={field.value}
+                                                    onValueChange={(value) => field.onChange(value)}
+                                                >
+                                                    <SelectTrigger className="w-full font-poppins">
+                                                        <SelectValue placeholder="Pilih Waktu" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="font-poppins">
+                                                        <SelectItem value="shubuh">Shubuh</SelectItem>
+                                                        <SelectItem value="isya">Isya</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Input Status */}
+                                <FormField
+                                    control={form.control}
+                                    name="status"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="font-bold text-gray-700">Status Kehadiran</FormLabel>
+                                            <FormDescription>Masukkan status kehadiran halaqoh (Hadir / Izin / Alpa)</FormDescription>
+                                            <FormControl>
+                                                <Select
+                                                    value={field.value}
+                                                    onValueChange={(value) => field.onChange(value)}
+                                                >
+                                                    <SelectTrigger className="w-full font-poppins">
+                                                        <SelectValue placeholder="Pilih Status" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="font-poppins">
+                                                        <SelectItem value="hadir">Hadir</SelectItem>
+                                                        <SelectItem value="izin">Izin</SelectItem>
+                                                        <SelectItem value="alpa">Alpa</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Submit Button */}
+                                <Button
+                                    className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    type="submit"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "Loading..." : "Edit Setoran"}
+                                </Button>
+                            </form>
+                        </Form>
                     </div>
-                </header>
-
-                <div className="flex flex-1 flex-col gap-6 p-8 bg-gray-50 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold text-gray-800 text-center">Edit Absensi</h2>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                            {/* Input Tanggal */}
-                            <FormField
-                                control={form.control}
-                                name="tanggal"
-                                render={() => (
-                                    <FormItem>
-                                        <FormLabel className="font-bold text-gray-700">Tanggal</FormLabel>
-                                        <FormDescription>Masukkan tanggal halaqoh</FormDescription>
-                                        <FormControl>
-                                            <Datepicker
-                                                value={selectedDate}
-                                                id="tanggal"
-                                                className="w-full font-poppins"
-                                                placeholder="Pilih Tanggal"
-                                                showTodayButton
-                                                labelTodayButton="Hari Ini"
-                                                showClearButton
-                                                labelClearButton="Bersihkan"
-                                                language="id"
-                                                autoHide
-                                                onChange={(date) => {
-                                                    if (date) {
-                                                        setSelectedDate(date);
-                                                        const formattedDate = format(date, 'dd-MM-yyyy');
-                                                        form.setValue("tanggal", formattedDate);
-                                                    }
-                                                }}
-                                                maxDate={new Date()}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Waktu */}
-                            <FormField
-                                control={form.control}
-                                name="waktu"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="font-bold text-gray-700">Waktu</FormLabel>
-                                        <FormDescription>Masukkan waktu halaqoh (Shubuh / Isya)</FormDescription>
-                                        <FormControl>
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={(value) => field.onChange(value)}
-                                            >
-                                                <SelectTrigger className="w-full font-poppins">
-                                                    <SelectValue placeholder="Pilih Waktu" />
-                                                </SelectTrigger>
-                                                <SelectContent className="font-poppins">
-                                                    <SelectItem value="shubuh">Shubuh</SelectItem>
-                                                    <SelectItem value="isya">Isya</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Status */}
-                            <FormField
-                                control={form.control}
-                                name="status"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="font-bold text-gray-700">Status Kehadiran</FormLabel>
-                                        <FormDescription>Masukkan status kehadiran halaqoh (Hadir / Izin / Alpa)</FormDescription>
-                                        <FormControl>
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={(value) => field.onChange(value)}
-                                            >
-                                                <SelectTrigger className="w-full font-poppins">
-                                                    <SelectValue placeholder="Pilih Status" />
-                                                </SelectTrigger>
-                                                <SelectContent className="font-poppins">
-                                                    <SelectItem value="hadir">Hadir</SelectItem>
-                                                    <SelectItem value="izin">Izin</SelectItem>
-                                                    <SelectItem value="alpa">Alpa</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Submit Button */}
-                            <Button
-                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                                type="submit"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? "Loading..." : "Edit Setoran"}
-                            </Button>
-                        </form>
-                    </Form>
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
+                </SidebarInset>
+            </SidebarProvider>
+            <Footer />
+        </>
     );
 }

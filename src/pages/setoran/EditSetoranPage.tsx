@@ -24,6 +24,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import toast from "react-hot-toast";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import ToasterLayout from "@/components/ToasterLayout";
+import Footer from "@/components/Footer";
 
 const editSetoranSchema = z.object({
     juz: z.number().optional(),
@@ -102,187 +103,190 @@ export default function EditSetoranPage() {
     };
 
     return (
-        <SidebarProvider>
-            <ToasterLayout />
-            <AppSidebar />
-            <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
-                    <div className="flex items-center gap-2 px-4">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator orientation="vertical" className="mr-2 h-4" />
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-muted-foreground">Dashboard</BreadcrumbPage>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-muted-foreground">Setoran Mahasantri</BreadcrumbPage>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-primary">Edit Setoran</BreadcrumbPage>
-                                </BreadcrumbItem>
-                            </BreadcrumbList>
-                        </Breadcrumb>
+        <>
+            <SidebarProvider>
+                <ToasterLayout />
+                <AppSidebar />
+                <SidebarInset>
+                    <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
+                        <div className="flex items-center gap-2 px-4">
+                            <SidebarTrigger className="-ml-1" />
+                            <Separator orientation="vertical" className="mr-2 h-4" />
+                            <Breadcrumb>
+                                <BreadcrumbList>
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-muted-foreground">Dashboard</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator />
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-muted-foreground">Setoran Mahasantri</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator />
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-primary">Edit Setoran</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                </BreadcrumbList>
+                            </Breadcrumb>
+                        </div>
+                    </header>
+
+                    <div className="flex flex-1 flex-col gap-6 p-8 bg-gray-50 rounded-lg shadow-md">
+                        <h2 className="text-2xl font-bold text-gray-800 text-center">Edit Setoran</h2>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
+                                {/* Input Juz */}
+                                <FormField
+                                    control={form.control}
+                                    name="juz"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Juz</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Masukkan Juz"
+                                                    {...field}
+                                                    className="no-spinner"
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        field.onChange(value ? Number(value) : 0);
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Input Halaman */}
+                                <FormField
+                                    control={form.control}
+                                    name="halaman"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Halaman</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Masukkan Halaman"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Input Total Setoran */}
+                                <FormField
+                                    control={form.control}
+                                    name="total_setoran"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Total Setoran</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Masukkan Total Setoran"
+                                                    {...field}
+                                                    className="no-spinner"
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        field.onChange(value ? Number(value) : 0); // Konversi ke number
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Input Kategori */}
+                                <FormField
+                                    control={form.control}
+                                    name="kategori"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Kategori</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    value={field.value}
+                                                    onValueChange={(value) => field.onChange(value)}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Pilih Kategori" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="ziyadah">Ziyadah</SelectItem>
+                                                        <SelectItem value="murojaah">Murojaah</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Input Waktu */}
+                                <FormField
+                                    control={form.control}
+                                    name="waktu"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Waktu</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    value={field.value}
+                                                    onValueChange={(value) => field.onChange(value)}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Pilih Waktu" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="shubuh">Shubuh</SelectItem>
+                                                        <SelectItem value="isya">Isya</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Input Catatan */}
+                                <FormField
+                                    control={form.control}
+                                    name="catatan"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Catatan</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Masukkan Catatan"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Submit Button */}
+                                <Button
+                                    className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    type="submit"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "Loading..." : "Edit Setoran"}
+                                </Button>
+                            </form>
+                        </Form>
                     </div>
-                </header>
-
-                <div className="flex flex-1 flex-col gap-6 p-8 bg-gray-50 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold text-gray-800 text-center">Edit Setoran</h2>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-
-                            {/* Input Juz */}
-                            <FormField
-                                control={form.control}
-                                name="juz"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Juz</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                placeholder="Masukkan Juz"
-                                                {...field}
-                                                className="no-spinner"
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    field.onChange(value ? Number(value) : 0);
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Halaman */}
-                            <FormField
-                                control={form.control}
-                                name="halaman"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Halaman</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="text"
-                                                placeholder="Masukkan Halaman"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Total Setoran */}
-                            <FormField
-                                control={form.control}
-                                name="total_setoran"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Total Setoran</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                placeholder="Masukkan Total Setoran"
-                                                {...field}
-                                                className="no-spinner"
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    field.onChange(value ? Number(value) : 0); // Konversi ke number
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Kategori */}
-                            <FormField
-                                control={form.control}
-                                name="kategori"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Kategori</FormLabel>
-                                        <FormControl>
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={(value) => field.onChange(value)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Pilih Kategori" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="ziyadah">Ziyadah</SelectItem>
-                                                    <SelectItem value="murojaah">Murojaah</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Waktu */}
-                            <FormField
-                                control={form.control}
-                                name="waktu"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Waktu</FormLabel>
-                                        <FormControl>
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={(value) => field.onChange(value)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Pilih Waktu" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="shubuh">Shubuh</SelectItem>
-                                                    <SelectItem value="isya">Isya</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Input Catatan */}
-                            <FormField
-                                control={form.control}
-                                name="catatan"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Catatan</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="text"
-                                                placeholder="Masukkan Catatan"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Submit Button */}
-                            <Button
-                                className={`w-full bg-[var(--primary-1)] hover:bg-[#275586] text-white py-2 px-4 rounded transition duration-300 ease-in-out transform ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                                type="submit"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? "Loading..." : "Edit Setoran"}
-                            </Button>
-                        </form>
-                    </Form>
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
+                </SidebarInset>
+            </SidebarProvider>
+            <Footer />
+        </>
     );
 }

@@ -31,6 +31,7 @@ import TodaySetoranList from "@/components/widget/TodaySetoranList";
 import AttendanceWidget from "@/components/widget/AttendanceWidget";
 import AbsensiDialog from "@/components/dialogs/AbsensiDialog";
 import TodayAttendanceList from "@/components/widget/TodayAttendanceWidget";
+import Footer from "@/components/Footer";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, BarElement, PointElement);
 
@@ -250,13 +251,11 @@ export default function DashboardPage() {
                 if (data.status) {
                     const absensi = data.data.absensi;
 
-                    // Fungsi untuk parsing tanggal DD-MM-YYYY
                     const parseTanggal = (tanggalStr: string) => {
                         const [day, month, year] = tanggalStr.split('-').map(part => parseInt(part, 10));
                         return { day, month, year, original: tanggalStr };
                     };
 
-                    // Urutkan absensi berdasarkan tanggal (terlama ke terbaru)
                     const sortedAbsensi = [...absensi].sort((a, b) => {
                         const dateA = parseTanggal(a.tanggal);
                         const dateB = parseTanggal(b.tanggal);
@@ -403,291 +402,294 @@ export default function DashboardPage() {
 
 
     return (
-        <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
-                    <div className="flex items-center gap-2 px-4">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator orientation="vertical" className="mr-2 h-4" />
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-primary">Dashboard</BreadcrumbPage>
-                                </BreadcrumbItem>
-                            </BreadcrumbList>
-                        </Breadcrumb>
-                    </div>
-                </header>
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-0  font-poppins">
-                    <h1 className="text-2xl lg:text-4xl font-semibold bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 text-black mt-4">
-                        <span className="inline-flex items-center space-x-3">
-                            <span>Welcome, Ust. {userName}</span>
-                        </span>
-                    </h1>
+        <>
+            <SidebarProvider>
+                <AppSidebar />
+                <SidebarInset>
+                    <header className="flex h-16 shrink-0 items-center gap-2 font-jakarta">
+                        <div className="flex items-center gap-2 px-4">
+                            <SidebarTrigger className="-ml-1" />
+                            <Separator orientation="vertical" className="mr-2 h-4" />
+                            <Breadcrumb>
+                                <BreadcrumbList>
+                                    <BreadcrumbItem>
+                                        <BreadcrumbPage className="text-primary">Dashboard</BreadcrumbPage>
+                                    </BreadcrumbItem>
+                                </BreadcrumbList>
+                            </Breadcrumb>
+                        </div>
+                    </header>
+                    <div className="flex flex-1 flex-col gap-4 p-4 pt-0  font-poppins">
+                        <h1 className="text-2xl lg:text-4xl font-semibold bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 text-black mt-4">
+                            <span className="inline-flex items-center space-x-3">
+                                <span>Welcome, Ust. {userName}</span>
+                            </span>
+                        </h1>
 
-                    <TimeWidget />
+                        <TimeWidget />
 
-                    {/* Stat Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <StatCard
-                            title="Total Mahasantri"
-                            value={totalMahasantri}
-                            icon={<Users className="h-6 w-6" />}
-                            onClick={() => setIsDialogOpen(true)}
-                            gradient="blue"
-                            className="hover:border-purple-100 md:col-span-1"
+                        {/* Stat Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <StatCard
+                                title="Total Mahasantri"
+                                value={totalMahasantri}
+                                icon={<Users className="h-6 w-6" />}
+                                onClick={() => setIsDialogOpen(true)}
+                                gradient="blue"
+                                className="hover:border-purple-100 md:col-span-1"
+                            />
+
+                            <StatCard
+                                title="Total Setoran"
+                                value={`${totalHafalan} Setoran`}
+                                icon={<BookOpen className="h-6 w-6" />}
+                                onClick={() => setIsHafalanDialogOpen(true)}
+                                gradient="green"
+                                className="hover:border-green-100 md:col-span-1"
+                            />
+
+                        </div>
+                        <AttendanceWidget
+                            total={absensiData.total}
+                            hadir={absensiData.hadir}
+                            izin={absensiData.izin}
+                            alpa={absensiData.alpa}
+                            onViewDetails={() => setIsAbsensiDialogOpen(true)}
                         />
 
-                        <StatCard
-                            title="Total Setoran"
-                            value={`${totalHafalan} Setoran`}
-                            icon={<BookOpen className="h-6 w-6" />}
-                            onClick={() => setIsHafalanDialogOpen(true)}
-                            gradient="green"
-                            className="hover:border-green-100 md:col-span-1"
-                        />
+                        {/* Time Widget & Today Setoran List    */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <TodayAttendanceList className="lg:col-span-1 md:col-span-2" />
+                            <TodaySetoranList className="lg:col-span-1 md:col-span-2" />
+                        </div>
 
-                    </div>
-                    <AttendanceWidget
-                        total={absensiData.total}
-                        hadir={absensiData.hadir}
-                        izin={absensiData.izin}
-                        alpa={absensiData.alpa}
-                        onViewDetails={() => setIsAbsensiDialogOpen(true)}
-                    />
-
-                    {/* Time Widget & Today Setoran List    */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <TodayAttendanceList className="lg:col-span-1 md:col-span-2" />
-                        <TodaySetoranList className="lg:col-span-1 md:col-span-2" />
-                    </div>
-
-                    {/* Charts Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        {/* Line Chart */}
-                        <Card className="p-4 md:p-6">
-                            <div className="flex flex-col h-full">
-                                {/* Chart Header */}
-                                <div className="pb-4 border-b">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                                            <span className="bg-blue-100 text-blue-800 p-2 rounded-lg">
-                                                📈
-                                            </span>
-                                            Tren Harian Setoran
-                                        </h3>
+                        {/* Charts Section */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            {/* Line Chart */}
+                            <Card className="p-4 md:p-6">
+                                <div className="flex flex-col h-full">
+                                    {/* Chart Header */}
+                                    <div className="pb-4 border-b">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-lg font-semibold flex items-center gap-2">
+                                                <span className="bg-blue-100 text-blue-800 p-2 rounded-lg">
+                                                    📈
+                                                </span>
+                                                Tren Harian Setoran
+                                            </h3>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-2">
+                                            Perkembangan ziyadah & murojaah per hari
+                                        </p>
                                     </div>
-                                    <p className="text-sm text-muted-foreground mt-2">
-                                        Perkembangan ziyadah & murojaah per hari
-                                    </p>
-                                </div>
 
-                                {/* Chart Container */}
-                                <div className="relative h-[300px] md:h-[400px] mt-4">
-                                    {chartData && (
-                                        <Line
-                                            data={chartData}
-                                            options={{
-                                                ...options,
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                plugins: {
-                                                    legend: {
-                                                        position: 'top' as const,
+                                    {/* Chart Container */}
+                                    <div className="relative h-[300px] md:h-[400px] mt-4">
+                                        {chartData && (
+                                            <Line
+                                                data={chartData}
+                                                options={{
+                                                    ...options,
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    plugins: {
+                                                        legend: {
+                                                            position: 'top' as const,
+                                                        },
                                                     },
-                                                },
-                                            }}
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        </Card>
-
-                        {/* Bar Chart */}
-                        <Card className="p-4 md:p-6">
-                            <div className="flex flex-col h-full">
-                                {/* Chart Header */}
-                                <div className="pb-4 border-b">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                                            <span className="bg-purple-100 text-purple-800 p-2 rounded-lg">
-                                                📊
-                                            </span>
-                                            Setoran per Mahasantri
-                                        </h3>
+                                                }}
+                                            />
+                                        )}
                                     </div>
-                                    <p className="text-sm text-muted-foreground mt-2">
-                                        Perbandingan ziyadah & murojaah per santri
-                                    </p>
                                 </div>
+                            </Card>
 
-                                {/* Chart Container */}
-                                <div className="relative h-[300px] md:h-[400px] mt-4">
-                                    {barChartData && (
-                                        <Bar
-                                            data={barChartData}
-                                            options={{
-                                                ...options,
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                indexAxis: 'y' as const,
-                                                plugins: {
-                                                    legend: {
-                                                        position: 'top' as const,
+                            {/* Bar Chart */}
+                            <Card className="p-4 md:p-6">
+                                <div className="flex flex-col h-full">
+                                    {/* Chart Header */}
+                                    <div className="pb-4 border-b">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-lg font-semibold flex items-center gap-2">
+                                                <span className="bg-purple-100 text-purple-800 p-2 rounded-lg">
+                                                    📊
+                                                </span>
+                                                Setoran per Mahasantri
+                                            </h3>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-2">
+                                            Perbandingan ziyadah & murojaah per santri
+                                        </p>
+                                    </div>
+
+                                    {/* Chart Container */}
+                                    <div className="relative h-[300px] md:h-[400px] mt-4">
+                                        {barChartData && (
+                                            <Bar
+                                                data={barChartData}
+                                                options={{
+                                                    ...options,
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    indexAxis: 'y' as const,
+                                                    plugins: {
+                                                        legend: {
+                                                            position: 'top' as const,
+                                                        },
                                                     },
-                                                },
-                                            }}
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        </Card>
-
-                        {/* Chart Absensi Line */}
-                        <Card className="p-4 md:p-6">
-                            <div className="flex flex-col h-full">
-                                <div className="pb-4 border-b">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                                            <span className="bg-green-100 text-green-800 p-2 rounded-lg">
-                                                📈
-                                            </span>
-                                            Tren Absensi 30 Hari Terakhir
-                                        </h3>
+                                                }}
+                                            />
+                                        )}
                                     </div>
-                                    <p className="text-sm text-muted-foreground mt-2">
-                                        Perkembangan absensi dari waktu ke waktu
-                                    </p>
                                 </div>
+                            </Card>
 
-                                <div className="relative h-[300px] md:h-[400px] mt-4">
-                                    {absensiLineChartData ? (
-                                        <Line
-                                            data={absensiLineChartData}
-                                            options={{
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                scales: {
-                                                    x: {
-                                                        title: {
-                                                            display: true,
-                                                            text: 'Tanggal'
+                            {/* Chart Absensi Line */}
+                            <Card className="p-4 md:p-6">
+                                <div className="flex flex-col h-full">
+                                    <div className="pb-4 border-b">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-lg font-semibold flex items-center gap-2">
+                                                <span className="bg-green-100 text-green-800 p-2 rounded-lg">
+                                                    📈
+                                                </span>
+                                                Tren Absensi 30 Hari Terakhir
+                                            </h3>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-2">
+                                            Perkembangan absensi dari waktu ke waktu
+                                        </p>
+                                    </div>
+
+                                    <div className="relative h-[300px] md:h-[400px] mt-4">
+                                        {absensiLineChartData ? (
+                                            <Line
+                                                data={absensiLineChartData}
+                                                options={{
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    scales: {
+                                                        x: {
+                                                            title: {
+                                                                display: true,
+                                                                text: 'Tanggal'
+                                                            }
+                                                        },
+                                                        y: {
+                                                            title: {
+                                                                display: true,
+                                                                text: 'Jumlah'
+                                                            },
+                                                            beginAtZero: true
                                                         }
                                                     },
-                                                    y: {
+                                                    plugins: {
+                                                        legend: {
+                                                            position: 'top' as const,
+                                                        },
+                                                        tooltip: {
+                                                            mode: 'index' as const,
+                                                        }
+                                                    }
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-gray-500">
+                                                Memuat data absensi...
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </Card>
+
+                            {/* Chart Absensi */}
+                            <Card className="p-4 md:p-6">
+                                <div className="flex flex-col h-full">
+                                    <div className="pb-4 border-b">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-lg font-semibold flex items-center gap-2">
+                                                <span className="bg-red-100 text-red-800 p-2 rounded-lg">
+                                                    📅
+                                                </span>
+                                                Rekapitulasi Absensi
+                                            </h3>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-2">
+                                            Statistik absensi harian seluruh mahasantri
+                                        </p>
+                                    </div>
+
+                                    <div className="relative h-[300px] md:h-[400px] mt-4">
+                                        {absensiChartData ? (
+                                            <Bar
+                                                data={absensiChartData}
+                                                options={{
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    scales: {
+                                                        x: {
+                                                            stacked: true,
+                                                        },
+                                                        y: {
+                                                            stacked: true,
+                                                            beginAtZero: true
+                                                        }
+                                                    },
+                                                    plugins: {
+                                                        legend: {
+                                                            position: 'top' as const,
+                                                        },
                                                         title: {
                                                             display: true,
-                                                            text: 'Jumlah'
-                                                        },
-                                                        beginAtZero: true
+                                                            text: 'Distribusi Absensi per Hari'
+                                                        }
                                                     }
-                                                },
-                                                plugins: {
-                                                    legend: {
-                                                        position: 'top' as const,
-                                                    },
-                                                    tooltip: {
-                                                        mode: 'index' as const,
-                                                    }
-                                                }
-                                            }}
-                                        />
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-gray-500">
-                                            Memuat data absensi...
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </Card>
-
-                        {/* Chart Absensi */}
-                        <Card className="p-4 md:p-6">
-                            <div className="flex flex-col h-full">
-                                <div className="pb-4 border-b">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                                            <span className="bg-red-100 text-red-800 p-2 rounded-lg">
-                                                📅
-                                            </span>
-                                            Rekapitulasi Absensi
-                                        </h3>
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-gray-500">
+                                                Memuat data absensi...
+                                            </div>
+                                        )}
                                     </div>
-                                    <p className="text-sm text-muted-foreground mt-2">
-                                        Statistik absensi harian seluruh mahasantri
-                                    </p>
                                 </div>
+                            </Card>
+                        </div>
 
-                                <div className="relative h-[300px] md:h-[400px] mt-4">
-                                    {absensiChartData ? (
-                                        <Bar
-                                            data={absensiChartData}
-                                            options={{
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                scales: {
-                                                    x: {
-                                                        stacked: true,
-                                                    },
-                                                    y: {
-                                                        stacked: true,
-                                                        beginAtZero: true
-                                                    }
-                                                },
-                                                plugins: {
-                                                    legend: {
-                                                        position: 'top' as const,
-                                                    },
-                                                    title: {
-                                                        display: true,
-                                                        text: 'Distribusi Absensi per Hari'
-                                                    }
-                                                }
-                                            }}
-                                        />
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-gray-500">
-                                            Memuat data absensi...
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </Card>
+                        {/* Mahasantri Alert Dialog */}
+                        <MahasantriDialog
+                            open={isDialogOpen}
+                            onClose={() => setIsDialogOpen(false)}
+                            data={paginatedMahasantri}
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPrev={handlePrevPage}
+                            onNext={handleNextPage}
+                        />
+
+                        {/* Hafalan Alert Dialog */}
+                        <SetoranDialog
+                            open={isHafalanDialogOpen}
+                            onClose={() => setIsHafalanDialogOpen(false)}
+                            data={paginatedSetoran}
+                            currentPage={setoranCurrentPage}
+                            totalPages={totalSetoranPages}
+                            onPrev={handleSetoranPrevPage}
+                            onNext={handleSetoranNextPage}
+                        />
+
+                        <AbsensiDialog
+                            open={isAbsensiDialogOpen}
+                            onClose={() => setIsAbsensiDialogOpen(false)}
+                            data={absensiDetails.slice((absensiCurrentPage - 1) * 5, absensiCurrentPage * 5)}
+                            currentPage={absensiCurrentPage}
+                            totalPages={Math.ceil(absensiDetails.length / 5)}
+                            onPageChange={(page) => setAbsensiCurrentPage(page)}
+                        />
                     </div>
-
-                    {/* Mahasantri Alert Dialog */}
-                    <MahasantriDialog
-                        open={isDialogOpen}
-                        onClose={() => setIsDialogOpen(false)}
-                        data={paginatedMahasantri}
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPrev={handlePrevPage}
-                        onNext={handleNextPage}
-                    />
-
-                    {/* Hafalan Alert Dialog */}
-                    <SetoranDialog
-                        open={isHafalanDialogOpen}
-                        onClose={() => setIsHafalanDialogOpen(false)}
-                        data={paginatedSetoran}
-                        currentPage={setoranCurrentPage}
-                        totalPages={totalSetoranPages}
-                        onPrev={handleSetoranPrevPage}
-                        onNext={handleSetoranNextPage}
-                    />
-
-                    <AbsensiDialog
-                        open={isAbsensiDialogOpen}
-                        onClose={() => setIsAbsensiDialogOpen(false)}
-                        data={absensiDetails.slice((absensiCurrentPage - 1) * 5, absensiCurrentPage * 5)}
-                        currentPage={absensiCurrentPage}
-                        totalPages={Math.ceil(absensiDetails.length / 5)}
-                        onPageChange={(page) => setAbsensiCurrentPage(page)}
-                    />
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
+                </SidebarInset>
+            </SidebarProvider>
+            <Footer />
+        </>
     );
 }

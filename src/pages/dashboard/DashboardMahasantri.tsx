@@ -33,6 +33,7 @@ import { processAllSetoranData } from "@/utils/dataProcessing";
 import DateFilter from "@/components/filter/DateFilter";
 import { format, parse } from "date-fns";
 import { id } from "date-fns/locale";
+import Footer from "@/components/Footer";
 
 export default function DashboardMahasantri() {
     const [user, setUser] = useState<Mahasantri>({
@@ -78,7 +79,6 @@ export default function DashboardMahasantri() {
 
     const [targetSemesterData, setTargetSemesterData] = useState<TargetSemester[]>([]);
 
-    // Ambil bulan dan tahun saat ini
     const currentDate = new Date();
     const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
     const currentYear = currentDate.getFullYear().toString();
@@ -131,9 +131,6 @@ export default function DashboardMahasantri() {
         };
         fetchInitialData();
     }, [navigate]);
-
-    useEffect(() => {
-    }, [])
 
     useEffect(() => {
         const fetchMentors = async () => {
@@ -858,6 +855,7 @@ export default function DashboardMahasantri() {
                     </div>
                 </SidebarInset>
             </SidebarProvider>
+            <Footer />
         </>
     );
 }

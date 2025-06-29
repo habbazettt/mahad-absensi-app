@@ -35,6 +35,7 @@ import TimeFilter from "@/components/filter/TimeFilter"
 import { exportToCSV } from "@/utils/exportCsv"
 import { CsvExportButton } from "@/components/CsvExportButton"
 import ToasterLayout from "@/components/ToasterLayout"
+import Footer from "@/components/Footer"
 
 export default function SetoranPage() {
     const navigate = useNavigate()
@@ -66,7 +67,7 @@ export default function SetoranPage() {
                     setLoading(true)
                     // Fetch mentors first
                     const mentorsResponse = await fetch(
-                        `${import.meta.env.VITE_API_URL}/mentors?page=1&limit=16`
+                        `${import.meta.env.VITE_API_URL}/mentors?page=1&limit=100`
                     )
 
                     if (!mentorsResponse.ok) throw new Error("Gagal mengambil data mentor")
@@ -601,6 +602,7 @@ export default function SetoranPage() {
                     </div>
                 </SidebarInset>
             </SidebarProvider>
+            <Footer />
 
             {/* Alert Dialog with Framer Motion */}
             <DeleteDialogComponent

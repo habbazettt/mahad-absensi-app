@@ -34,6 +34,7 @@ import { id } from "date-fns/locale";
 import ActionDropdown from "@/components/ActionDropdown";
 import DeleteDialogComponent from "@/components/dialogs/DeleteDialog";
 import ToasterLayout from "@/components/ToasterLayout";
+import Footer from "@/components/Footer";
 
 export default function DetailAbsensiPage() {
     const navigate = useNavigate();
@@ -66,7 +67,7 @@ export default function DetailAbsensiPage() {
 
                     // Fetch mentors first
                     const mentorsResponse = await fetch(
-                        `${import.meta.env.VITE_API_URL}/mentors?page=1&limit=16`
+                        `${import.meta.env.VITE_API_URL}/mentors?page=1&limit=100`
                     );
 
                     if (!mentorsResponse.ok) throw new Error("Gagal mengambil data mentor");
@@ -505,6 +506,7 @@ export default function DetailAbsensiPage() {
                     </div>
                 </SidebarInset>
             </SidebarProvider>
+            <Footer />
 
             {/* Alert Dialog with Framer Motion */}
             <DeleteDialogComponent

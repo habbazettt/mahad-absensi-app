@@ -4,6 +4,7 @@ import {
   BrainCircuit,
   CalendarRange,
   Info,
+  ListTodo,
   UserLock,
   Users,
 } from "lucide-react"
@@ -46,6 +47,16 @@ const data = {
       url: "/dashboard/setoran",
       icon: BookOpenCheck,
     },
+    {
+      name: "Monitor Muroja'ah",
+      url: "/dashboard/monitor-murojaah",
+      icon: ListTodo,
+    },
+    {
+      name: "AI Rekomendasi",
+      url: "/dashboard/ai-rekomendasi",
+      icon: BrainCircuit,
+    }
   ],
 }
 
@@ -63,15 +74,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: Info,
       },
       {
+        name: "Murojaah Harian",
+        url: "/dashboard/mahasantri/murojaah-harian",
+        icon: ListTodo,
+      },
+      {
         name: "Raport Kelulusan",
         url: "/dashboard/mahasantri/raport-kelulusan",
         icon: BookOpenCheck,
       },
       {
         name: "AI Rekomendasi",
-        url: "/dashboard/mahasantri/ai-rekomendasi",
+        url: "/dashboard/ai-rekomendasi",
         icon: BrainCircuit,
-      }
+      },
     ]
   }
 

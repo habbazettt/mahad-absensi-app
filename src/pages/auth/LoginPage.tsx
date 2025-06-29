@@ -82,7 +82,13 @@ export default function LoginPage() {
             localStorage.setItem("user", JSON.stringify(data.data.user));
 
             toast.success("Login berhasil! 🎉", { id: toastId });
-            navigate(role === "mentor" ? "/dashboard" : "/dashboard/mahasantri");
+
+            // Cek apakah password-nya "newuser2025"
+            if (values.password === "newuser2025") {
+                navigate("/auth/reset-password/newuser");
+            } else {
+                navigate(role === "mentor" ? "/dashboard" : "/dashboard/mahasantri");
+            }
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Terjadi kesalahan tidak diketahui";
             toast.error(message, { id: toastId });

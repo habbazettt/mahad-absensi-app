@@ -35,6 +35,7 @@ import SemesterFilter from "@/components/filter/SemesterFilter";
 import { exportToCSV } from "@/utils/exportCsv";
 import { CsvExportButton } from "@/components/CsvExportButton";
 import ToasterLayout from "@/components/ToasterLayout";
+import Footer from "@/components/Footer";
 
 export default function DetailMahasantriPage() {
     const { id } = useParams();
@@ -95,7 +96,7 @@ export default function DetailMahasantriPage() {
 
     const fetchMentors = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/mentors?page=1&limit=16`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/mentors?page=1&limit=100`, {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("auth_token")}`,
                 },
@@ -723,6 +724,7 @@ export default function DetailMahasantriPage() {
                     </div>
                 </SidebarInset>
             </SidebarProvider>
+            <Footer />
 
             {/* Alert Dialog with Framer Motion */}
             <DeleteDialogComponent
