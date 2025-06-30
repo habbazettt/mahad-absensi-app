@@ -1,6 +1,6 @@
-![MTADigital Logo](/public/MTADigitalLogoBluWhite.svg)
-
 # MTADigital Official Website
+
+![MTADigital Logo](/public/MTADigitalLogoBluWhite.svg)
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/6c7ac292-056c-4309-83b5-b55c970efa15/deploy-status)](https://app.netlify.com/projects/mtadigital/deploys)
 

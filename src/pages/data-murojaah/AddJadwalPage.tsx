@@ -58,11 +58,25 @@ export default function AddJadwalPage() {
         const toastId = toast.loading("Menyimpan data...");
 
         try {
+            // Ambil data user dari localStorage
+            const userString = localStorage.getItem("user");
+            if (!userString) {
+                throw new Error("Data user tidak ditemukan. Silakan login kembali.");
+            }
+
+            const user = JSON.parse(userString);
+
+            // Tentukan field yang tepat berdasarkan user_type
+            const userIdField = user.user_type === "mahasantri"
+                ? { mahasantri_id: user.id }
+                : { mentor_id: user.id };
+
             const requestBody = {
                 total_hafalan: data.total_hafalan,
                 jadwal: data.jadwal.toLowerCase().replace("'", ""),
                 kesibukan: data.kesibukan.toLowerCase(),
                 efektifitas_jadwal: parseInt(data.efektifitas_jadwal, 10),
+                ...userIdField, // Spread operator untuk menambahkan mahasantri_id atau mentor_id
             };
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/jadwal-personal`, {
