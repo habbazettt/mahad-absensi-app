@@ -1,54 +1,67 @@
-# React + TypeScript + Vite
+![MTADigital Logo](/public/MTADigitalLogoBluWhite.svg)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# MTADigital Official Website
 
-Currently, two official plugins are available:
+[![Netlify Status](https://api.netlify.com/api/v1/badges/6c7ac292-056c-4309-83b5-b55c970efa15/deploy-status)](https://app.netlify.com/projects/mtadigital/deploys)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Teknologi
 
-## Expanding the ESLint configuration
+Proyek ini dibangun dan dijalankan menggunakan teknologi berikut:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+* **Framework**: [ReactJS](https://react.dev/)
+* **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+* **Deployment**: [Netlify](https://www.netlify.com/)
+* **Package Manager**: [NPM](https://www.npmjs.com/)
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Instalasi
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Untuk menjalankan proyek ini di lingkungan lokal Anda, ikuti langkah-langkah berikut:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Clone repositori ini:**
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+    ```bash
+    git clone [https://github.com/mahad-absensi-app/mtadigital-website.git](https://github.com/mahad-absensi-app/mtadigital-website.git)
+    ```
+
+2. **Masuk ke direktori proyek:**
+
+    ```bash
+    cd mtadigital-website
+    ```
+
+3. **Install semua dependensi yang dibutuhkan:**
+
+    ```bash
+    npm install
+    ```
+
+    *Atau jika Anda menggunakan Yarn:*
+
+    ```bash
+    yarn install
+    ```
+
+4. **Jalankan server pengembangan:**
+
+    ```bash
+    npm run dev
+    ```
+
+5. Buka browser Anda dan kunjungi [http://localhost:5173](http://localhost:5173).
+
+## Cara Berkontribusi
+
+Kami sangat terbuka untuk kontribusi dari siapa saja. Jika Anda menemukan bug atau ingin menambahkan fitur baru, silakan:
+
+1. **Fork** repositori ini.
+2. Buat **branch** baru untuk perubahan Anda (`git checkout -b fitur/nama-fitur-keren`).
+3. Lakukan perubahan dan **commit** (`git commit -am 'Menambahkan fitur keren'`).
+4. **Push** ke branch Anda (`git push origin fitur/nama-fitur-keren`).
+5. Buat **Pull Request** baru.
+
+## Lisensi
+
+Proyek ini dilisensikan di bawah [Lisensi MIT](LICENSE).
+
+---
+Dibuat dengan ❤️ oleh tim MTADigital.
