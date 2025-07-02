@@ -132,7 +132,7 @@ export default function NewUserResetPassword() {
                             Selamat Datang di MTALearn.
                         </h1>
                         <h2 className="text-lg text-gray-600 font-poppins">
-                            Perbarui Password Anda di sini
+                            Buat Password Password Baru Anda di sini
                         </h2>
                     </div>
 
