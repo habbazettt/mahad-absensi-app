@@ -5,8 +5,26 @@ import ToasterLayout from "@/components/ToasterLayout";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function RaportPage() {
+    const navigate = useNavigate();
+
+    const user = JSON.parse(localStorage.getItem("user") ?? '{}');
+
+    useEffect(() => {
+        if (!user) {
+            navigate("/auth/login");
+            return;
+        } else {
+            if (user.is_data_murojaah_filled === false) {
+                navigate("/dashboard/data-murojaah/add");
+                return
+            }
+        }
+    }, [])
+
     return (
         <>
             <ToasterLayout />
