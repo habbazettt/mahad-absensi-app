@@ -89,7 +89,7 @@ export default function LoginPage() {
             }
 
             if (data.data.user.mentor_id == 19) {
-                navigate(`/dashboard/mahasantri/raport-kelulusan-maba/${data.data.user.nim}`);
+                navigate(`/dashboard/mahasantri/raport-kelulusan-maba`);
             }
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Terjadi kesalahan tidak diketahui";
