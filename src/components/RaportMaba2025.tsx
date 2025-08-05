@@ -170,7 +170,7 @@ export default function RaportMaba2025() {
                         {raportData.keterangan === "Lulus" && (
                             <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
                                 <div className="text-sm sm:text-base lg:text-lg text-green-600 px-2">
-                                    🎉 Selamat! Anda lolos sebagai mahasantri baru Mahad Tahfidz Al-Qur'an UIN Bandung tahun ajaran 2025/2026
+                                    🎉 Selamat telah menjadi keluarga besar Ma'had Tahfidz Al-Qur'an UIN Sunan Gunung Djati Bandung Tahun Akademik 2025-2026
                                 </div>
                                 <div className="flex justify-center">
                                     <a
@@ -189,7 +189,7 @@ export default function RaportMaba2025() {
                         )}
                         {raportData.keterangan === "TIDAK LULUS" && (
                             <div className="mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg text-red-600 px-2">
-                                💪 Jangan menyerah! Terus belajar dan tingkatkan prestasi Anda.
+                                💪 Terimakasih, jangan patah semangat dan teruslah berjuang
                             </div>
                         )}
                     </div>
