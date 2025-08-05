@@ -26,6 +26,7 @@ import MentorMonitorPage from './pages/daily-log/LogMonitorDashboardPage.tsx'
 import WelcomePage from './pages/WelcomePage.tsx'
 import RaportPage from './pages/raport/RaportPage.tsx'
 import NewUserResetPassword from './pages/auth/NewUserResetPassword.tsx'
+import RaportMabaPage from './pages/raport/RaportMabaPage.tsx'
 
 function App() {
   return (
@@ -79,6 +80,9 @@ function App() {
 
       {/* Not Found */}
       <Route path='*' element={<NotFound />} />
+
+      {/* Raport Maba Page */}
+      <Route path='/dashboard/mahasantri/raport-kelulusan-maba' element={<RaportMabaPage />} />
     </Routes>
   )
 }

@@ -82,12 +82,14 @@ export default function LoginPage() {
             localStorage.setItem("user", JSON.stringify(data.data.user));
 
             toast.success("Login berhasil! 🎉", { id: toastId });
-
-            // Cek apakah password-nya "newuser2025"
             if (values.password === "newuser2025") {
                 navigate("/auth/reset-password/newuser");
             } else {
                 navigate(role === "mentor" ? "/dashboard" : "/dashboard/mahasantri");
+            }
+
+            if (data.data.user.mentor_id == 19) {
+                navigate(`/dashboard/mahasantri/raport-kelulusan-maba/${data.data.user.nim}`);
             }
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Terjadi kesalahan tidak diketahui";

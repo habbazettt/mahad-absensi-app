@@ -62,7 +62,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
-  const { user_type } = user
+  const { user_type, mentor_id } = user
 
   let filteredProjects = data.projects
 
@@ -81,6 +81,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         name: "Raport Kelulusan",
         url: "/dashboard/mahasantri/raport-kelulusan",
+        icon: BookOpenCheck,
+      },
+      {
+        name: "AI Rekomendasi",
+        url: "/dashboard/ai-rekomendasi",
+        icon: BrainCircuit,
+      },
+    ]
+  }
+
+  if (mentor_id === 19) {
+    filteredProjects = [
+      {
+        name: "Murojaah Harian",
+        url: "/dashboard/mahasantri/murojaah-harian",
+        icon: ListTodo,
+      },
+      {
+        name: "Raport Kelulusan",
+        url: "/dashboard/mahasantri/raport-kelulusan-maba",
         icon: BookOpenCheck,
       },
       {
